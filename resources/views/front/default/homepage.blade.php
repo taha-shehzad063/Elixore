@@ -109,8 +109,8 @@
       <div class="row justify-content-center">
         <div class="col-lg-12">
           <div class="main_title">
-            <h2><span>Featured product</span></h2>
-            <p>Bring called seed first of third give itself now ment</p>
+            <h2><span>{{$setting->heading_0 ?? ''}}</span></h2>
+            <p>{{$setting->intro_0 ?? ''}}</p>
           </div>
         </div>
       </div>
@@ -158,20 +158,24 @@
   <!--================ End Feature Product Area =================-->
 
   <!--================ Offer Area =================-->
-  <section class="offer_area">
+ @if($collections)
+<section class="offer_area" style="background: url('{{ asset('storage/' . $collections->image) }}') no-repeat center; background-size: cover;">
     <div class="container">
-      <div class="row justify-content-center">
-        <div class="offset-lg-4 col-lg-6 text-center">
-          <div class="offer_content">
-            <h3 class="text-uppercase mb-40">all men’s collection</h3>
-            <h2 class="text-uppercase">50% off</h2>
-            <a href="#" class="main_btn mb-20 mt-5">Discover Now</a>
-            <p>Limited Time Offer</p>
-          </div>
+        <div class="row justify-content-center">
+            <div class="offset-lg-4 col-lg-6 text-center">
+                <div class="offer_content text-white">
+                    <h3 class="text-uppercase mb-4">{{ $collections->title }}</h3>
+                    <h2 class="text-uppercase">{{ $collections->heading }}</h2>
+                    @if($collections->button_url && $collections->button_text)
+                        <a href="{{ $collections->button_url }}" class="main_btn mb-3 mt-4">{{ $collections->button_text }}</a>
+                    @endif
+<p class="text-muted">{{ $collections->sale_text }}</p>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </section>
+</section>
+@endif
   <!--================ End Offer Area =================-->
 
   <!--================ New Product Area =================-->
@@ -180,8 +184,8 @@
       <div class="row justify-content-center">
         <div class="col-lg-12">
           <div class="main_title">
-            <h2><span>new products</span></h2>
-            <p>Bring called seed first of third give itself now ment</p>
+            <h2><span>{{$setting->heading ?? ''}}</span></h2>
+            <p>{{$setting->info ?? ''}}</p>
           </div>
         </div>
       </div>
@@ -325,8 +329,8 @@
       <div class="row justify-content-center">
         <div class="col-lg-12">
           <div class="main_title">
-            <h2><span>Inspired products</span></h2>
-            <p>Bring called seed first of third give itself now ment</p>
+            <h2><span>{{$setting->heading_1 ?? ''}}</span></h2>
+            <p>{{$setting->heading_2 ?? ''}}</p>
           </div>
         </div>
       </div>
@@ -566,8 +570,8 @@
       <div class="row justify-content-center">
         <div class="col-lg-12">
           <div class="main_title">
-            <h2><span>latest blog</span></h2>
-            <p>Bring called seed first of third give itself now ment</p>
+            <h2><span>{{$setting->heading_3 ?? ''}}</span></h2>
+            <p>{{$setting->intro_3 ?? ''}}</p>
           </div>
         </div>
       </div>

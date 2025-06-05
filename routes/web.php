@@ -21,6 +21,11 @@ Route::get('/clear-cache', function () {
 // Home Page
 Route::get('/', [FrontendController::class, 'home'])->name('main');
 Route::get('/blog', [FrontendController::class, 'blog'])->name('blog');
+Route::get('/blog-details/{slug}', [FrontendController::class, 'detail'])->name('blogs.details');
+Route::post('/blog/comment', [FrontendController::class, 'postComment'])->name('blog.comment');
+Route::post('/blog/comment-reply', [FrontendController::class, 'storeReply'])->name('comment.reply');
+
+
 // Login Register
 Route::get('/login', [LoginController::class, 'index'])->name('user.login');
 Route::post('/login/post', [LoginController::class, 'login'])->name('user.login.store');

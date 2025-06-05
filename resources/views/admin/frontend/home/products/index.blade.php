@@ -16,6 +16,9 @@
      <div class="container-fluid">
         <div class="card">
           <div class="card-body">
+              @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
             <h5 class="card-title fw-semibold mb-4">Products Image</h5>
             <div class="card">
               <div class="card-body">

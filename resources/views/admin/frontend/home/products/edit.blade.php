@@ -46,21 +46,23 @@
                              
 
                                 <!-- Image Upload -->
-                                <div class="mb-3">
-                                    <label class="form-label">Product Image (JPG/PNG)</label>
-                                    <div id="drop-area"
-                                        class="border border-primary border-dashed rounded p-4 text-center d-flex flex-column align-items-center justify-content-center"
-                                        style="cursor: pointer; min-height: 180px;">
-                                        <input type="file" name="image" id="image" class="d-none" accept="image/*">
-                                        <div id="preview-container" class="d-flex justify-content-center w-100">
-                                            <img id="preview"
-                                                src="{{ $products->image ? asset('storage/' . $products->image) : '#' }}"
-                                                alt="Image Preview"
-                                                style="{{ $products->image ? 'display: block; max-height: 150px;' : 'display: none;' }}"
-                                                class="img-fluid rounded" />
-                                        </div>
-                                    </div>
-                                </div>
+                                  <div class="mb-3">
+                  <label class="form-label">Upload products Image (optional)</label>
+                  <div id="drop-area" class="border border-primary border-dashed rounded p-4 text-center" style="cursor: pointer;">
+                    <input type="file" name="image" id="image" class="d-none" accept="image/*">
+                    <div id="preview-container">
+                      @if(!empty($products->image))
+                        <img id="preview" src="{{ asset('storage/' . $products->image) }}" alt="Image Preview" class="img-fluid rounded" style="max-height: 150px;">
+                      @else
+                        <img id="preview" src="#" alt="Image Preview" style="display: none; max-height: 150px;" class="img-fluid rounded">
+                      @endif
+                    </div>
+                    <div>
+                      <i style="font-size: 4.125rem !important;" class="bi bi-cloud-arrow-up text-primary"></i>
+                      <p class="text-muted">Click to Upload or drag & drop</p>
+                    </div>
+                  </div>
+                </div>
 
                                
 
@@ -93,15 +95,18 @@
 
 <script>
 $(document).ready(function () {
+    // Clicking anywhere on drop area or on preview image opens file select
     $('#drop-area, #preview').on('click', function (e) {
         e.stopPropagation();
         $('#image').click();
     });
 
+    // Prevent file input click from bubbling up
     $('#image').on('click', function (e) {
         e.stopPropagation();
     });
 
+    // When user selects new image, update preview
     $('#image').on('change', function () {
         const file = this.files[0];
         if (file) {

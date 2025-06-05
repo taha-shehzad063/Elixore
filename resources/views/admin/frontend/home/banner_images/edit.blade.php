@@ -51,21 +51,23 @@
                                 </div>
 
                                 <!-- Image Upload -->
-                             <div class="mb-3">
-    <label class="form-label">Upload Banner Image (JPG/PNG)</label>
-    <div id="drop-area" 
-         class="border border-primary border-dashed rounded p-4 text-center d-flex flex-column align-items-center justify-content-center"
-         style="cursor: pointer; min-height: 180px;">
-        <input type="file" name="image" id="image" class="d-none" accept="image/*">
-        <div id="preview-container" class="d-flex justify-content-center w-100">
-            <img id="preview" src="{{ $banner->image ? asset('storage/' . $banner->image) : '#' }}" 
-                 alt="Image Preview" 
-                 style="{{ $banner->image ? 'display: block; max-height: 150px; margin: 0 auto;' : 'display: none;' }}" 
-                 class="img-fluid rounded" />
-        </div>
-    </div>
-</div>
-
+                               <div class="mb-3">
+                  <label class="form-label">Upload Banner Image (optional)</label>
+                  <div id="drop-area" class="border border-primary border-dashed rounded p-4 text-center" style="cursor: pointer;">
+                    <input type="file" name="image" id="image" class="d-none" accept="image/*">
+                    <div id="preview-container">
+                      @if(!empty($banner->image))
+                        <img id="preview" src="{{ asset('storage/' . $banner->image) }}" alt="Image Preview" class="img-fluid rounded" style="max-height: 150px;">
+                      @else
+                        <img id="preview" src="#" alt="Image Preview" style="display: none; max-height: 150px;" class="img-fluid rounded">
+                      @endif
+                    </div>
+                    <div>
+                      <i style="font-size: 4.125rem !important;" class="bi bi-cloud-arrow-up text-primary"></i>
+                      <p class="text-muted">Click to Upload or drag & drop</p>
+                    </div>
+                  </div>
+                </div>
 
                                 <!-- Button Text -->
                                 <div class="mb-3">

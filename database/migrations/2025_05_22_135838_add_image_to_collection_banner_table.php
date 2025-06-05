@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-                    $table->string('slug')->unique()->after('name');
+        Schema::table('collection_banner', function (Blueprint $table) {
+                        $table->string('image')->nullable()->after('sale_text');
 
         });
     }
@@ -22,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('collection_banner', function (Blueprint $table) {
             //
         });
     }
