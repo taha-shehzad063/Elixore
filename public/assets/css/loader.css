@@ -1,71 +1,86 @@
 #loader {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background: white;
-    z-index: 9999;
-    transition: opacity 0.5s ease;
-  }
-  
-  .circle-loader {
-    position: relative;
-    width: 250px;
-    height: 250px;
-  }
-  
-  .arc {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    border-style: solid;
-    border-color: transparent;
-    border-top-color: #830219;
-    animation: spin 1.5s linear infinite;
-    border-width: 3px;
-  }
-  
-  .arc1 {
-    width: 250px;
-    height: 250px;
-    animation-delay: 0s;
-  }
-  
-  .arc2 {
-    width: 200px;
-    height: 200px;
-    border-top-color: blue;
-    animation-delay: -0.3s;
-  }
-  
-  .arc3 {
-    width: 150px;
-    height: 150px;
-    border-top-color: greenyellow;
-    animation-delay: -0.6s;
-  }
-  
-  .arc4 {
-    width: 100px;
-    height: 100px;
-    border-top-color: #333;
-    animation-delay: -0.9s;
-  }
-  
-  @keyframes spin {
-    0% {
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-    100% {
-      transform: translate(-50%, -50%) rotate(360deg);
-    }
-  }
-  body::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Edge */
-  }  
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: white;
+  z-index: 9999;
+  transition: opacity 0.5s ease;
+}
+
+.circle-loader {
+  position: relative;
+  width: 250px;
+  height: 250px;
+}
+
+/* Rotating Arcs */
+.arc {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border-style: solid;
+  border-color: transparent;
+  border-top-color: #830219;
+  animation: spin 1.5s linear infinite;
+  border-width: 3px;
+}
+
+.arc1 {
+  width: 250px;
+  height: 250px;
+  animation-delay: 0s;
+}
+
+.arc2 {
+  width: 200px;
+  height: 200px;
+  border-top-color: blue;
+  animation-delay: -0.3s;
+}
+
+.arc3 {
+  width: 150px;
+  height: 150px;
+  border-top-color: greenyellow;
+  animation-delay: -0.6s;
+}
+
+.arc4 {
+  width: 100px;
+  height: 100px;
+  border-top-color: #333;
+  animation-delay: -0.9s;
+}
+
+/* Centered Truck */
+.truck {
+  position: absolute;
+  top: 50%;
+  left: 42%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: auto;
+  z-index: 2;
+}
+
+.truck img {
+  width: 90px;
+  height: 70px;
+}
+
+/* Arc spin */
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}

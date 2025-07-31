@@ -6,5 +6,5 @@
                 loader.classList.add("hide");
                 setTimeout(() => loader.style.display = "none", 500); // hide after fade
             }s
-        }, 3000);
+        }, 1000);
     });

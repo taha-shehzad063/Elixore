@@ -8,7 +8,11 @@
     transition: background-image 0.5s ease-in-out;
   }
 </style>
-
+@if(session('success'))
+    <div class="alert alert-success rounded-pill px-4 py-2 text-center mb-3">
+        {{ session('success') }}
+    </div>
+@endif
 @if($banners->count())
 <section class="mb-40">
   <div id="bannerCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
@@ -121,16 +125,20 @@
   <div class="single-product">
     <div class="product-img">
       <img class="img-fluid w-100" 
-           src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/img/product/default.jpg') }}" 
+            src="{{ asset('storage/' . $product->galleries->first()->image) }}"
            alt="{{ $product->name }}" />
       <div class="p_icon">
-        <a href="#">
-          <i class="ti-eye"></i>
-        </a>
-        <a href="#">
+      <a href="{{ route('product.details', $product->slug) }}">
+    <i class="ti-eye"></i>
+</a>
+
+<a href="javascript:void(0);" class="add-to-wishlist" data-id="{{ $product->id }}">
           <i class="ti-heart"></i>
         </a>
-        <a href="#">
+        <a href="javascript:void(0);" 
+           class="add-to-cart" 
+           data-id="{{ $product->id }}" 
+           data-qty="1">
           <i class="ti-shopping-cart"></i>
         </a>
       </div>
@@ -179,148 +187,7 @@
   <!--================ End Offer Area =================-->
 
   <!--================ New Product Area =================-->
-  <section class="new_product_area section_gap_top section_gap_bottom_custom">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-12">
-          <div class="main_title">
-            <h2><span>{{$setting->heading ?? ''}}</span></h2>
-            <p>{{$setting->info ?? ''}}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-lg-6">
-          <div class="new_product">
-            <h5 class="text-uppercase">collection of 2019</h5>
-            <h3 class="text-uppercase">Men’s summer t-shirt</h3>
-            <div class="product-img">
-              <img class="img-fluid" src="{{ asset('assets/img/product/new-product/new-product1.png')}}" alt="" />
-            </div>
-            <h4>$120.70</h4>
-            <a href="#" class="main_btn">Add to cart</a>
-          </div>
-        </div>
-
-        <div class="col-lg-6 mt-5 mt-lg-0">
-          <div class="row">
-            <div class="col-lg-6 col-md-6">
-              <div class="single-product">
-                <div class="product-img">
-                  <img class="img-fluid w-100" src="{{ asset('assets/img/product/new-product/n1.jpg') }}" alt="" />
-                  <div class="p_icon">
-                    <a href="#">
-                      <i class="ti-eye"></i>
-                    </a>
-                    <a href="#">
-                      <i class="ti-heart"></i>
-                    </a>
-                    <a href="#">
-                      <i class="ti-shopping-cart"></i>
-                    </a>
-                  </div>
-                </div>
-                <div class="product-btm">
-                  <a href="#" class="d-block">
-                    <h4>Nike latest sneaker</h4>
-                  </a>
-                  <div class="mt-3">
-                    <span class="mr-4">$25.00</span>
-                    <del>$35.00</del>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-6 col-md-6">
-              <div class="single-product">
-                <div class="product-img">
-                  <img class="img-fluid w-100" src="{{ asset('assets/img/product/new-product/n2.jpg') }}" alt="" />
-                  <div class="p_icon">
-                    <a href="#">
-                      <i class="ti-eye"></i>
-                    </a>
-                    <a href="#">
-                      <i class="ti-heart"></i>
-                    </a>
-                    <a href="#">
-                      <i class="ti-shopping-cart"></i>
-                    </a>
-                  </div>
-                </div>
-                <div class="product-btm">
-                  <a href="#" class="d-block">
-                    <h4>Men’s denim jeans</h4>
-                  </a>
-                  <div class="mt-3">
-                    <span class="mr-4">$25.00</span>
-                    <del>$35.00</del>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-6 col-md-6">
-              <div class="single-product">
-                <div class="product-img">
-                  <img class="img-fluid w-100" src="{{ asset('assets/img/product/new-product/n3.jpg') }}" alt="" />
-                  <div class="p_icon">
-                    <a href="#">
-                      <i class="ti-eye"></i>
-                    </a>
-                    <a href="#">
-                      <i class="ti-heart"></i>
-                    </a>
-                    <a href="#">
-                      <i class="ti-shopping-cart"></i>
-                    </a>
-                  </div>
-                </div>
-                <div class="product-btm">
-                  <a href="#" class="d-block">
-                    <h4>quartz hand watch</h4>
-                  </a>
-                  <div class="mt-3">
-                    <span class="mr-4">$25.00</span>
-                    <del>$35.00</del>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-6 col-md-6">
-              <div class="single-product">
-                <div class="product-img">
-                  <img class="img-fluid w-100" src="{{ asset('assets/img/product/new-product/n4.jpg') }}" alt="" />
-                  <div class="p_icon">
-                    <a href="#">
-                      <i class="ti-eye"></i>
-                    </a>
-                    <a href="#">
-                      <i class="ti-heart"></i>
-                    </a>
-                    <a href="#">
-                      <i class="ti-shopping-cart"></i>
-                    </a>
-                  </div>
-                </div>
-                <div class="product-btm">
-                  <a href="#" class="d-block">
-                    <h4>adidas sport shoe</h4>
-                  </a>
-                  <div class="mt-3">
-                    <span class="mr-4">$25.00</span>
-                    <del>$35.00</del>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+ 
   <!--================ End New Product Area =================-->
 
   <!--================ Inspired Product Area =================-->
@@ -576,83 +443,130 @@
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-lg-4 col-md-6">
-          <div class="single-blog">
+     <div class="row">
+    @foreach($latestThreeBlogs as $blog)
+    <div class="col-lg-4 col-md-6">
+        <div class="single-blog">
             <div class="thumb">
-              <img class="img-fluid" src="{{ asset('assets/img/b1.jpg') }}" alt="">
+                <img class="img-fluid" src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->name }}">
             </div>
             <div class="short_details">
-              <div class="meta-top d-flex">
-                <a href="#">By Admin</a>
-                <a href="#"><i class="ti-comments-smiley"></i>2 Comments</a>
-              </div>
-              <a class="d-block" href="single-blog.html">
-                <h4>Ford clever bed stops your sleeping
-                  partner hogging the whole</h4>
-              </a>
-              <div class="text-wrap">
-                <p>
-                  Let one fifth i bring fly to divided face for bearing the divide unto seed winged divided light
-                  Forth.
-                </p>
-              </div>
-              <a href="#" class="blog_btn">Learn More <span class="ml-2 ti-arrow-right"></span></a>
+                <div class="meta-top d-flex">
+                    <a href="#">By Admin</a>
+                    <a href="#"><i class="ti-comments-smiley"></i>{{ $blog->comments->count() }} Comments</a>
+                </div>
+                <a class="d-block" href="{{ route('blogs.details', $blog->slug) }}">
+                    <h4>{{ Str::limit($blog->name, 70) }}</h4>
+                </a>
+                <div class="text-wrap">
+                    <p>{{ Str::limit(strip_tags($blog->description), 100) }}</p>
+                </div>
+                <a href="{{ route('blogs.details', $blog->slug) }}" class="blog_btn">
+                    Learn More <span class="ml-2 ti-arrow-right"></span>
+                </a>
             </div>
-          </div>
         </div>
-        
-        <div class="col-lg-4 col-md-6">
-          <div class="single-blog">
-            <div class="thumb">
-              <img class="img-fluid" src="{{ asset('assets/img/b2.jpg') }}" alt="">
-            </div>
-            <div class="short_details">
-              <div class="meta-top d-flex">
-                <a href="#">By Admin</a>
-                <a href="#"><i class="ti-comments-smiley"></i>2 Comments</a>
-              </div>
-              <a class="d-block" href="single-blog.html">
-                <h4>Ford clever bed stops your sleeping
-                  partner hogging the whole</h4>
-              </a>
-              <div class="text-wrap">
-                <p>
-                  Let one fifth i bring fly to divided face for bearing the divide unto seed winged divided light
-                  Forth.
-                </p>
-              </div>
-              <a href="#" class="blog_btn">Learn More <span class="ml-2 ti-arrow-right"></span></a>
-            </div>
-          </div>
-        </div>
+    </div>
+    @endforeach
+</div>
 
-        <div class="col-lg-4 col-md-6">
-          <div class="single-blog">
-            <div class="thumb">
-              <img class="img-fluid" src="{{ asset('assets/img/b3.jpg') }}" alt="">
-            </div>
-            <div class="short_details">
-              <div class="meta-top d-flex">
-                <a href="#">By Admin</a>
-                <a href="#"><i class="ti-comments-smiley"></i>2 Comments</a>
-              </div>
-              <a class="d-block" href="single-blog.html">
-                <h4>Ford clever bed stops your sleeping
-                  partner hogging the whole</h4>
-              </a>
-              <div class="text-wrap">
-                <p>
-                  Let one fifth i bring fly to divided face for bearing the divide unto seed winged divided light
-                  Forth.
-                </p>
-              </div>
-              <a href="#" class="blog_btn">Learn More <span class="ml-2 ti-arrow-right"></span></a>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
   <!--================ End Blog Area =================-->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Include jQuery and SweetAlert -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Set CSRF header globally
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $(document).on('click', '.add-to-wishlist', function(){
+        var productId = $(this).data('id');
+        $.ajax({
+            url: '{{ route("wishlist.add") }}',
+            type: 'POST',
+            data: {
+                product_id: productId
+            },
+            success: function(res){
+                if(res.status){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Added to Wishlist!',
+                        text: 'This product has been added to your wishlist.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Notice',
+                        text: res.message
+                    });
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 401 && xhr.responseJSON?.redirect) {
+                    // User not logged in, redirect to login page
+                    window.location.href = xhr.responseJSON.redirect;
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: 'Something went wrong. Try again.',
+                    });
+                    console.error(xhr.responseText);
+                }
+            }
+        });
+    });
+});
+</script>
+<script>
+$(document).ready(function() {
+    $('.add-to-cart').on('click', function() {
+        let productId = $(this).data('id');
+        let quantity = $(this).data('qty');
+
+        $.ajax({
+            url: '{{ route('cart.add') }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                product_id: productId,
+                quantity: quantity
+            },
+            success: function(response) {
+                if (response.status) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Added to Cart!',
+                        text: response.message,
+                        confirmButtonColor: '#71cd14'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message
+                    });
+                }
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: 'Something went wrong!'
+                });
+            }
+        });
+    });
+});
+</script>
+
 @endsection

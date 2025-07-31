@@ -14,13 +14,25 @@ class GoogleController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    public function handleGoogleCallback()
-    {
-        $googleUser = Socialite::driver('google')->stateless()->user();
+   public function handleGoogleCallback()
+{
+    $googleUser = Socialite::driver('google')->stateless()->user();
 
-        $user = User::where('google_id', $googleUser->getId())->first();
+    // Try finding the user by Google ID
+    $user = User::where('google_id', $googleUser->getId())->first();
 
-        if (!$user) {
+    if (!$user) {
+        // Try finding user by email (in case registered by password before)
+        $user = User::where('email', $googleUser->getEmail())->first();
+
+        if ($user) {
+            // Attach Google ID to existing user
+            $user->update([
+                'google_id' => $googleUser->getId(),
+                'avatar' => $googleUser->getAvatar(),
+            ]);
+        } else {
+            // No user found, create a new one
             $user = User::create([
                 'name' => $googleUser->getName(),
                 'email' => $googleUser->getEmail(),
@@ -28,9 +40,11 @@ class GoogleController extends Controller
                 'avatar' => $googleUser->getAvatar(),
             ]);
         }
-
-        Auth::login($user);
-
-        return redirect()->route('main');
     }
+
+    Auth::login($user);
+
+    return redirect()->route('main');
+}
+
 }

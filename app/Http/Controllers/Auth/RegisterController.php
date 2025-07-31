@@ -8,17 +8,17 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\VerifyEmailNotification;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
-    public function index() {
-        // Check if the user is already logged in
+    public function index()
+    {
         if (Auth::check()) {
-            // If logged in, redirect to the main page
             return redirect()->route('main');
         }
-    
-        // If not logged in, return the register view
+
         return view('front.default.auth.register');
     }
 
@@ -31,22 +31,51 @@ class RegisterController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors()
-            ], 422);
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => false,
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
+        $verification_token = Str::random(64);
+
+        $user = User::create([
+            'name'               => $request->name,
+            'email'              => $request->email,
+            'password'           => Hash::make($request->password),
+            'verification_token' => $verification_token,
+            'is_verify'          => 0,
         ]);
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Registration successful'
-        ]);
-        
+        $verificationUrl = route('user.verifyEmail', ['token' => $verification_token]);
+        $user->notify(new VerifyEmailNotification($user, $verificationUrl));
+        // dd($user,$verificationUrl);
+        if ($request->ajax()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Registration successful! Please check your email to verify your account.'
+            ]);
+        }
+
+        return redirect()->route('user.login')->with('success', 'Registration completed! Please check your email to verify your account.');
+    }
+
+    public function verifyEmail($token)
+    {
+        $user = User::where('verification_token', $token)->first();
+
+        if (!$user) {
+            return redirect()->route('user.login')->with('error', 'Invalid or expired verification link.');
+        }
+
+        $user->is_verify = 1;
+        $user->verification_token = null;
+        $user->save();
+
+        return redirect()->route('user.login')->with('success', 'Your email has been verified! You can now log in.');
     }
 }

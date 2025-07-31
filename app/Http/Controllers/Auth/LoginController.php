@@ -35,18 +35,13 @@ class LoginController extends Controller
         ];
 
         if (Auth::attempt($credentials)) {
-            // If login is successful, redirect to the dashboard or desired page
-            return response()->json([
-                'status' => true,
-                'message' => 'Login successful!',
-                'redirect' => route('main')  // Or any other route after login
-            ]);
+            // If login is successful, redirect to the homepage with success message
+            return redirect()->route('main')->with('success', 'Login successful!');
         } else {
-            // If login fails, return an error response
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid credentials. Please try again.'
-            ], 401);
+            // If login fails, redirect back with an error message
+            return back()->withErrors([
+                'email' => 'Invalid email or password.'
+            ])->withInput();
         }
     }
     public function logout()

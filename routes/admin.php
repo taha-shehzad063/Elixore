@@ -11,22 +11,23 @@ use App\Http\Controllers\Admin\Pages\TagController;
 use App\Http\Controllers\Admin\Home\CollectionBannerController;
 use App\Http\Controllers\Admin\GeneralSettingController;
 use App\Http\Middleware\Admin;
-
-
+use App\Http\Controllers\Admin\Components\CategoyController;
+use App\Http\Controllers\Admin\Components\SubCategoyController;
+use App\Http\Controllers\Admin\Order\OrderController;
 
     // Login Routes
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('login', [LoginController::class, 'login'])->name('login.submit');
-    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+    Route::get('logout', [LoginController::class, 'logout'])->name('logout');
 
     // Protected Routes
-Route::middleware([Admin::class])->group(function () {
-        Route::get('dashboard', function () {
-            return view('admin.frontend.dashboard');
-        })->name('dashboard');
-
-
-
+    
+    
+    
+    Route::middleware([Admin::class])->group(function () {
+            Route::get('dashboard', function () {
+                return view('admin.frontend.dashboard');
+            })->name('dashboard');
 // Home Banner Images
 
 Route::get('banner-images', [BannerImageController::class, 'index'])->name('banner-images.index'); // GET all
@@ -45,8 +46,10 @@ Route::get('products/create', [ProductController::class, 'create'])->name('produ
 Route::post('products/store', [ProductController::class, 'store'])->name('products.store'); // POST form data
 Route::get('products/{id}', [ProductController::class, 'show'])->name('products.show'); // GET single banner
 Route::get('products/{id}/edit', [ProductController::class, 'edit'])->name('products.edit'); // GET edit form
-Route::post('products/{id}/update', [ProductController::class, 'update'])->name('products.update'); // POST update data
+Route::put('products/{id}/update', [ProductController::class, 'update'])->name('products.update'); // POST update data
 Route::post('products/{id}/delete', [ProductController::class, 'destroy'])->name('products.destroy'); // POST delete        
+Route::post('products-gallery/{id}/delete', [ProductController::class, 'deleteGalleryImage'])->name('products.gallery.delete'); // POST delete        
+Route::get('/categories/{category}/subcategories', [ProductController::class, 'getSubcategories'])->name('categories.subcategories');
 
 
 // Banner Collection
@@ -75,6 +78,29 @@ Route::post('blog/{id}/update', [BlogController::class, 'update'])->name('blogs.
 Route::post('blog/{id}/delete', [BlogController::class, 'destroy'])->name('blogs.destroy'); // POST delete        
 Route::post('/blogs/{blog}/comments', [BlogController::class, 'storeComment'])->name('comments.store');
 
+
+
+// Categrory
+
+Route::get('categories', [CategoyController::class, 'index'])->name('categories.index'); // GET all
+Route::get('categories/create', [CategoyController::class, 'create'])->name('categories.create'); // GET form
+Route::post('categories/store', [CategoyController::class, 'store'])->name('categories.store'); // POST form data
+Route::get('categories/{id}/edit', [CategoyController::class, 'edit'])->name('categories.edit'); // GET edit form
+Route::post('categories/{id}/update', [CategoyController::class, 'update'])->name('categories.update'); // POST update data
+Route::post('categories/{id}/delete', [CategoyController::class, 'destroy'])->name('categories.destroy'); // POST delete        
+
+
+
+ Route::get('checkout-options', [OrderController::class, 'index'])->name('checkout-options.index');
+    Route::get('checkout-options/create', [OrderController::class, 'create'])->name('checkout-options.create');
+    Route::post('checkout-options/store', [OrderController::class, 'store'])->name('checkout-options.store');
+    Route::get('checkout-options/{id}/edit', [OrderController::class, 'edit'])->name('checkout-options.edit');
+    
+    // Update using POST instead of PUT/PATCH
+    Route::post('checkout-options/{id}/update', [OrderController::class, 'update'])->name('checkout-options.update');
+    
+    // Delete using POST instead of DELETE
+    Route::post('checkout-options/{id}/delete', [OrderController::class, 'destroy'])->name('checkout-options.destroy');
     });
 
 

@@ -1,143 +1,205 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('front.default.partials.app')
 
-<head>
-<meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="icon" href="{{ asset('assets/img/favicon.png') }}" type="image/png" />
-    <title>Elixore Perfume Brands</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ asset('assets/css/loader.css') }}" />
-  <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}" />
-</head>
+@section('content')
+<div class="container position-relative" style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+    <!-- Background Shapes -->
+    <div class="background position-absolute top-0 start-0 w-100 h-100">
+        <div class="shapes"></div>
+        <div class="shapes"></div>
+    </div>
+
+    <!-- Register Card -->
+    <div class="card shadow-lg p-4 col-md-6 col-lg-6 col-12 animate__animated animate__fadeIn" style="z-index: 2; border-radius: 18px; background: #fff;">
+        <!-- Title -->
+        <div class="text-center mb-4">
+            <h2 class="fw-bold" style="color:#71cd14;">Create Your Account</h2>
+            <p class="text-muted">Sign up to get started</p>
+            <hr class="mx-auto" style="border: 1px solid #71cd14; width: 60px;">
+        </div>
+
+        <!-- Register Form -->
+        <form id="registerForm" action="{{ route('user.register') }}" method="POST" autocomplete="off">
+            @csrf
+
+            <div class="mb-3 position-relative">
+                <label class="form-label fw-semibold" for="name"><i class="bi bi-person me-2"></i>Full Name</label>
+                <input type="text" name="name" id="name" class="form-control rounded-pill px-4 py-2" placeholder="Enter Name" required>
+            </div>
+
+            <div class="mb-3 position-relative">
+                <label class="form-label fw-semibold" for="email"><i class="bi bi-envelope me-2"></i>Email Address</label>
+                <input type="email" name="email" id="email" class="form-control rounded-pill px-4 py-2" placeholder="Enter Email" required>
+            </div>
+
+            <div class="mb-3 position-relative">
+                <label class="form-label fw-semibold" for="password"><i class="bi bi-lock me-2"></i>Password</label>
+                <input type="password" name="password" id="password" class="form-control rounded-pill px-4 py-2" placeholder="Enter Password" required>
+            </div>
+
+            <div class="mb-3 position-relative">
+                <label class="form-label fw-semibold" for="password_confirmation"><i class="bi bi-lock me-2"></i>Confirm Password</label>
+                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control rounded-pill px-4 py-2" placeholder="Confirm Password" required>
+            </div>
+
+            <button type="submit" class="btn custom-register-btn w-100 py-2 rounded-pill fw-bold animated-btn mt-2" style="font-size:1.1rem;">
+                Register
+            </button>
+        </form>
+          <!-- Divider with OR text -->
+            <div class="d-flex align-items-center my-3">
+                <hr class="flex-grow-1">
+                <span class="mx-3 text-muted">OR</span>
+                <hr class="flex-grow-1">
+            </div>
+             <a href="{{ route('google.login') }}" class="btn btn-outline-danger w-100 py-2 rounded-pill fw-bold animated-btn mb-3">
+                <i class="bi bi-google me-2"></i> Continue with Google
+            </a>
+ <div class="text-center ">
+                <a href="{{ route('user.login') }}" class="btn btn-link text-decoration-none" style="color:#71cd14;">Already have Account then Login</a>
+            </div>
+        
+    </div>
+</div>
+
+<!-- Email Verification Modal -->
+<div class="modal fade" id="verifyEmailModal" tabindex="-1" aria-labelledby="verifyEmailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:18px;">
+      <div class="modal-header" style="background:#f3ffe7;">
+        <h5 class="modal-title" id="verifyEmailModalLabel" style="color:#71cd14;">Verify Your Email</h5>
+      </div>
+      <div class="modal-body text-center">
+        <i class="bi bi-envelope-check" style="font-size:2.5rem;color:#71cd14;"></i>
+        <p class="mt-3 mb-0" style="font-size:1.1rem;">
+          A verification link has been sent to your email address.
+          <br>
+          Please check your inbox and click the link to activate your account.
+        </p>
+        <a href="https://mail.google.com" target="_blank" class="btn btn-sm btn-outline-success mt-4 rounded-pill px-4" style="color:#71cd14; border-color:#71cd14;">
+          Open Gmail
+        </a>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-success px-4 rounded-pill" data-bs-dismiss="modal" style="background:#71cd14;">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Styles -->
 <style>
-  form {
-    height: 710px !important;
-  }
+    .background .shapes {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: #f0f0f0;
+        opacity: 0.4;
+        top: -50px;
+        left: -50px;
+        z-index: 0;
+    }
+    .card {
+        border-radius: 18px;
+        background: #fff;
+    }
+    .form-control {
+        border-radius: 50px;
+        border: 1px solid #eaeaea;
+        box-shadow: none;
+        transition: border-color 0.2s;
+    }
+    .form-control:focus {
+        border-color: #71cd14;
+        box-shadow: 0 0 0 2px rgba(113,205,20,0.08);
+    }
+    .custom-register-btn {
+        background-color: #71cd14;
+        border-color: #71cd14;
+        color: white;
+        transition: background 0.2s, border 0.2s;
+    }
+    .custom-register-btn:hover {
+        background-color: #66b812;
+        border-color: #66b812;
+    }
+    .custom-register-btn:active {
+        background-color: #5aa30f !important;
+        border-color: #5aa30f !important;
+    }
+    .animated-btn {
+        transition: all 0.3s ease-in-out;
+    }
+    .animated-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(113,205,20,0.12);
+    }
+    .animated-btn:active {
+        transform: scale(0.98);
+        box-shadow: none;
+    }
 </style>
-<body>
-<div id="loader">
-  <div class="circle-loader">
-    <div class="arc arc1"></div>
-    <div class="arc arc2"></div>
-    <div class="arc arc3"></div>
-    <div class="arc arc4"></div>
-  </div>
-</div>
-  <div class="background">
-    <div class="shapes"></div>
-    <div class="shapes"></div>
-  </div>
-  <form id="registerForm">
-    @csrf
-    <h5 class="text-light">Register Form</h5>
-    <p>Already have account go to <a href="{{route('user.login')}}">login</a></p>
-    <label>Name</label>
-    <input type="text" name="name" placeholder="Enter Name" required>
 
-    <label>Email</label>
-    <input type="email" name="email" placeholder="Enter Email" required>
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
-   <!-- Password -->
-<div style="position: relative; margin-bottom: 15px;">
-  <label for="password">Password</label>
-  <input type="password" id="password" name="password" placeholder="Enter Password" required style="padding-right: 40px;">
-  <i class="bi bi-eye-slash toggle-password password-css"
-   data-target="#password"
-   ></i>
+@endsection
 
-</div>
-
-<!-- Confirm Password -->
-<div style="position: relative;">
-  <label for="password_confirmation">Confirm Password</label>
-  <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" required style="padding-right: 40px;">
-  <i class="bi bi-eye-slash toggle-password passwoed-css1"
-   data-target="#password_confirmation"
-  ></i>
-
-
-</div>
-
-
-    <button type="submit">Register</button>
-    <div class="social mb-2">
-<a href="{{ route('google.login') }}" style="text-decoration: none;">
-    <div class="gg">
-        <i class="bi bi-google"></i> Google
-    </div>
-</a>
-<a href="{{ route('facebook.login') }}" style="text-decoration: none;">
-    <div class="fb">
-        <i class="bi bi-facebook"></i> Facebook
-    </div>
-</a>
-    </div>
-    <div id="responseMsg"></div>
-</form>
-
-</body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-<script src="{{ asset('assets/js/loader.js') }}"></script>
+<!-- JQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Bootstrap 5 Bundle JS (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-$('#registerForm').on('submit', function(e) {
-    e.preventDefault();
-
-    $.ajax({
-        type: 'POST',
-        url: "{{ route('user.register') }}",
-        data: $(this).serialize(),
-        success: function(response) {
-            if (response.status) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Registration completed successfully.',
-                    icon: 'success',
-                    iconColor: '#00ff9c',
-                    background: '#1e1e2f',
-                    color: '#ffffff',
-                    confirmButtonColor: '#00ff9c',
-                    confirmButtonText: 'Login Now',
-                    customClass: {
-                        popup: 'animated fadeInDown'
+    $(document).ready(function () {
+        $('#registerForm').on('submit', function (e) {
+            e.preventDefault(); // prevent default form submission
+            
+            // Get form data
+            var formData = $(this).serialize();
+            
+            // Show the modal immediately
+            var verifyEmailModal = new bootstrap.Modal(document.getElementById('verifyEmailModal'));
+            verifyEmailModal.show();
+            
+            // Submit the form via AJAX
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // The modal is already shown, no need to do anything else here
+                    // The form will be submitted normally after modal is closed
+                },
+                error: function(xhr) {
+                    verifyEmailModal.hide();
+                    
+                    // Handle validation errors
+                    if (xhr.status === 422) {
+                        var errors = xhr.responseJSON.errors;
+                        // Display errors to the user
+                        $.each(errors, function(key, value) {
+                            $('#' + key).addClass('is-invalid');
+                            $('#' + key).after('<div class="invalid-feedback">' + value[0] + '</div>');
+                        });
+                    } else {
+                        // Handle other errors
+                        alert('An error occurred. Please try again.');
                     }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{ route('user.login') }}";
-                    }
-                });
-
-                $('#registerForm')[0].reset();
-                $('#responseMsg').html('');
-            }
-        },
-        error: function(xhr) {
-            let errors = xhr.responseJSON.errors;
-            let errorMsg = '<ul style="color:red;">';
-            $.each(errors, function(key, value) {
-                errorMsg += `<li>${value[0]}</li>`;
+                }
             });
-            errorMsg += '</ul>';
-            $('#responseMsg').html(errorMsg);
-        }
+            
+            // When modal closes (OK button or dismissal), redirect to login page
+            $('#verifyEmailModal').one('hidden.bs.modal', function () {
+                // window.location.href = "{{ route('user.login') }}";
+            });
+        });
+        
+        // Remove validation errors when user starts typing
+        $('input').on('input', function() {
+            $(this).removeClass('is-invalid');
+            $(this).next('.invalid-feedback').remove();
+        });
     });
-});
 </script>
 
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-  $(document).ready(function () {
-    $('.toggle-password').on('click', function () {
-      const input = $($(this).data('target'));
-      const type = input.attr('type') === 'password' ? 'text' : 'password';
-      input.attr('type', type);
-      $(this).toggleClass('bi-eye bi-eye-slash');
-    });
-  });
-</script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-</html>
