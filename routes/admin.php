@@ -8,8 +8,12 @@ use App\Http\Controllers\Admin\Home\BannerImageController;
 use App\Http\Controllers\Admin\Home\ProductController;
 use App\Http\Controllers\Admin\Pages\BlogController;
 use App\Http\Controllers\Admin\Pages\TagController;
+use App\Http\Controllers\Admin\Pages\PolicyController;
+use App\Http\Controllers\Default\ReviewController;
+use App\Http\Controllers\Default\ReviewReplyController;
 use App\Http\Controllers\Admin\Home\CollectionBannerController;
 use App\Http\Controllers\Admin\GeneralSettingController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Middleware\Admin;
 use App\Http\Controllers\Admin\Components\CategoyController;
 use App\Http\Controllers\Admin\Components\SubCategoyController;
@@ -25,9 +29,9 @@ use App\Http\Controllers\Admin\Order\OrderController;
     
     
     Route::middleware([Admin::class])->group(function () {
-            Route::get('dashboard', function () {
-                return view('admin.frontend.dashboard');
-            })->name('dashboard');
+          Route::get('/revenue-data', [AdminController::class, 'getRevenueData']);
+
+            Route::get('dashboard', [AdminController::class, 'index'])->name('dashboard'); // GET all
 // Home Banner Images
 
 Route::get('banner-images', [BannerImageController::class, 'index'])->name('banner-images.index'); // GET all
@@ -50,7 +54,14 @@ Route::put('products/{id}/update', [ProductController::class, 'update'])->name('
 Route::post('products/{id}/delete', [ProductController::class, 'destroy'])->name('products.destroy'); // POST delete        
 Route::post('products-gallery/{id}/delete', [ProductController::class, 'deleteGalleryImage'])->name('products.gallery.delete'); // POST delete        
 Route::get('/categories/{category}/subcategories', [ProductController::class, 'getSubcategories'])->name('categories.subcategories');
-
+Route::get('/products/{product}/reviews', [ProductController::class, 'showReviews'])
+    ->name('products.reviews');
+    
+Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])
+    ->name('reviews.destroy');
+    
+Route::delete('/review-replies/{reply}', [ReviewReplyController::class, 'destroy'])
+    ->name('review-replies.destroy');
 
 // Banner Collection
 Route::match(['get', 'post'], 'collection-banner', [CollectionBannerController::class, 'index'])->name('collection-banner.store');
@@ -66,7 +77,7 @@ Route::get('tags', [TagController::class, 'index'])->name('tags.index'); // GET 
 Route::get('tags/create', [TagController::class, 'create'])->name('tags.create'); // GET form
 Route::post('tags/store', [TagController::class, 'store'])->name('tags.store'); // POST form data
 Route::get('tags/{id}/edit', [TagController::class, 'edit'])->name('tags.edit'); // GET edit form
-Route::post('tags/{id}/update', [TagController::class, 'update'])->name('tags.update'); // POST update data
+Route::put('tags/{id}', [TagController::class, 'update'])->name('tags.update');
 Route::post('tags/{id}/delete', [TagController::class, 'destroy'])->name('tags.destroy'); // POST delete        
 
 // Blogs Page
@@ -77,7 +88,11 @@ Route::get('blog/{id}/edit', [BlogController::class, 'edit'])->name('blogs.edit'
 Route::post('blog/{id}/update', [BlogController::class, 'update'])->name('blogs.update'); // POST update data
 Route::post('blog/{id}/delete', [BlogController::class, 'destroy'])->name('blogs.destroy'); // POST delete        
 Route::post('/blogs/{blog}/comments', [BlogController::class, 'storeComment'])->name('comments.store');
-
+Route::get('/blogs/{blog}/comments', [BlogController::class, 'showComments'])
+    ->name('blogs.comments');
+    
+Route::delete('/comments/{comment}', [BlogController::class, 'destroyblog'])
+    ->name('comments.destroy');
 
 
 // Categrory
@@ -88,6 +103,15 @@ Route::post('categories/store', [CategoyController::class, 'store'])->name('cate
 Route::get('categories/{id}/edit', [CategoyController::class, 'edit'])->name('categories.edit'); // GET edit form
 Route::post('categories/{id}/update', [CategoyController::class, 'update'])->name('categories.update'); // POST update data
 Route::post('categories/{id}/delete', [CategoyController::class, 'destroy'])->name('categories.destroy'); // POST delete        
+
+// Policy
+
+Route::get('policy', [PolicyController::class, 'index'])->name('policy.index'); // GET all
+Route::get('policy/create', [PolicyController::class, 'create'])->name('policy.create'); // GET form
+Route::post('policy/store', [PolicyController::class, 'store'])->name('policy.store'); // POST form data
+Route::get('policy/{id}/edit', [PolicyController::class, 'edit'])->name('policy.edit'); // GET edit form
+Route::post('policy/{id}/update', [PolicyController::class, 'update'])->name('policy.update'); // POST update data
+Route::post('policy/{id}/delete', [PolicyController::class, 'destroy'])->name('policy.destroy'); // POST delete        
 
 
 
@@ -101,6 +125,10 @@ Route::post('categories/{id}/delete', [CategoyController::class, 'destroy'])->na
     
     // Delete using POST instead of DELETE
     Route::post('checkout-options/{id}/delete', [OrderController::class, 'destroy'])->name('checkout-options.destroy');
+
+
+     Route::get('orders', [OrderController::class, 'orders'])->name('orders');
+Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     });
 
 

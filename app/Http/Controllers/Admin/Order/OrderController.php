@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Admin\Order;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
 use App\Models\CheckoutOption;
+use App\Models\Order;
 class OrderController extends Controller
 {
     public function index()
@@ -79,4 +80,32 @@ class OrderController extends Controller
 
         return redirect()->back()->with('success', 'Checkout option deleted.');
     }
+  public function orders()
+    {
+        // Eager load relationships to avoid N+1 queries
+        $orders = Order::with(['items.product', 'shippingAddress', 'billingAddress'])->get();
+        return view('admin.frontend.order.index', compact('orders'));
+    }
+
+    /**
+     * Update the status of the specified order.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Order  $order
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateStatus(Request $request, Order $order)
+    {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $order->update(['status' => $request->status]);
+        return redirect()->route('admin.orders')->with('success', 'Order status updated successfully.');
+    }
+
 }

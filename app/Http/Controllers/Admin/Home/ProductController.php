@@ -37,7 +37,18 @@ class ProductController extends Controller
     return view('admin.frontend.home.products.index', compact('products'));
 }
 
-
+public function showReviews(Product $product)
+{
+    $reviews = $product->reviews()
+        ->with('replies')
+        ->latest()
+        ->get();
+        
+    return view('admin.frontend.home.products.partials.reviews_content', [
+        'product' => $product,
+        'reviews' => $reviews
+    ]);
+}
 
     public function create()
     {
@@ -200,7 +211,7 @@ public function deleteGalleryImage($id)
 
         // Generate unique slug, excluding the current product's ID
         $slug = $this->generateUniqueSlug($request->name, $products->id);
-
+// dd($products);
         $products->update([
             'name' => $request->name,
             'slug' => $slug,
@@ -212,7 +223,7 @@ public function deleteGalleryImage($id)
             'availability' => $request->availability,
             // 'tag_id' => $request->tag_id, // ONLY include this if you have a single tag_id column (one-to-many)
         ]);
-
+        
         // --- Handle Gallery Images (Update Logic) ---
         // Your current logic deletes all old images if new ones are uploaded.
         // If you want to only *add* new images and keep existing ones (unless explicitly deleted via route),

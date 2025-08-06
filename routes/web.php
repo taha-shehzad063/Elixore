@@ -15,7 +15,11 @@ use App\Http\Controllers\Default\CartController;
 use App\Http\Controllers\Default\OrderController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Default\AuthController;
+use App\Http\Controllers\Default\PolicyController;
+use App\Http\Controllers\Default\BlogController;
 use App\Http\Controllers\Default\Shop\ShopController;
+use App\Http\Controllers\Default\ContactController;
+use App\Http\Controllers\Default\NewsletterController;
 Route::get('/clear-cache', function () {
     Artisan::call('optimize:clear');
     Artisan::call('optimize');
@@ -41,6 +45,8 @@ Route::get('/testemail', function () {
     });
     return 'Email sent!';
 });
+Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+
 // Login Register
 Route::get('/login', [LoginController::class, 'index'])->name('user.login');
 Route::post('/login/post', [LoginController::class, 'login'])->name('user.login.store');
@@ -60,20 +66,21 @@ Route::get('auth/facebook/callback', [FacebookController::class, 'handleFacebook
 
 
 // Blogs
-Route::get('/blog', [FrontendController::class, 'blog'])->name('blog');
-Route::get('/blog-details/{slug}', [FrontendController::class, 'detail'])->name('blogs.details');
-Route::post('/blog/comment', [FrontendController::class, 'postComment'])->name('blog.comment');
-Route::post('/blog/comment-reply', [FrontendController::class, 'storeReply'])->name('comment.reply');
-Route::post('/blog/comment', [FrontendController::class, 'comment'])->name('blog.comment');
-Route::get('/blog/search', [FrontendController::class, 'search'])->name('blog.search');
+Route::get('/blog', [BlogController::class, 'blog'])->name('blog');
+Route::get('/blog-details/{slug}', [BlogController::class, 'detail'])->name('blogs.details');
+Route::post('/blog/comment', [BlogController::class, 'comment'])->name('blog.comment');
+Route::get('/blog/search', [BlogController::class, 'search'])->name('blog.search');
 
-Route::get('/blog/tag/{tag}', [FrontendController::class, 'byTag'])->name('blogs.byTag');
+Route::get('/blog/tag/{tag}', [BlogController::class, ' '])->name('blogs.byTag');
 //Review
 Route::post('/review/store', [ReviewController::class, 'store'])->name('review.store');
 Route::post('/review/reply', [ReviewReplyController::class, 'store'])->name('review.reply');
 // Products
 Route::get('/product-details/{slug}', [ProductController::class, 'index'])->name('product.details');
     Route::get('/category/{name}', [ShopController::class, 'categoryProducts'])->name('category.products');
+Route::get('/product/{id}/reviews/summary', [ReviewController::class, 'summary'])->name('product.reviews.summary');
+
+// API Routes
 
 
 // //Payments
@@ -101,6 +108,7 @@ Route::post('/wishlist/add', [FrontendController::class, 'addWishlist'])->name('
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
 Route::post('/checkout/place-order', [OrderController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::post('/order/upload-proof', [OrderController::class, 'uploadProof'])->name('order.uploadProof');
+Route::post('/checkout/save-total', [OrderController::class, 'saveCartTotal'])->name('checkout.saveTotal');
 
 
 //payment
@@ -114,3 +122,21 @@ Route::post('/pay/alfapay', [PaymentController::class, 'payWithAlfa'])->name('pa
 
 //shop
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/shop/tags/by-category', [\App\Http\Controllers\Default\Shop\ShopController::class, 'tagsByCategory'])->name('shop.tags.byCategory');
+
+// Contact
+Route::get('/contact', [ContactController::class, 'show'])->name('contact');
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+
+// Newsletter Subscription
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+
+
+//policy
+Route::get('{slug}', [PolicyController::class, 'show'])->name('policy.show');
+
+
+
+Route::get('get-cart-wishlist-counts', [PolicyController::class, 'wishlist'])->name('get.cart.wishlist.counts');
+
+

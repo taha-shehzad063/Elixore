@@ -1,6 +1,21 @@
 @extends('admin.frontend.partials.app')
 
 @section('content')
+<style>
+.review-rating {
+    color: #ffc107;
+}
+.review-item {
+    transition: all 0.3s ease;
+}
+.review-item:hover {
+    background-color: #f8f9fa;
+}
+.reply-item {
+    background-color: #f8f9fa;
+    border-left: 3px solid #0d6efd;
+}
+</style>
 <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6"
     data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
 
@@ -66,6 +81,28 @@
                 Distributed by 
                 <a target="_blank" class="pe-1 text-primary text-decoration-underline">Elixore</a>
             </p>
+        </div>
+    </div>
+</div>
+<!-- Reviews Modal -->
+<div class="modal fade" id="reviewsModal" tabindex="-1" aria-labelledby="reviewsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewsModalLabel">Product Reviews</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="reviewsContent">
+                <!-- Content will be loaded via AJAX -->
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -135,3 +172,87 @@ $(document).ready(function () {
 </script>
 
 
+<script>
+    $(document).on('click', '.view-reviews', function() {
+    const productId = $(this).data('product-id');
+    const modal = $('#reviewsModal');
+    
+    // Show loading spinner
+    $('#reviewsContent').html(`
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    `);
+    
+    // Load reviews via AJAX
+    $.get(`/admin/products/${productId}/reviews`, function(data) {
+        $('#reviewsContent').html(data);
+    }).fail(function() {
+        $('#reviewsContent').html(`
+            <div class="alert alert-danger">
+                Failed to load reviews. Please try again.
+            </div>
+        `);
+    });
+});
+
+// Handle delete review/reply
+// Handle delete review/reply
+$(document).on('click', '.delete-review, .delete-reply', function(e) {
+    e.preventDefault();
+    const url = $(this).attr('href');
+    const isReview = $(this).hasClass('delete-review');
+    const $itemToDelete = isReview ? $(this).closest('.list-group-item') : $(this).closest('.mb-2');
+    
+    Swal.fire({
+        title: "Are you sure?",
+        text: `You are about to delete this ${isReview ? 'review' : 'reply'}!`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function() {
+                    // Remove the item from DOM
+                    $itemToDelete.fadeOut(300, function() {
+                        $(this).remove();
+                        
+                        // Show success message
+                        Swal.fire(
+                            'Deleted!',
+                            `The ${isReview ? 'review' : 'reply'} has been deleted.`,
+                            'success'
+                        );
+                        
+                        // If it was the last review, show empty message
+                        if (isReview && $('.list-group-item').length === 0) {
+                            $('#reviewsContent').html(`
+                                <div class="alert alert-info">
+                                    No reviews found for this product.
+                                </div>
+                            `);
+                        }
+                    });
+                },
+                error: function() {
+                    Swal.fire(
+                        'Error!',
+                        'Something went wrong while deleting.',
+                        'error'
+                    );
+                }
+            });
+        }
+    });
+});
+</script>

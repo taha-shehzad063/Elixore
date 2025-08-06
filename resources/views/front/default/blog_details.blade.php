@@ -38,7 +38,8 @@
         background: #71cd14;
         color: #fff;
         border: 1px solid #71cd14;
-        transition: all 0.3s ease;
+        transition: all 0.
+        s ease;
     }
     .main_btn:hover {
         background: #fff;
@@ -126,6 +127,21 @@
         background: #f9f9f9;
         border-color: #eee;
     }
+
+  
+    .excert img,
+    .excert video {
+        height: 500px !important;
+        width: 500px !important;
+        max-width: 100% !important;
+        object-fit: cover !important;
+        display: block !important;
+        margin-bottom: 15px !important;
+    }
+
+
+
+
 </style>
 
 <!--================ Start Banner Area =================-->
@@ -164,7 +180,7 @@
                             <li><a href="#"><i class="ti-user"></i> {{ $blogs->tags->pluck('name')->implode(', ') ?: 'Uncategorized' }}</a></li>
                             <li><a href="#"><i class="ti-comments"></i> {{ $comments->count() }} Comments</a></li>
                         </ul>
-                        <p class="excert">{{ $blogs->description }}</p>
+    <div class="excert">{!! $blogs->description !!}</div>
                     </div>
                 </div>
                 <div class="navigation-top">
@@ -584,4 +600,17 @@ $(document).ready(function () {
     }
 });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.excert img, .excert video').forEach(el => {
+            el.removeAttribute('style'); // remove conflicting inline styles
+            el.style.height = '150px';
+            el.style.width = '300px';
+            el.style.objectFit = 'cover';
+            el.style.display = 'block';
+            el.style.marginBottom = '15px';
+        });
+    });
+</script>
+
 @endsection

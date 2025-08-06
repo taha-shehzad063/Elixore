@@ -31,7 +31,7 @@
                 <!-- Description -->
                 <div class="mb-3">
                   <label for="description" class="form-label">Description</label>
-                  <textarea name="description" class="form-control" rows="5" required>{{ old('description', $blogs->description) }}</textarea>
+<textarea name="description" id="summernote" class="form-control" required>{{ old('description', $blogs->description) }}</textarea>
                 </div>
 
                 <!-- Tags -->
@@ -125,4 +125,31 @@ $(document).ready(function () {
         }
     });
 });
+</script>
+<!-- Summernote CSS -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
+
+<!-- jQuery (before Summernote JS) -->
+
+<!-- Summernote JS -->
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
+
+<!-- Initialize Summernote -->
+<script>
+  $(document).ready(function () {
+    $('#summernote').summernote({
+      placeholder: 'Write blog description here...',
+      tabsize: 2,
+      height: 300,
+      toolbar: [
+        ['style', ['style']],
+        ['font', ['bold', 'italic', 'underline', 'clear']],
+        ['fontsize', ['fontsize']],
+        ['color', ['color']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['insert', ['link', 'picture', 'video']],
+        ['view', ['fullscreen', 'codeview', 'help']]
+      ]
+    });
+  });
 </script>

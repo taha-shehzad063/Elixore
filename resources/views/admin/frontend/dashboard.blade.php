@@ -1,275 +1,259 @@
 @extends('admin.frontend.partials.app')
+
 @section('content')
 
-  <!--  Body Wrapper -->
-  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
-    data-sidebar-position="fixed" data-header-position="fixed">
-    <!-- Sidebar Start -->
-    
-    <!--  Sidebar End -->
-    <!--  Main wrapper -->
-    <div class="body-wrapper">
-      <!--  Header Start -->
-         @include('admin.frontend.partials.header')
+<!-- Body Wrapper -->
+<div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6"
+    data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
 
-      <!--  Header End -->
-      <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title d-flex align-items-center gap-2 mb-4">
-                            Traffic Overview
-                            <span>
-                                <iconify-icon icon="solar:question-circle-bold" class="fs-7 d-flex text-muted" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="tooltip-success" data-bs-title="Traffic Overview"></iconify-icon>
-                            </span>
-                        </h5>
-                        <div id="traffic-overview" >
+    <div class="body-wrapper">
+        @include('admin.frontend.partials.header')
+
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-body">
+                    @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
+
+                    <h5 class="card-title fw-semibold mb-4">Admin Dashboard</h5>
+
+                    <!-- Dashboard Cards -->
+                    <div class="row g-4">
+                        <!-- Total Revenue -->
+                        <div class="col-md-4 col-sm-6">
+                            <div class="card shadow-sm border-0" style="background: #FF9066;">
+                                <div class="card-body text-white position-relative">
+                                    <h5 class="fw-bold">{{ number_format($totalRevenue, 2) }}</h5>
+                                    <small class="d-block mb-2">All Revenue</small>
+                                    <img src="https://static.vecteezy.com/system/resources/previews/029/920/687/non_2x/revenue-growth-increasing-graph-high-interest-rate-stock-illustration-vector.jpg" alt="chart"
+                                         class="position-absolute" style="width: 50px; bottom: 15px; right: 15px;">
+                                    <div class="mt-3"><small><i class="bi bi-clock"></i> update : {{ now()->format('g:i a') }}</small></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Monthly Completed Orders -->
+                        <div class="col-md-4 col-sm-6">
+                            <div class="card shadow-sm border-0" style="background: #00D27A;">
+                                <div class="card-body text-white position-relative">
+                                    <h5 class="fw-bold">{{ $monthlyOrders }}+</h5>
+                                    <small class="d-block mb-2">Monthly Completed Orders</small>
+                                    <img src="{{ asset('https://static.vecteezy.com/system/resources/thumbnails/016/139/543/small_2x/growth-arrow-icon-in-flat-style-revenue-illustration-on-white-isolated-background-increase-business-concept-vector.jpg') }}" alt="chart"
+                                         class="position-absolute" style="width: 50px; bottom: 15px; right: 15px;">
+                                    <div class="mt-3"><small><i class="bi bi-clock"></i> update : {{ now()->format('g:i a') }}</small></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Completed Revenue -->
+                        <div class="col-md-4 col-sm-6">
+                            <div class="card shadow-sm border-0" style="background: #FF5F77;">
+                                <div class="card-body text-white position-relative">
+                                    <h5 class="fw-bold">{{ number_format($completedRevenue, 2) }}</h5>
+                                    <small class="d-block mb-2">Monthly Completed Revenue</small>
+                                    <img src="https://thumbs.dreamstime.com/b/vector-completed-stamp-isolated-white-31258902.jpg" alt="chart"
+                                         class="position-absolute" style="width: 50px; bottom: 15px; right: 15px;">
+                                    <div class="mt-3"><small><i class="bi bi-clock"></i> update : {{ now()->format('g:i a') }}</small></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pending Revenue -->
+                        <div class="col-md-4 col-sm-6">
+                            <div class="card shadow-sm border-0" style="background: #00B8D9;">
+                                <div class="card-body text-white position-relative">
+                                    <h5 class="fw-bold">{{ number_format($pendingRevenue, 2) }}</h5>
+                                    <small class="d-block mb-2">Pending Revenue</small>
+                                    <img src="https://c8.alamy.com/comp/2JHPF9R/pending-text-written-on-yellow-black-round-stamp-sign-2JHPF9R.jpg" alt="chart"
+                                         class="position-absolute" style="width: 50px; bottom: 15px; right: 15px;">
+                                    <div class="mt-3"><small><i class="bi bi-clock"></i> update : {{ now()->format('g:i a') }}</small></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Orders -->
+                        <div class="col-md-4 col-sm-6">
+                            <div class="card shadow-sm border-0" style="background: #A66DD4;">
+                                <div class="card-body text-white position-relative">
+                                    <h5 class="fw-bold">{{ $totalOrders }}</h5>
+                                    <small class="d-block mb-2">Total Orders</small>
+                                    <img src="https://static.thenounproject.com/png/890166-200.png" alt="chart"
+                                         class="position-absolute" style="width: 50px; bottom: 15px; right: 15px;">
+                                    <div class="mt-3"><small><i class="bi bi-clock"></i> update : {{ now()->format('g:i a') }}</small></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pending & Cancelled Orders -->
+                        <div class="col-md-4 col-sm-6">
+                            <div class="card shadow-sm border-0" style="background: #FFA500;">
+                                <div class="card-body text-white position-relative">
+                                    <h5 class="fw-bold">Pending: {{ $pendingOrders }} | Cancelled: {{ $cancelledOrders }}</h5>
+                                    <small class="d-block mb-2">Pending & Cancelled Orders</small>
+                                    <img src="https://www.shutterstock.com/image-vector/order-cancelled-thin-line-icon-260nw-2275150223.jpg" alt="chart"
+                                         class="position-absolute" style="width: 50px; bottom: 15px; right: 15px;">
+                                    <div class="mt-3"><small><i class="bi bi-clock"></i> update : {{ now()->format('g:i a') }}</small></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        <div class="col-lg-4">
-          <div class="card">
-            <div class="card-body text-center">
-              <img src="../assets/images/backgrounds/product-tip.png" alt="image" class="img-fluid" width="205">
-              <h4 class="mt-7">Productivity Tips!</h4>
-              <p class="card-subtitle mt-2 mb-3">Duis at orci justo nulla in libero id leo
-                molestie sodales phasellus justo.</p>
-                <button class="btn btn-primary mb-3">View All Tips</button>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-8">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">View by page title and screen class</h5>
-              <div class="table-responsive">
-                <table class="table text-nowrap align-middle mb-0">
-                  <thead>
-                    <tr class="border-2 border-bottom border-primary border-0"> 
-                      <th scope="col" class="ps-0">Page Title</th>
-                      <th scope="col" >Link</th>
-                      <th scope="col" class="text-center">Pageviews</th>
-                      <th scope="col" class="text-center">Page Value</th>
-                    </tr>
-                  </thead>
-                  <tbody class="table-group-divider">
-                    <tr>
-                      <th scope="row" class="ps-0 fw-medium">
-                        <span class="table-link1 text-truncate d-block">Welcome to our
-                          website</span>
-                      </th>
-                      <td>
-                        <a href="javascript:void(0)" class="link-primary text-dark fw-medium d-block">/index.html</a>
-                      </td>
-                      <td class="text-center fw-medium">18,456</td>
-                      <td class="text-center fw-medium">$2.40</td>
-                    </tr>
-                    <tr>
-                      <th scope="row" class="ps-0 fw-medium">
-                        <span class="table-link1 text-truncate d-block">Modern Admin
-                          Dashboard Template</span>
-                      </th>
-                      <td>
-                        <a href="javascript:void(0)" class="link-primary text-dark fw-medium d-block">/dashboard</a>
-                      </td>
-                      <td class="text-center fw-medium">17,452</td>
-                      <td class="text-center fw-medium">$0.97</td>
-                    </tr>
-                    <tr>
-                      <th scope="row" class="ps-0 fw-medium">
-                        <span class="table-link1 text-truncate d-block">Explore our
-                          product catalog</span>
-                      </th>
-                      <td>
-                        <a href="javascript:void(0)" class="link-primary text-dark fw-medium d-block">/product-checkout</a>
-                      </td>
-                      <td class="text-center fw-medium">12,180</td>
-                      <td class="text-center fw-medium">$7,50</td>
-                    </tr>
-                    <tr>
-                      <th scope="row" class="ps-0 fw-medium">
-                        <span class="table-link1 text-truncate d-block">Comprehensive
-                          User Guide</span>
-                      </th>
-                      <td>
-                        <a href="javascript:void(0)" class="link-primary text-dark fw-medium d-block">/docs</a>
-                      </td>
-                      <td class="text-center fw-medium">800</td>
-                      <td class="text-center fw-medium">$5,50</td>
-                    </tr>
-                    <tr>
-                      <th scope="row" class="ps-0 fw-medium border-0">
-                        <span class="table-link1 text-truncate d-block">Check out our
-                          services</span>
-                      </th>
-                      <td class="border-0">
-                        <a href="javascript:void(0)" class="link-primary text-dark fw-medium d-block">/services</a>
-                      </td>
-                      <td class="text-center fw-medium border-0">1300</td>
-                      <td class="text-center fw-medium border-0">$2,15</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-4">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title d-flex align-items-center gap-2 mb-5 pb-3">Sessions by
-                device<span><iconify-icon icon="solar:question-circle-bold" class="fs-7 d-flex text-muted" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="tooltip-success" data-bs-title="Locations"></iconify-icon></span>
-              </h5>
-              <div class="row">
-                <div class="col-4">
-                  <iconify-icon icon="solar:laptop-minimalistic-line-duotone" class="fs-7 d-flex text-primary"></iconify-icon>
-                  <span class="fs-11 mt-2 d-block text-nowrap">Computers</span>
-                  <h4 class="mb-0 mt-1">87%</h4>
-                </div>
-                <div class="col-4">
-                  <iconify-icon icon="solar:smartphone-line-duotone" class="fs-7 d-flex text-secondary"></iconify-icon>
-                  <span class="fs-11 mt-2 d-block text-nowrap">Smartphone</span>
-                  <h4 class="mb-0 mt-1">9.2%</h4>
-                </div>
-                <div class="col-4">
-                  <iconify-icon icon="solar:tablet-line-duotone" class="fs-7 d-flex text-success"></iconify-icon>
-                  <span class="fs-11 mt-2 d-block text-nowrap">Tablets</span>
-                  <h4 class="mb-0 mt-1">3.1%</h4>
-                </div>
-              </div>
+<div class="container py-4">
+    <h4 class="mb-4">Revenue Analytics</h4>
 
-              <div class="vstack gap-4 mt-7 pt-2">
-                <div>
-                  <div class="hstack justify-content-between">
-                    <span class="fs-3 fw-medium">Computers</span>
-                    <h6 class="fs-3 fw-medium text-dark lh-base mb-0">87%</h6>
-                  </div>
-                  <div class="progress mt-6" role="progressbar" aria-label="Warning example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
-                    <div class="progress-bar bg-primary" style="width: 100%"></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="hstack justify-content-between">
-                    <span class="fs-3 fw-medium">Smartphones</span>
-                    <h6 class="fs-3 fw-medium text-dark lh-base mb-0">9.2%</h6>
-                  </div>
-                  <div class="progress mt-6" role="progressbar" aria-label="Warning example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
-                    <div class="progress-bar bg-secondary" style="width: 50%"></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="hstack justify-content-between">
-                    <span class="fs-3 fw-medium">Tablets</span>
-                    <h6 class="fs-3 fw-medium text-dark lh-base mb-0">3.1%</h6>
-                  </div>
-                  <div class="progress mt-6" role="progressbar" aria-label="Warning example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
-                    <div class="progress-bar bg-success" style="width: 35%"></div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-4">
-          <div class="card overflow-hidden hover-img">
-            <div class="position-relative">
-              <a href="javascript:void(0)">
-                <img src="../assets/images/blog/blog-img1.jpg" class="card-img-top" alt="matdash-img">
-              </a>
-              <span class="badge text-bg-light text-dark fs-2 lh-sm mb-9 me-9 py-1 px-2 fw-semibold position-absolute bottom-0 end-0">2
-                min Read</span>
-              <img src="../assets/images/profile/user-3.jpg" alt="matdash-img" class="img-fluid rounded-circle position-absolute bottom-0 start-0 mb-n9 ms-9" width="40" height="40" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Georgeanna Ramero">
-            </div>
-            <div class="card-body p-4">
-              <span class="badge text-bg-light fs-2 py-1 px-2 lh-sm  mt-3">Social</span>
-              <a class="d-block my-4 fs-5 text-dark fw-semibold link-primary" href="">As yen tumbles, gadget-loving
-                Japan goes
-                for secondhand iPhones</a>
-              <div class="d-flex align-items-center gap-4">
-                <div class="d-flex align-items-center gap-2">
-                  <i class="ti ti-eye text-dark fs-5"></i>9,125
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <i class="ti ti-message-2 text-dark fs-5"></i>3
-                </div>
-                <div class="d-flex align-items-center fs-2 ms-auto">
-                  <i class="ti ti-point text-dark"></i>Mon, Dec 19
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-4">
-          <div class="card overflow-hidden hover-img">
-            <div class="position-relative">
-              <a href="javascript:void(0)">
-                <img src="../assets/images/blog/blog-img2.jpg" class="card-img-top" alt="matdash-img">
-              </a>
-              <span class="badge text-bg-light text-dark fs-2 lh-sm mb-9 me-9 py-1 px-2 fw-semibold position-absolute bottom-0 end-0">2
-                min Read</span>
-              <img src="../assets/images/profile/user-2.jpg" alt="matdash-img" class="img-fluid rounded-circle position-absolute bottom-0 start-0 mb-n9 ms-9" width="40" height="40" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Georgeanna Ramero">
-            </div>
-            <div class="card-body p-4">
-              <span class="badge text-bg-light fs-2 py-1 px-2 lh-sm  mt-3">Gadget</span>
-              <a class="d-block my-4 fs-5 text-dark fw-semibold link-primary" href="">Intel loses bid to revive
-                antitrust case
-                against patent foe Fortress</a>
-              <div class="d-flex align-items-center gap-4">
-                <div class="d-flex align-items-center gap-2">
-                  <i class="ti ti-eye text-dark fs-5"></i>4,150
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <i class="ti ti-message-2 text-dark fs-5"></i>38
-                </div>
-                <div class="d-flex align-items-center fs-2 ms-auto">
-                  <i class="ti ti-point text-dark"></i>Sun, Dec 18
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-4">
-          <div class="card overflow-hidden hover-img">
-            <div class="position-relative">
-              <a href="javascript:void(0)">
-                <img src="../assets/images/blog/blog-img3.jpg" class="card-img-top" alt="matdash-img">
-              </a>
-              <span class="badge text-bg-light text-dark fs-2 lh-sm mb-9 me-9 py-1 px-2 fw-semibold position-absolute bottom-0 end-0">2
-                min Read</span>
-              <img src="../assets/images/profile/user-3.jpg" alt="matdash-img" class="img-fluid rounded-circle position-absolute bottom-0 start-0 mb-n9 ms-9" width="40" height="40" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Georgeanna Ramero">
-            </div>
-            <div class="card-body p-4">
-              <span class="badge text-bg-light fs-2 py-1 px-2 lh-sm  mt-3">Health</span>
-              <a class="d-block my-4 fs-5 text-dark fw-semibold link-primary" href="">COVID outbreak deepens as more
-                lockdowns
-                loom in China</a>
-              <div class="d-flex align-items-center gap-4">
-                <div class="d-flex align-items-center gap-2">
-                  <i class="ti ti-eye text-dark fs-5"></i>9,480
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <i class="ti ti-message-2 text-dark fs-5"></i>12
-                </div>
-                <div class="d-flex align-items-center fs-2 ms-auto">
-                  <i class="ti ti-point text-dark"></i>Sat, Dec 17
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="py-6 px-6 text-center">
-          <p class="mb-0 fs-4">Design and Developed by <a href="https://adminmart.com/" target="_blank"
-              class="pe-1 text-primary text-decoration-underline">AdminMart.com</a>Distributed by <a href="https://themewagon.com/" target="_blank"
-              class="pe-1 text-primary text-decoration-underline">ThemeWagon</a></p>
-        </div>
-      </div>
+    <div class="mb-3 d-flex justify-content-end">
+        <select id="granularity" class="form-select w-auto">
+            <option value="monthly" selected>Monthly</option>
+            <option value="yearly">Yearly</option>
+            <option value="daily">Daily</option>
+        </select>
     </div>
-  </div>
+
+    <div class="chart-container" style="position: relative; height:400px; width:100%">
+        <canvas id="revenueChart"></canvas>
+    </div>
+</div>
+                    <!-- Footer -->
+                    <div class="py-6 px-6 text-center mt-5">
+                        <p class="mb-0 fs-4">
+                            Design and Developed by 
+                            <a href="https://adminmart.com/" target="_blank" class="pe-1 text-white text-decoration-underline">Elixore.com</a> 
+                            Distributed by 
+                            <a target="_blank" class="pe-1 text-white text-decoration-underline">Elixore</a>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 
- @endsection
+@endsection
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Then load Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let revenueChart;
+    const granularitySelect = document.getElementById('granularity');
+    const chartCanvas = document.getElementById('revenueChart');
+    
+    // Check if elements exist
+    if (!granularitySelect || !chartCanvas) {
+        console.error('Required elements not found');
+        return;
+    }
+
+    function fetchRevenueData(granularity = 'monthly') {
+        fetch(`/admin/revenue-data?granularity=${granularity}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Network response was not ok');
+            return res.json();
+        })
+        .then(data => {
+            console.log('Received data:', data); // Debug log
+            if (!data.labels || !data.data || data.labels.length === 0 || data.data.length === 0) {
+                showNoDataMessage();
+            } else {
+                updateChart(data.labels, data.data);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching revenue data:', error);
+            showNoDataMessage();
+        });
+    }
+
+    function updateChart(labels, data) {
+        if (revenueChart) revenueChart.destroy();
+        
+        // Remove any existing "no data" message
+        const noDataMessage = document.getElementById('noDataMessage');
+        if (noDataMessage) noDataMessage.remove();
+
+        const ctx = chartCanvas.getContext('2d');
+        revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Revenue (Delivered Orders)',
+                    data: data,
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.3,
+                    borderColor: '#4A90E2',
+                    backgroundColor: '#4A90E2',
+                    pointBackgroundColor: '#4A90E2'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue (PKR)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time Period'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function showNoDataMessage() {
+        if (revenueChart) {
+            revenueChart.destroy();
+            revenueChart = null;
+        }
+
+        if (!document.getElementById('noDataMessage')) {
+            const message = document.createElement('div');
+            message.id = 'noDataMessage';
+            message.className = 'alert alert-info text-center';
+            message.style.width = '100%';
+            message.style.padding = '20px';
+            message.style.margin = '20px auto';
+            message.textContent = 'No revenue data available for the selected period.';
+            
+            chartCanvas.parentNode.insertBefore(message, chartCanvas.nextSibling);
+        }
+    }
+
+    // Event listeners
+    granularitySelect.addEventListener('change', function() {
+        fetchRevenueData(this.value);
+    });
+
+    // Initial load
+    fetchRevenueData();
+});
+</script>

@@ -115,8 +115,16 @@
 
         <div class="order-info">
             <p><strong>Total:</strong> Rs{{ number_format($order->total, 2) }}</p>
+            <p><strong>Shipping Cost:</strong>  @if($order->shipping_cost > 0)
+            Rs {{ number_format($order->shipping_cost) }}
+        @else
+            FREE
+        @endif</p>
             <p><strong>Payment Method:</strong> {{ $order->payment_method }}</p>
             <p><strong>Status:</strong> {{ ucfirst($order->status) }}</p>
+            @if($order->shipping_options && !empty($order->shipping_options))
+                <p><strong>Shipping Options:</strong> {{ $order->shipping_options }}</p>
+            @endif
         </div>
 
         @if($order->payment_proof)
@@ -161,18 +169,19 @@
 
         <p style="margin-top: 20px;">We will start processing your order shortly. You will receive another email once your order is shipped.</p>
 
-          <div class="col-8 ms-auto">
-                            <div class="delivery-msg">
-      <h3>
-                              <b>            We deliver your products fast with our trusted partners:
-</b>
-      </h3>
+        <div class="col-8 ms-auto">
+            <div class="delivery-msg">
+                <h3>
+                    <b>We deliver your products fast with our trusted partners:</b>
+                </h3>
+            </div>
+            <div class="delivery-partners mt-3">
+                <img style="height:150px;width:150px;margin:auto;" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRR203e9brGJnDpRmOaxWLmLVGATEECdqWTNQ&s" alt="TCS">
+                <img style="height:150px;width:150px;margin:auto;" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhaaOTN5aYYYYpJ98BCyHKdrB8OMe3xIDDgg&s" alt="Leopard Courier">
+                <img style="height:150px;width:150px;margin:auto;" src="https://mulphilog.com.pk/uploads/2017/08/logo.png" alt="BlueEx">
+            </div>
         </div>
-        <div class="delivery-partners mt-3">
-            <img style="height:150px;width:150px;margin:auto;" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRR203e9brGJnDpRmOaxWLmLVGATEECdqWTNQ&s" alt="TCS">
-            <img style="height:150px;width:150px;margin:auto;" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhaaOTN5aYYYYpJ98BCyHKdrB8OMe3xIDDgg&s" alt="Leopard Courier">
-            <img style="height:150px;width:150px;margin:auto;" src="https://mulphilog.com.pk/uploads/2017/08/logo.png" alt="BlueEx">
-        </div>
+
     </div>
 
     <div class="email-footer">

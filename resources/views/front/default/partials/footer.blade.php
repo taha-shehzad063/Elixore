@@ -1,76 +1,148 @@
-  <!--================ start footer Area  =================-->
-  <footer class="footer-area section_gap">
-    <div class="container">
-  
-      <div class="row">
-        <div class="col-lg-2 col-md-6 single-footer-widget">
-          <h4>Top Products</h4>
-          <ul>
-            <li><a href="#">Managed Website</a></li>
-            <li><a href="#">Manage Reputation</a></li>
-            <li><a href="#">Power Tools</a></li>
-            <li><a href="#">Marketing Service</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-2 col-md-6 single-footer-widget">
-          <h4>Quick Links</h4>
-          <ul>
-            <li><a href="#">Jobs</a></li>
-            <li><a href="#">Brand Assets</a></li>
-            <li><a href="#">Investor Relations</a></li>
-            <li><a href="#">Terms of Service</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-2 col-md-6 single-footer-widget">
-          <h4>Features</h4>
-          <ul>
-            <li><a href="#">Jobs</a></li>
-            <li><a href="#">Brand Assets</a></li>
-            <li><a href="#">Investor Relations</a></li>
-            <li><a href="#">Terms of Service</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-2 col-md-6 single-footer-widget">
-          <h4>Resources</h4>
-          <ul>
-            <li><a href="#">Guides</a></li>
-            <li><a href="#">Research</a></li>
-            <li><a href="#">Experts</a></li>
-            <li><a href="#">Agencies</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-4 col-md-6 single-footer-widget">
-          <h4>Newsletter</h4>
-          <p>You can trust us. we only send promo offers,</p>
-          <div class="form-wrap" id="mc_embed_signup">
-            <form target="_blank" action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01"
-              method="get" class="form-inline">
-              <input class="form-control" name="EMAIL" placeholder="Your Email Address" onfocus="this.placeholder = ''"
-                onblur="this.placeholder = 'Your Email Address '" required="" type="email">
-              <button class="click-btn btn btn-default">Subscribe</button>
-              <div style="position: absolute; left: -5000px;">
-                <input name="b_36c4fd991d266f23781ded980_aefe40901a" tabindex="-1" value="" type="text">
-              </div>
+<!--================ start footer Area  =================-->
+<style>
+  @media (max-width: 380px) {
+  .foote {
+    bottom: 0px !important;
+  }
+}
+</style>
+<footer class="footer-area pt-5 pb-3" style="background: #111; color: #fff;">
+  <div class="container">
+    <div class="row">
 
-              <div class="info"></div>
-            </form>
-          </div>
+      <!-- Logo and Contact Info -->
+<div class="col-lg-3 col-sm-6 col-12 mb-4">
+        <div class="footer-logo mb-3">
+          <img src="{{ asset('assets/img/logo.jpg') }}" alt="Logo" style="height: 60px;">
         </div>
+        <p>Pakistan’s No.1 Natural Products Straight from the Heart of Cholistan</p>
+        <p><i class="fa fa-phone mr-2"></i> +92 327 3546 6753</p>
+        <p><i class="fa fa-envelope mr-2"></i> tahashehzad063@gmail.com</p>
       </div>
-      <div class="footer-bottom row align-items-center">
-        <p class="footer-text m-0 col-lg-8 col-md-12"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved by  <a class="navbar-brand logo_h" href="{{route('main')}}">
-          <img class="logo_height1" src="{{ asset('assets/img/logo.jpg') }}" alt="Logo">
 
-          </a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
-        <div class="col-lg-4 col-md-12 footer-social">
-          <a href="#"><i class="fa fa-facebook"></i></a>
-          <a href="#"><i class="fa fa-twitter"></i></a>
-          <a href="#"><i class="fa fa-dribbble"></i></a>
-          <a href="#"><i class="fa fa-behance"></i></a>
+      <!-- Shop By (First 5 Categories) -->
+      <div class="col-lg-2 col-md-6 col-6 mb-4">
+        <h5 class="text-light">Shop by</h5>
+        <ul class="list-unstyled">
+       @foreach(App\Models\Category::take(5)->get() as $category)
+    @php
+        $slug = Str::slug($category->name); // Converts "Men Shoes" to "men-shoes"
+    @endphp
+    <li>
+        <a href="{{ route('category.products', ['name' => $slug]) }}" style="color:#ccc;">
+            {{ $category->name }}
+        </a>
+    </li>
+@endforeach
+
+        </ul>
+      </div>
+
+      <!-- Links -->
+      <div class="col-lg-2 col-md-6 col-6 mb-4">
+        <h5 class="text-light">Links</h5>
+        <ul class="list-unstyled">
+          <li><a href="{{ route('main') }}" style="color:#ccc;">Home</a></li>
+          <li><a href="{{ route('shop.index') }}" style="color:#ccc;">Shop</a></li>
+          <li><a href="{{ route('blog') }}" style="color:#ccc;">Blog</a></li>
+          <li><a href="{{ route('contact') }}" style="color:#ccc;">Contact</a></li>
+        </ul>
+      </div>
+@php
+    use App\Models\Policy;
+
+    $footer_policies = Policy::select('title', 'slug')->get();
+@endphp
+      <!-- Support -->
+     <div class="col-lg-2 col-md-6 mb-4 col-6">
+  <h5 class="text-light">Support</h5>
+  <ul class="list-unstyled">
+    @foreach($footer_policies as $policy)
+      <li>
+        <a href="{{ route('policy.show', $policy->slug) }}" style="color:#ccc;">
+          {{ $policy->title }}
+        </a>
+      </li>
+    @endforeach
+  </ul>
+</div>
+
+
+      <!-- Newsletter & Social -->
+      <div class="col-lg-3 col-md-6 mb-4 col-6">
+<h5 class="text-light">Follow Us</h5>
+        <div class="mb-3">
+          <a href="#" class="mr-2"><i class="fab fa-facebook text-white"></i></a>
+          <a href="#" class="mr-2"><i class="fab fa-instagram text-white"></i></a>
+          <a href="#" class="mr-2"><i class="fab fa-tiktok text-white"></i></a>
+          <a href="#" class="mr-2"><i class="fab fa-youtube text-white"></i></a>
         </div>
+        <h6 class="text-light">Receive our latest updates about our products & deals.</h6>
+        <form id="newsletterForm" action="{{ route('newsletter.subscribe') }}" method="POST" class="form-inline">
+          @csrf
+          <div class="input-group">
+            <input type="email" name="email" class="form-control" placeholder="Enter your email..." required>
+            <div class="input-group-append">
+              <button class="btn btn-warning" type="submit">SUBSCRIBE</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Bottom footer -->
+    <div class="row pt-4 border-top border-secondary mt-4 bg-light">
+      <div class="col-md-8">
+        <p class="mb-0 text-muted">&copy; {{ date('Y') }} Elixore. All Rights Reserved</p>
+      </div>
+      <div class="col-md-4 text-right">
+        <img class="foote" style="height: 56px; width: 250px;    bottom: 10px;
+    position: relative;" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtroC78ml1CoAkcniu2KDlpXVAojoYpYZTgA&s" alt="Payments" style="height: 32px;">
       </div>
     </div>
-  </footer>
-  <!--================ End footer Area  =================-->
+  </div>
+</footer>
+<!--================ End footer Area  =================-->
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(function() {
+    $('#newsletterForm').on('submit', function(e) {
+        e.preventDefault();
+        var $form = $(this);
+        var formData = $form.serialize();
+
+        $.ajax({
+            url: $form.attr('action'),
+            method: 'POST',
+            data: formData,
+            headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+            success: function(res) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Subscribed!',
+                    text: res.message || 'Thank you for subscribing!',
+                    confirmButtonColor: '#71cd14'
+                });
+                $form[0].reset();
+            },
+            error: function(xhr) {
+                let msg = 'Something went wrong. Please try again.';
+                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    msg = Object.values(xhr.responseJSON.errors).map(function(e){
+                        return Array.isArray(e) ? e.join('<br>') : e;
+                    }).join('<br>');
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    html: msg,
+                    confirmButtonColor: '#71cd14'
+                });
+            }
+        });
+    });
+});
+</script>

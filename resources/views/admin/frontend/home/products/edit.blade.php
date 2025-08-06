@@ -1,6 +1,8 @@
 @extends('admin.frontend.partials.app')
 
 @section('content')
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
+
 <style>
 /* Add the preview-box styles if they are not already in app.blade.php or another global CSS */
 .preview-box {
@@ -59,15 +61,18 @@
         </select>
     </div>
 
-    <div class="mb-3">
-        <label for="info" class="form-label">Short Info</label>
-        <textarea name="info" class="form-control">{{ old('info', $products->info ?? '') }}</textarea>
-    </div>
+  <!-- Short Info -->
+<div class="mb-3">
+    <label for="info" class="form-label">Short Info</label>
+    <textarea name="info" id="info" class="form-control summernote">{{ old('info', $products->info ?? '') }}</textarea>
+</div>
 
-    <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
-        <textarea name="description" class="form-control" rows="5">{{ old('description', $products->description ?? '') }}</textarea>
-    </div>
+<!-- Description -->
+<div class="mb-3">
+    <label for="description" class="form-label">Description</label>
+    <textarea name="description" id="description" class="form-control summernote" rows="5">{{ old('description', $products->description ?? '') }}</textarea>
+</div>
+
 
     <div class="mb-3">
         <label class="form-label">Availability</label>
@@ -413,4 +418,23 @@ $(document).ready(function () {
       $(this).closest('.option-row').remove();
     });
 });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.summernote').summernote({
+            placeholder: 'Type here...',
+            tabsize: 2,
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'clear']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+    });
 </script>

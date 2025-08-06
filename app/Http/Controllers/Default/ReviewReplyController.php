@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Default;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ReviewReply;
+
 class ReviewReplyController extends Controller
 {
     public function store(Request $request)
@@ -15,8 +16,22 @@ class ReviewReplyController extends Controller
             'reply' => 'required|string',
         ]);
 
-        ReviewReply::create($request->all());
+        $reply = ReviewReply::create($request->all());
 
-        return back()->with('success', 'Reply submitted successfully!');
+        return response()->json([
+            'status' => true,
+            'message' => 'Reply submitted successfully!',
+            'reply' => [
+                'id' => $reply->id,
+                'name' => $reply->name,
+                'reply' => $reply->reply,
+                'created_at' => $reply->created_at->toDateTimeString(), // Optional for display
+            ]
+        ]);
     }
+    public function destroy(ReviewReply $reply)
+{
+    $reply->delete();
+    return response()->json(['success' => true]);
+}
 }

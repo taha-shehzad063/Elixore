@@ -10,21 +10,32 @@
     <div class="container-fluid">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title fw-semibold mb-4">Create Product</h5>
+          <h5 class="card-title fw-semibold mb-4">Create Tag</h5>
           <div class="card">
             <div class="card-body">
 
               <form method="POST" action="{{ route('admin.tags.store') }}" enctype="multipart/form-data">
                 @csrf
 
-                <!-- Name -->
+                <!-- Tag Name -->
                 <div class="mb-3">
                   <label for="name" class="form-label">Tag Name</label>
                   <input type="text" name="name" class="form-control" required>
                 </div>
 
+                <!-- Category Dropdown -->
+                <div class="mb-3">
+                  <label for="category_id" class="form-label">Select Category</label>
+                  <select name="category_id" class="form-select" required>
+                    <option value="">-- Choose Category --</option>
+                    @foreach($categories as $category)
+                      <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                  </select>
+                </div>
+
                 <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary">Add Tags</button>
+                <button type="submit" class="btn btn-primary">Add Tag</button>
               </form>
 
             </div>

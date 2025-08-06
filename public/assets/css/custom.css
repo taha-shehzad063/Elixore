@@ -55,3 +55,224 @@
         color: #6c757d;
     }
 
+ /* Base Styles */
+  .top-0-0 {
+      top: 21px !important;
+  }
+
+  .nav-icon {
+      color: #000;
+      font-size: 20px;
+      margin-left: 10px;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  .cart-badge,
+  .wishlist-badge,
+  .new-badge,
+  .hot-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      position: absolute;
+      top: -6px;
+      right: -10px;
+  }
+
+  .cart-badge, .wishlist-badge {
+      background-color: #71cd14;
+      color: #fff;
+  }
+
+  .new-badge {
+      background-color: #71cd14;
+      color: #fff;
+  }
+
+  .hot-badge {
+      background-color: #ff3b3b;
+      color: #fff;
+  }
+
+  .nav-link-badge {
+      position: relative;
+      display: inline-block;
+  }
+
+  .nav-link-badge .badge {
+      position: absolute;
+      top: -3px;
+      right: -10px;
+  }
+
+  .navbar-nav .nav-item.active .nav-link {
+      color: #71cd14 !important;
+      font-weight: 600;
+  }
+
+  .navbar-nav .nav-link {
+      transition: all 0.3s ease;
+      padding: 10px 15px;
+  }
+
+  .navbar-nav .nav-link:hover {
+      color: #71cd14;
+  }
+
+  .navbar-toggler:focus {
+      box-shadow: none;
+  }
+
+  .dropdown-menu {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid rgba(0,0,0,.1);
+      box-shadow: 0 5px 10px rgba(0,0,0,.1);
+  }
+
+  .dropdown-item:active {
+      background-color: #71cd14;
+  }
+
+  /* Mobile Sidebar Styles */
+  .offcanvas {
+      background-color: #fff;
+  }
+
+  .sidebar-search {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+  }
+
+  .sidebar-user {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+  }
+
+  
+
+  /* Desktop Styles */
+  @media (min-width: 992px) {
+      .navbar-collapse {
+          display: flex !important;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+      }
+
+      .mobile-icons {
+          display: none;
+      }
+
+      .nav-left,
+      .nav-center,
+      .nav-right {
+          display: flex;
+          align-items: center;
+      }
+
+      .nav-left {
+          flex: 1;
+          justify-content: flex-start;
+      }
+
+      .nav-center {
+          flex: 1;
+          justify-content: center;
+      }
+
+      .nav-right {
+          flex: 1;
+          justify-content: flex-end;
+      }
+
+      .offcanvas-btn {
+          display: none;
+      }
+  }
+
+  /* Tablet & Mobile Styles */
+  @media (max-width: 991px) {
+      .navbar-brand {
+          margin-right: auto;
+          margin-left: auto;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+      }
+      
+      .navbar-toggler {
+          order: -1;
+      }
+      
+      .mobile-icons {
+          display: flex;
+          margin-left: auto;
+      }
+      
+      .navbar-collapse {
+          position: fixed;
+          top: 60px;
+          left: 0;
+          right: 0;
+          background: white;
+          z-index: 1000;
+          padding: 20px;
+          box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      }
+      
+      .nav-left, .nav-right {
+          flex-direction: column;
+          width: 100%;
+      }
+      
+      .nav-center {
+          display: none;
+      }
+      
+      .nav-right {
+          margin-top: 15px;
+          border-top: 1px solid #eee;
+          padding-top: 15px;
+      }
+      
+      .user-dropdown .dropdown-menu {
+          position: static !important;
+          transform: none !important;
+          border: none;
+          box-shadow: none;
+      }
+
+      /* Remove search and user from main bar on mobile/tablet */
+      .nav-right .ti-search,
+      .nav-right .ti-user {
+          display: none;
+      }
+  }
+.btn-theme {
+  background-color: #71cd14;
+  color: #fff;
+  border: none;
+}
+
+.btn-theme:hover {
+  background-color: #5fbf10; /* Slightly darker green on hover */
+  color: #fff;
+}
+  /* Mobile Only Styles */
+  @media (max-width: 767px) {
+      .dropdown-menu {
+          position: static !important;
+          transform: none !important;
+          border: none;
+          box-shadow: none;
+          margin-left: 15px;
+      }
+      
+      .nav-icon {
+          margin: 5px 10px;
+      }
+  }

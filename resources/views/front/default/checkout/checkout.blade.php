@@ -1,10 +1,10 @@
 @extends('front.default.partials.app')
 
 @section('content')
+
 <link rel="stylesheet" href="{{ asset('assets/css/checkout.css') }}" />
 <style>
 /* Hide original <select> */
-
 </style>
 <div class="checkout-wrapper">
     <div class="checkout-main">
@@ -19,6 +19,7 @@
                     <input type="text" class="checkout-input" name="shipping_address[phone]" placeholder="Phone Number" required>
                 </div>
                 <input type="text" class="checkout-input" name="shipping_address[address]" placeholder="Street Address" required>
+                <input type="text" class="checkout-input" name="shipping_address[state]" placeholder="State" required>
                 <input type="text" class="checkout-input" name="shipping_address[apartment]" placeholder="Apartment, suite, etc. (optional)">
                 <div style="display: flex; gap: 12px;">
                     <input type="text" class="checkout-input" name="shipping_address[city]" placeholder="City" required>
@@ -43,27 +44,37 @@
           <div class="mb-4">
    <div class="checkout-label">Shipping Method</div>
 
-@php $firstShipping = true; @endphp
+  @php
+    $firstShipping = true;
+    $shippingIndex = 0;
+@endphp
+
 @foreach($checkoutOptions as $option)
     @if($option->type === 'shipping')
-        <div class="shipping-method-box {{ $firstShipping ? 'selected' : '' }}">
+        @php $shippingIndex++; @endphp
+
+        <div class="shipping-method-box {{ $firstShipping ? 'selected' : '' }} {{ $shippingIndex == 1 ? 'first-shipping-option' : '' }}"
+             @if($shippingIndex == 1 && $cartSubtotal < 3000) style="display:none;" @endif>
+
             <label class="checkout-radio-label" style="display:flex; align-items:center;">
-                <input 
-                    type="radio" 
-                    name="shipping_method" 
-                    value="{{ $option->key }}" 
+                <input
+                    type="radio"
+                    name="shipping_method"
+                    value="{{ $option->key }}"
                     data-shipping-cost="{{ $option->shipping_cost }}"
-                    {{ $firstShipping ? 'checked' : '' }}>
+                    {{ ($firstShipping && $cartSubtotal >= 3000) ? 'checked' : '' }}>
+
                 <span style="margin-left: 10px;">{{ $option->key }} ({{ $option->message }})</span>
+
                 <span style="margin-left:auto; font-weight:600; color:{{ $option->shipping_cost == 0 ? '#71cd14' : '#222' }}">
                     {{ $option->shipping_cost == 0 ? 'FREE' : 'Rs ' . number_format($option->shipping_cost, 2) }}
                 </span>
             </label>
         </div>
+
         @php $firstShipping = false; @endphp
     @endif
 @endforeach
-
 
 </div>
 
@@ -135,6 +146,7 @@
                 <input type="text" class="checkout-input" name="billing_address[phone]" placeholder="Phone Number">
             </div>
             <input type="text" class="checkout-input" name="billing_address[address]" placeholder="Street Address">
+            <input type="text" class="checkout-input" name="billing_address[state]" placeholder="State">
             <input type="text" class="checkout-input" name="billing_address[apartment]" placeholder="Apartment, suite, etc. (optional)">
             <div style="display: flex; gap: 12px;">
                 <input type="text" class="checkout-input" name="billing_address[city]" placeholder="City">
@@ -156,7 +168,6 @@
     </select>
 </div>
 
-
         </div>
     </div>
 </div>
@@ -174,6 +185,7 @@
                 @endif
             </div>
             <input type="hidden" name="order_data" value="">
+            <input type="hidden" name="total" id="orderTotalInput" value="{{ $cartSubtotal }}">
             <button type="submit" class="checkout-btn">Complete Order</button>
         </form>
     </div>
@@ -185,15 +197,35 @@
             <span>
                 <img style="height:150px;width:150px;" src="{{ asset('storage/' . ($item->product->galleries->first()->image ?? 'default.jpg')) }}" alt="" style="width:38px;height:38px;object-fit:cover;border-radius:6px;margin-right:8px;">
                 {{ $item->product->name ?? '' }} x{{ $item->quantity }}
+                @if($item->selected_options && count($item->selected_options) > 0)
+                    <div class="small text-muted" style="margin-left: 10px;">
+                        @foreach($item->selected_options as $option)
+                            <span class="badge" style="background: linear-gradient(135deg, #71cd14 0%, #5bb300 100%); color: white; font-size: 0.75rem; border-radius: 6px; padding: 2px 6px;">
+                                {{ $option['key'] }}: {{ $option['value'] }}
+                                @if(isset($option['price']) && $option['price'] > 0)
+                                    (+Rs{{ number_format($option['price'], 2) }})
+                                @endif
+                            </span>
+                        @endforeach
+                    </div>
+                @endif
             </span>
-            <span>Rs{{ number_format($item->price * $item->quantity, 2) }}</span>
+            @php
+                $optionTotal = 0;
+                if($item->selected_options && count($item->selected_options) > 0) {
+                    foreach($item->selected_options as $option) {
+                        $optionTotal += isset($option['price']) ? $option['price'] : 0;
+                    }
+                }
+                $itemTotal = ($item->price + $optionTotal) * $item->quantity;
+            @endphp
         </li>
         @endforeach
     </ul>
     <div class="order-summary-list">
         <li>
             <span>Subtotal</span>
-            <span>Rs{{ number_format($items->sum(fn($i) => $i->price * $i->quantity), 2) }}</span>
+            <span>Rs{{ number_format($cartSubtotal, 2) }}</span>
         </li>
         <li>
             <span>Shipping</span>
@@ -202,7 +234,7 @@
     </div>
     <div class="order-summary-total">
         <span>Total</span>
-        <span id="orderTotal">Rs{{ number_format($items->sum(fn($i) => $i->price * $i->quantity), 2) }}</span>
+        <span id="orderTotal">Rs{{ number_format($cartSubtotal, 2) }}</span>
     </div>
 </div>
 
@@ -215,24 +247,37 @@
       @csrf
       <input type="hidden" name="order_data" value="">
       <div class="modal-content">
-        <div class="modal-header" style="background:#f3ffe7;">
-          <h5 class="modal-title" id="proofModalLabel" style="color:#71cd14;">Upload Payment Proof</h5>
+        <div class="modal-header" style="background: linear-gradient(135deg, #71cd14, #5bb300); border-bottom: none;">
+          <h5 class="modal-title" id="proofModalLabel" style="color: #fff; font-weight: 600;">Upload Payment Proof</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
         </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">Payment Screenshot <span style="color:red">*</span></label>
-            <input type="file" name="proof_image" class="form-control" accept="image/*" required>
-            <div class="invalid-feedback" id="proof_image_error"></div>
+        <div class="modal-body p-4">
+          <div class="upload-container text-center">
+            <label for="proof_image" class="upload-label">
+              <div class="upload-arrow">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#71cd14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5v14m0 0l-7-7m7 7l7-7"/>
+                </svg>
+              </div>
+              <div class="upload-text">Drag & Drop or <span style="color: #71cd14; cursor: pointer;">Browse</span> to upload</div>
+              <input type="file" id="proof_image" name="proof_image" class="form-control d-none" accept="image/*" required>
+              <div id="proof_image_error" class="invalid-feedback text-center"></div>
+            </label>
+            <div class="preview-container mt-3" id="imagePreview">
+              <img id="previewImage" src="" alt="Preview" style="max-width: 100%; max-height: 200px; display: none; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            </div>
+            <div class="mt-2 text-muted">Please upload a screenshot or photo of your payment receipt (Max 2MB).</div>
           </div>
-          <div class="mt-2 text-muted">Please upload a screenshot or photo of your payment receipt.</div>
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn" style="background:#71cd14;color:#fff;">Upload</button>
+        <div class="modal-footer justify-content-center border-top-0">
+          <button type="submit" class="btn upload-btn" style="background: #71cd14; color: #fff; padding: 10px 30px; border-radius: 25px;">Upload</button>
         </div>
       </div>
     </form>
   </div>
 </div>
+
+
    
 @endsection
    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -261,6 +306,29 @@ $(document).ready(function() {
 
 <script>
 $(function(){
+    // Function to update total and shipping cost
+    function updateTotal() {
+        let subtotal = {{ $cartSubtotal }};
+        let shippingFee = 0;
+
+        // Automatically select second option and add Rs 200 if subtotal < 3000
+        if (subtotal < 3000) {
+            let $secondOption = $('.shipping-method-box').not('.first-shipping-option').first().find('input[type=radio]');
+            $secondOption.prop('checked', true).closest('.shipping-method-box').addClass('selected');
+            $('.first-shipping-option').hide();
+            shippingFee = 200; // Fixed Rs 200 shipping cost
+        } else {
+            let $firstOption = $('.first-shipping-option').find('input[type=radio]');
+            $firstOption.prop('checked', true).closest('.shipping-method-box').addClass('selected');
+            shippingFee = parseFloat($firstOption.data('shipping-cost')) || 0; // Use first option's cost
+        }
+
+        let total = subtotal + shippingFee;
+        $('#orderTotal').text('Rs' + total.toFixed(2));
+        $('#orderTotalInput').val(total.toFixed(2)); // Update hidden input
+        $('#shippingCost').text(shippingFee === 0 ? 'FREE' : 'Rs' + shippingFee.toFixed(2)); // Update shipping cost display
+    }
+
     // Billing address toggle
     $('input[name="address_option"]').on('change', function(){
         $('.billing-method-box').removeClass('selected');
@@ -283,29 +351,20 @@ $(function(){
         }
     });
 
-        // Shipping method toggle and update shipping cost
-  $('input[name="shipping_method"]').on('change', function () {
-    $('.shipping-method-box').removeClass('selected');
-    $(this).closest('.shipping-method-box').addClass('selected');
+    // Shipping method toggle and update shipping cost
+    $('input[name="shipping_method"]').on('change', function () {
+        $('.shipping-method-box').removeClass('selected');
+        $(this).closest('.shipping-method-box').addClass('selected');
+        let subtotal = {{ $cartSubtotal }};
+        let shippingFee = parseFloat($(this).data('shipping-cost')) || 0;
+        let total = subtotal + shippingFee;
+        $('#orderTotal').text('Rs' + total.toFixed(2));
+        $('#orderTotalInput').val(total.toFixed(2)); // Update hidden input
+        $('#shippingCost').text(shippingFee === 0 ? 'FREE' : 'Rs' + shippingFee.toFixed(2));
+    });
 
-    let subtotal = {{ $items->sum(fn($i) => $i->price * $i->quantity) }};
-    
-    // Get shipping cost from data attribute of selected option
-    let shippingFee = parseFloat($(this).data('shipping-cost')) || 0;
-
-    // Update shipping cost display with color change
-    if (shippingFee === 0) {
-        $('#shippingCost').text('FREE').css('color', '#71cd14');
-    } else {
-        $('#shippingCost').text('Rs ' + shippingFee.toFixed(2)).css('color', '#222');
-    }
-
-    // Calculate total with shipping
-    let total = subtotal + shippingFee;
-    $('#orderTotal').text('Rs' + total.toFixed(2));
-});
-
-
+    // Set initial total and shipping cost
+    updateTotal();
 
     // Submit order
     $('#checkoutForm').on('submit', function(e){
@@ -361,19 +420,29 @@ $(function(){
         });
     });
 
-    // Proof upload
-    $('#proofForm').on('submit', function(e){
+    // Proof upload with preview
+    $('#proofForm').on('submit', function(e) {
         e.preventDefault();
         $('#proof_image_error').text('');
-        var formData = new FormData(this);
+
+        let fileInput = $('#proof_image')[0];
+        let file = fileInput.files[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) { // 2MB in bytes
+                $('#proof_image_error').text('File size exceeds 2MB. Please upload a smaller file.');
+                return;
+            }
+        }
+
+        let formData = new FormData(this);
         $.ajax({
             url: '{{ route("order.uploadProof") }}',
             method: 'POST',
             data: formData,
             processData: false,
             contentType: false,
-            success: function(res){
-                if(res.status){
+            success: function(res) {
+                if (res.status) {
                     $('#proofModal').modal('hide');
                     Swal.fire({
                         icon: 'success',
@@ -392,15 +461,36 @@ $(function(){
                     });
                 }
             },
-            error: function(xhr){
-                if(xhr.status === 422) {
+            error: function(xhr) {
+                if (xhr.status === 422) {
                     let errors = xhr.responseJSON.errors;
-                    if(errors.proof_image){
+                    if (errors.proof_image) {
                         $('#proof_image_error').text(errors.proof_image[0]);
                     }
                 }
             }
         });
+    });
+
+    // Image preview
+    $('#proof_image').on('change', function() {
+        let file = this.files[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                $('#proof_image_error').text('File size exceeds 2MB. Please upload a smaller file.');
+                $('#previewImage').hide();
+                return;
+            }
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                $('#previewImage').attr('src', e.target.result);
+                $('#previewImage').show();
+            }
+            reader.readAsDataURL(file);
+            $('#proof_image_error').text('');
+        } else {
+            $('#previewImage').hide();
+        }
     });
 });
 
@@ -433,4 +523,3 @@ $(document).ready(function() {
     });
 });
 </script>
-

@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Address;
 use App\Models\Cart;
+use App\Models\Product;
 use App\Models\CartItem;
 use App\Models\CheckoutOption;
 use Illuminate\Support\Facades\Auth;
@@ -24,39 +25,81 @@ use Illuminate\Support\Facades\Http;
 class OrderController extends Controller
 {
             use UploadsImages;
-
-    public function checkout()
-    {
-         $countries = [];
+public function checkout()
+{
+    $countries = [];
 
     try {
         $response = Http::get('https://www.apicountries.com/countries');
-
         if ($response->successful()) {
             $countries = $response->json();
         }
     } catch (\Exception $e) {
-        // Optional: log error
+        // Log error if needed
     }
-        $user = Auth::user();
-        $cart = Cart::where('user_id', $user->id)->where('status', 'active')->first();
-        $items = $cart ? $cart->items()->with('product')->get() : collect();
-        $addresses = Address::where('user_id', $user->id)->get();
-        $checkoutOptions = CheckoutOption::where('status', 1)->get();
 
-        return view('front.default.checkout.checkout', compact('items', 'addresses', 'cart','countries','checkoutOptions'));
+    $user = Auth::user();
+    $cart = Cart::where('user_id', $user->id)->where('status', 'active')->first();
+    $items = $cart ? $cart->items()->with('product')->get() : collect();
+    $addresses = Address::where('user_id', $user->id)->get();
+    $checkoutOptions = CheckoutOption::where('status', 1)->get();
+
+$cartSubtotal = $cart?->total ?? 0;
+
+// If subtotal is 0, calculate manually from products
+if ($cartSubtotal == 0 && $items->isNotEmpty()) {
+    $cartSubtotal = $items->reduce(function ($carry, $item) {
+        $productPrice = $item->product->sale_price ?? $item->product->price ?? 0;
+        return $carry + ($productPrice * $item->quantity);
+    }, 0);
+}
+// dd($cartSubtotal);
+    return view('front.default.checkout.checkout', compact(
+        'items',
+        'cartSubtotal',
+        'addresses',
+        'cart',
+        'countries',
+        'checkoutOptions'
+    ));
+}
+
+
+public function saveCartTotal(Request $request)
+{
+    $request->validate([
+        'total' => 'required|numeric|min:0',
+    ]);
+
+    $user = Auth::user();
+
+    $cart = Cart::where('user_id', $user->id)->where('status', 'active')->first();
+
+    if (!$cart) {
+        return redirect()->back()->with('error', 'Cart not found.');
     }
+
+    $cart->total = $request->input('total');
+    $cart->save();
+
+    return redirect()->route('checkout')->with('success', 'Total saved successfully!');
+}
 
     public function placeOrder(Request $request)
     {
+            $total = $request->input('total'); // Use the total sent from the form
+        
         $shippingOption = CheckoutOption::where('type', 'shipping')
-    ->where('key', $request->shipping_method)
-    ->first();
+            ->where('key', $request->shipping_method)
+            ->first();
 
-$shippingCost = $shippingOption ? $shippingOption->shipping_cost : 0;
-// dd($shippingCost);
-        $validShippingMethods = CheckoutOption::where('type', 'shipping')->pluck('key')->toArray();
-        $validPaymentMethods = CheckoutOption::where('type', 'payment')->pluck('key')->toArray();
+        $shippingCost = $shippingOption && $shippingOption->shipping_cost !== null
+            ? $shippingOption->shipping_cost
+            : 0;
+
+        // dd($shippingCost);
+                $validShippingMethods = CheckoutOption::where('type', 'shipping')->pluck('key')->toArray();
+                $validPaymentMethods = CheckoutOption::where('type', 'payment')->pluck('key')->toArray();
 
         // dd($request->all());
         $request->validate([
@@ -112,14 +155,7 @@ $shippingCost = $shippingOption ? $shippingOption->shipping_cost : 0;
                 ]);
             }
 
-           $subtotal = $items->sum(fn($i) => $i->price * $i->quantity);
-$total = $subtotal + $shippingCost;
-Log::info('Order Placing (COD)', [
-    'user_id' => $user->id,
-    'shipping_cost' => $shippingCost,
-    'subtotal' => $subtotal,
-    'total' => $total
-]);
+
             $totalQty = $items->sum('quantity');
             
             // Create order
@@ -128,6 +164,8 @@ Log::info('Order Placing (COD)', [
                 'shipping_address_id' => $shipping->id,
                 'billing_address_id' => $billing ? $billing->id : $shipping->id,
                 'shipping_method' => $request->shipping_method,
+                    'shipping_cost' => $shippingCost,
+
                 'payment_method' => $request->payment_method,
                 'total' => $total,
                 'total_quantity' => $totalQty,
@@ -164,7 +202,7 @@ Log::info('Order Placing (COD)', [
             return response()->json([
                 'status' => true,
                 'show_proof_modal' => false,
-                'message' => 'Order placed successfully! Thank you for your order.'
+                'message' => 'Order placed successfully! Thank you for your order.You will be get an Email Confirmation.'
             ]);
         }
 
@@ -178,20 +216,23 @@ Log::info('Order Placing (COD)', [
     }
     public function uploadProof(Request $request)
     {
-         
+        
+        
         $request->validate([
             'proof_image' => 'required|image|max:2048',
             'order_data' => 'required'
         ]);
-
+        
         $orderData = json_decode($request->order_data, true);
- $shippingOption = CheckoutOption::where('type', 'shipping')
-            ->where('key', $orderData['shipping_method'])
-            ->first();
+        $total = $orderData['total'] ?? 0;
+        // dd($total);
+            $shippingOption = CheckoutOption::where('type', 'shipping')
+                        ->where('key', $orderData['shipping_method'])
+                        ->first();
 
-        $shippingCost = $shippingOption ? $shippingOption->shipping_cost : 0;
-
-        // Validate required fields in $orderData as needed
+            $shippingCost = $shippingOption ? ($shippingOption->shipping_cost ?? 0) : 0;
+                    // dd($shippingCost);
+                    // Validate required fields in $orderData as needed
 
         DB::beginTransaction();
         try {
@@ -215,6 +256,7 @@ Log::info('Order Placing (COD)', [
                 'address' => $orderData['shipping_address']['address'],
                 'city' => $orderData['shipping_address']['city'],
                 'state' => $orderData['shipping_address']['state'] ?? null,
+                
                 'zip' => $orderData['shipping_address']['zip'] ?? null,
                 'country' => $orderData['shipping_address']['country'],
             ]);
@@ -235,14 +277,6 @@ Log::info('Order Placing (COD)', [
                 ]);
             }
 
-$subtotal = $items->sum(fn($i) => $i->price * $i->quantity);
-$total = $subtotal + $shippingCost;
- Log::info('Order Placing (COD)', [
-    'user_id' => $user->id,
-    'shipping_cost' => $shippingCost,
-    'subtotal' => $subtotal,
-    'total' => $total
-]);
                      $totalQty = $items->sum('quantity');
 
             // Save proof image
@@ -256,12 +290,14 @@ $total = $subtotal + $shippingCost;
                 'shipping_method' => $orderData['shipping_method'],
                 'payment_method' => $orderData['payment_method'],
                 'total' => $total,
+                'shipping_cost' => $shippingCost,
+
                 'total_quantity' => $totalQty,
                 'order_note' => $orderData['order_note'] ?? null,
                 'status' => 'awaiting_verification',
                 'payment_proof' => $path,
             ]);
-
+            // dd($order);
             foreach ($items as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -277,10 +313,36 @@ $total = $subtotal + $shippingCost;
 
             DB::commit();
 
-            return response()->json(['status' => true, 'message' => 'Proof uploaded! Thank you for your order.']);
+            return response()->json(['status' => true, 'message' => 'Proof uploaded! Thank you for your order.You will be get an Email Confirmation']);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['status' => false, 'message' => 'Order failed!']);
         }
     }
+
+    public function index(Request $request)
+{
+    $status = $request->input('status', 'all');
+
+    $orders = Order::with(['items.product.galleries'])
+        ->where('user_id', Auth::id())
+        ->when($status !== 'all', function ($query) use ($status) {
+            if ($status === 'pending') {
+                $query->whereIn('status', ['pending', 'awaiting_verification']);
+            } else {
+                $query->where('status', $status);
+            }
+        })
+        ->orderByDesc('created_at')
+        ->get();
+
+    $suggestedProducts = Product::with('galleries')->inRandomOrder()->take(6)->get();
+
+    if ($request->ajax()) {
+        return view('front.default.order.partials.orders_list', compact('orders'))->render();
+    }
+
+    return view('front.default.order.index', compact('orders', 'suggestedProducts'));
+}
+
 }

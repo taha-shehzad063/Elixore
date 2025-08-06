@@ -1,6 +1,10 @@
-@extends('front.default.partials.app')
 
-@section('content')
+@if (!request()->ajax())
+    @extends('front.default.partials.app')
+
+    @section('content')
+@endif
+
 <link rel="stylesheet" href="{{ asset('assets/css/shop.css') }}" />
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
@@ -36,10 +40,10 @@
                     </div>
                 </div>
                 <button id="open-filter-sidebar" class="btn btn-success d-lg-none mb-3" style="background:#71cd14;">
-    <i class="ti-filter"></i> Filters
-</button>
+                    <i class="ti-filter"></i> Filters
+                </button>
 
-<div class="d-none d-md-flex align-items-center mb-3">
+                <div class="d-none d-md-flex align-items-center mb-3">
                     <span class="me-2">VIEW AS</span>
                     <button type="button" class="btn btn-outline-secondary btn-sm view-mode-btn {{ request('grid_mode') == 'list' ? 'active' : '' }}" data-cols="list">
                         <img src="https://thumbs.dreamstime.com/b/hamburger-menu-icon-selection-three-lines-option-website-navigation-navigate-open-list-black-white-symbol-sign-graphic-361715125.jpg" alt="List" style="height:24px;">
@@ -63,34 +67,33 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 d-none d-md-flex ">
+            <div class="col-lg-3 d-none d-md-flex">
                 <div class="left_sidebar_area">
-                  @if (!Route::is('category.products'))
-<aside class="left_widgets p_filter_widgets">
-    <div class="l_w_title">
-        <h3>Browse Categories</h3>
-    </div>
-    <div class="widgets_inner">
-        <ul class="list" id="category-list">
-            <li>
-                <label class="filter-category-label {{ !request('category') ? 'active' : '' }}">
-                    <input type="radio" name="category" class="filter-category" value="" {{ !request('category') ? 'checked' : '' }}>
-                    All Categories
-                </label>
-            </li>
-            @foreach($categories as $category)
-                <li>
-                    <label class="filter-category-label {{ request('category') == $category->id ? 'active' : '' }}">
-                        <input type="radio" name="category" class="filter-category" value="{{ $category->id }}" {{ request('category') == $category->id ? 'checked' : '' }}>
-                        {{ $category->name }}
-                    </label>
-                </li>
-            @endforeach
-        </ul>
-    </div>
-</aside>
-@endif
-
+                    @if (!Route::is('category.products'))
+                    <aside class="left_widgets p_filter_widgets">
+                        <div class="l_w_title">
+                            <h3>Browse Categories</h3>
+                        </div>
+                        <div class="widgets_inner">
+                            <ul class="list" id="category-list">
+                                <li>
+                                    <label class="filter-category-label {{ !request('category') && !isset($selectedCategoryId) ? 'active' : '' }}">
+                                        <input type="radio" name="category" class="filter-category" value="" {{ !request('category') && !isset($selectedCategoryId) ? 'checked' : '' }}>
+                                        All Categories
+                                    </label>
+                                </li>
+                                @foreach($categories as $category)
+                                    <li>
+                                        <label class="filter-category-label {{ (request('category') == $category->id || (isset($selectedCategoryId) && $selectedCategoryId == $category->id)) ? 'active' : '' }}">
+                                            <input type="radio" name="category" class="filter-category" value="{{ $category->id }}" {{ (request('category') == $category->id || (isset($selectedCategoryId) && $selectedCategoryId == $category->id)) ? 'checked' : '' }}>
+                                            {{ $category->name }}
+                                        </label>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </aside>
+                    @endif
 
                     <aside class="left_widgets p_filter_widgets">
                         <div class="l_w_title">
@@ -155,15 +158,8 @@
                             <h3>Product Tags</h3>
                         </div>
                         <div class="widgets_inner">
-                            <ul class="list">
-                                @foreach($tags as $tag)
-                                    <li>
-                                        <label>
-                                            <input type="checkbox" name="tags[]" value="{{ $tag->id }}" class="filter-tag" {{ in_array($tag->id, request('tags', [])) ? 'checked' : '' }}>
-                                            {{ $tag->name }}
-                                        </label>
-                                    </li>
-                                @endforeach
+                            <ul class="list" id="tags-list">
+                                @include('front.default.products.partials.tags_list')
                             </ul>
                         </div>
                     </aside>
@@ -183,29 +179,27 @@
     </div>
 </section>
 
-
 <div id="mobile-filter-sidebar" class="mobile-filter-sidebar">
     <div class="sidebar-header d-flex justify-content-between align-items-center px-3 py-2" style="background:#71cd14;">
         <span class="text-white fw-bold">Filters</span>
         <button id="close-filter-sidebar" class="btn btn-sm btn-light">&times;</button>
     </div>
     <div class="sidebar-body p-3">
-        <!-- Categories -->
-         @if (!Route::is('category.products'))
+        @if (!Route::is('category.products'))
         <aside class="left_widgets p_filter_widgets mb-4">
             <div class="l_w_title"><h3>Browse Categories</h3></div>
             <div class="widgets_inner">
                 <ul class="list" id="category-list-mobile">
                     <li>
-                        <label class="filter-category-label {{ !request('category') ? 'active' : '' }}">
-                            <input type="radio" name="category" class="filter-category" value="" {{ !request('category') ? 'checked' : '' }}>
+                        <label class="filter-category-label {{ !request('category') && !isset($selectedCategoryId) ? 'active' : '' }}">
+                            <input type="radio" name="category_mobile" class="filter-category" value="" {{ !request('category') && !isset($selectedCategoryId) ? 'checked' : '' }}>
                             All Categories
                         </label>
                     </li>
                     @foreach($categories as $category)
                         <li>
-                            <label class="filter-category-label {{ request('category') == $category->id ? 'active' : '' }}">
-                                <input type="radio" name="category" class="filter-category" value="{{ $category->id }}" {{ request('category') == $category->id ? 'checked' : '' }}>
+                            <label class="filter-category-label {{ (request('category') == $category->id || (isset($selectedCategoryId) && $selectedCategoryId == $category->id)) ? 'active' : '' }}">
+                                <input type="radio" name="category_mobile" class="filter-category" value="{{ $category->id }}" {{ (request('category') == $category->id || (isset($selectedCategoryId) && $selectedCategoryId == $category->id)) ? 'checked' : '' }}>
                                 {{ $category->name }}
                             </label>
                         </li>
@@ -214,56 +208,55 @@
             </div>
         </aside>
         @endif
-        <!-- Sort By -->
         <aside class="left_widgets p_filter_widgets mb-4">
             <div class="l_w_title"><h3>Sort By</h3></div>
             <div class="widgets_inner">
                 <ul class="list" id="sort-list-mobile">
                     <li>
                         <label class="filter-sort-label {{ !request('sort_by') ? 'active' : '' }}">
-                            <input type="radio" name="sort_by" class="filter-sort" value="" {{ !request('sort_by') ? 'checked' : '' }}>
+                            <input type="radio" name="sort_by_mobile" class="filter-sort" value="" {{ !request('sort_by') ? 'checked' : '' }}>
                             Default
                         </label>
                     </li>
                     <li>
                         <label class="filter-sort-label {{ request('sort_by') == 'price_asc' ? 'active' : '' }}">
-                            <input type="radio" name="sort_by" class="filter-sort" value="price_asc" {{ request('sort_by') == 'price_asc' ? 'checked' : '' }}>
+                            <input type="radio" name="sort_by_mobile" class="filter-sort" value="price_asc" {{ request('sort_by') == 'price_asc' ? 'checked' : '' }}>
                             Price: Low to High
                         </label>
                     </li>
                     <li>
                         <label class="filter-sort-label {{ request('sort_by') == 'price_desc' ? 'active' : '' }}">
-                            <input type="radio" name="sort_by" class="filter-sort" value="price_desc" {{ request('sort_by') == 'price_desc' ? 'checked' : '' }}>
+                            <input type="radio" name="sort_by_mobile" class="filter-sort" value="price_desc" {{ request('sort_by') == 'price_desc' ? 'checked' : '' }}>
                             Price: High to Low
                         </label>
                     </li>
                     <li>
                         <label class="filter-sort-label {{ request('sort_by') == 'best_selling' ? 'active' : '' }}">
-                            <input type="radio" name="sort_by" class="filter-sort" value="best_selling" {{ request('sort_by') == 'best_selling' ? 'checked' : '' }}>
+                            <input type="radio" name="sort_by_mobile" class="filter-sort" value="best_selling" {{ request('sort_by') == 'best_selling' ? 'checked' : '' }}>
                             Best Selling
                         </label>
                     </li>
                     <li>
                         <label class="filter-sort-label {{ request('sort_by') == 'a_z' ? 'active' : '' }}">
-                            <input type="radio" name="sort_by" class="filter-sort" value="a_z" {{ request('sort_by') == 'a_z' ? 'checked' : '' }}>
+                            <input type="radio" name="sort_by_mobile" class="filter-sort" value="a_z" {{ request('sort_by') == 'a_z' ? 'checked' : '' }}>
                             Name: A-Z
                         </label>
                     </li>
                     <li>
                         <label class="filter-sort-label {{ request('sort_by') == 'z_a' ? 'active' : '' }}">
-                            <input type="radio" name="sort_by" class="filter-sort" value="z_a" {{ request('sort_by') == 'z_a' ? 'checked' : '' }}>
+                            <input type="radio" name="sort_by_mobile" class="filter-sort" value="z_a" {{ request('sort_by') == 'z_a' ? 'checked' : '' }}>
                             Name: Z-A
                         </label>
                     </li>
                     <li>
                         <label class="filter-sort-label {{ request('sort_by') == 'old_to_new' ? 'active' : '' }}">
-                            <input type="radio" name="sort_by" class="filter-sort" value="old_to_new" {{ request('sort_by') == 'old_to_new' ? 'checked' : '' }}>
+                            <input type="radio" name="sort_by_mobile" class="filter-sort" value="old_to_new" {{ request('sort_by') == 'old_to_new' ? 'checked' : '' }}>
                             Old to New
                         </label>
                     </li>
                     <li>
                         <label class="filter-sort-label {{ request('sort_by') == 'new_to_old' ? 'active' : '' }}">
-                            <input type="radio" name="sort_by" class="filter-sort" value="new_to_old" {{ request('sort_by') == 'new_to_old' ? 'checked' : '' }}>
+                            <input type="radio" name="sort_by_mobile" class="filter-sort" value="new_to_old" {{ request('sort_by') == 'new_to_old' ? 'checked' : '' }}>
                             New to Old
                         </label>
                     </li>
@@ -271,38 +264,29 @@
             </div>
         </aside>
 
-        <!-- Tags -->
         <aside class="left_widgets p_filter_widgets mb-4">
             <div class="l_w_title"><h3>Product Tags</h3></div>
             <div class="widgets_inner">
-                <ul class="list" id="tag-list-mobile">
-                    @foreach($tags as $tag)
-                        <li>
-                            <label>
-                                <input type="checkbox" name="tags[]" value="{{ $tag->id }}" class="filter-tag" {{ in_array($tag->id, request('tags', [])) ? 'checked' : '' }}>
-                                {{ $tag->name }}
-                            </label>
-                        </li>
-                    @endforeach
+                <ul class="list" id="tags-list-mobile">
+                    @include('front.default.products.partials.tags_list')
                 </ul>
             </div>
         </aside>
 
-        <!-- Price Filter -->
         <aside class="left_widgets p_filter_widgets mb-4">
             <div class="l_w_title"><h3>Filter by Price</h3></div>
             <div class="widgets_inner">
                 <form id="mobile-price-filter-form">
-            <div class="row g-2">
-                <div class="col-6">
-                    <input type="number" class="form-control filter-price-min" name="min_price" placeholder="Min" min="{{ $minPrice }}" max="{{ $maxPrice }}" value="{{ request('min_price', $minPrice) }}">
-                </div>
-                <div class="col-6">
-                    <input type="number" class="form-control filter-price-max" name="max_price" placeholder="Max" min="{{ $minPrice }}" max="{{ $maxPrice }}" value="{{ request('max_price', $maxPrice) }}">
-                </div>
-            </div>
-            <button type="submit" class="btn btn-success w-100 mt-3" style="background:#71cd14;">OK</button>
-        </form>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <input type="number" class="form-control filter-price-min" name="min_price" placeholder="Min" min="{{ $minPrice }}" max="{{ $maxPrice }}" value="{{ request('min_price', $minPrice) }}">
+                        </div>
+                        <div class="col-6">
+                            <input type="number" class="form-control filter-price-max" name="max_price" placeholder="Max" min="{{ $minPrice }}" max="{{ $maxPrice }}" value="{{ request('max_price', $maxPrice) }}">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 mt-3" style="background:#71cd14;">OK</button>
+                </form>
             </div>
         </aside>
     </div>
@@ -313,6 +297,10 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+// Pass authentication status to JavaScript
+const isAuthenticated = @json(auth()->check());
+const loginUrl = "{{ route('user.login') }}";
+
 $(document).ready(function () {
     // CSRF Token Setup
     const csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -320,11 +308,9 @@ $(document).ready(function () {
         console.error('CSRF token not found. Ensure <meta name="csrf-token"> is present in the layout.');
     }
 
-    // Initialize selectedGridMode from localStorage or default to '4'
+    // Initialize selectedGridMode
     let selectedGridMode = localStorage.getItem('selectedGridMode') || '{{ request('grid_mode', '4') }}';
-
-    // Get current category route from a hidden input or JS variable
-let categoryRoute = "{{ Route::is('category.products') ? url()->current() : '' }}";
+    let categoryRoute = "{{ Route::is('category.products') ? url()->current() : '' }}";
 
     // Initialize Price Slider
     $('#price-range').slider({
@@ -339,74 +325,119 @@ let categoryRoute = "{{ Route::is('category.products') ? url()->current() : '' }
             filterProducts();
         }
     });
-
-    // Set initial label for price range
     $('#price-range-label').text('$' + $('#price-range').slider('values', 0) + ' - $' + $('#price-range').slider('values', 1));
 
-    // Set initial active state for category and sort
-    $('.filter-category:checked').closest('.filter-category-label').addClass('active');
-    $('.filter-sort:checked').closest('.filter-sort-label').addClass('active');
+    // Set initial active state
+    updateActiveStates();
 
     // Filter Products Function
     function filterProducts() {
         const categoryId = $('.filter-category:checked').val() || '';
-        const tags = [];
-        $('.filter-tag:checked').each(function () {
-            tags.push($(this).val());
-        });
-        let minPrice, maxPrice;
-        if (window.innerWidth <= 991) {
-            minPrice = $('.filter-price-min').val() || {{ $minPrice }};
-            maxPrice = $('.filter-price-max').val() || {{ $maxPrice }};
-        } else {
-            minPrice = $('#price-range').slider('values', 0);
-            maxPrice = $('#price-range').slider('values', 1);
-        }
+        const tags = $('.filter-tag:checked').map(function() { return $(this).val(); }).get();
+        let minPrice = window.innerWidth <= 991 ? ($('.filter-price-min').val() || {{ $minPrice ?? 0 }}) : $('#price-range').slider('values', 0);
+        let maxPrice = window.innerWidth <= 991 ? ($('.filter-price-max').val() || {{ $maxPrice ?? 1000 }}) : $('#price-range').slider('values', 1);
         const sortBy = $('.filter-sort:checked').val() || '';
         const perPage = $('#per_page').val();
 
         const data = {
-            // category: categoryId, // REMOVE THIS LINE if on category route
             tags: tags,
             min_price: minPrice,
             max_price: maxPrice,
             sort_by: sortBy,
             per_page: perPage,
-            grid_mode: selectedGridMode
+            grid_mode: selectedGridMode,
+            filter: true
         };
         if (!categoryRoute) {
-            data.category = categoryId; // Only send category param on /shop
+            data.category = categoryId;
         }
 
         console.log('Filter data:', data);
 
-        let ajaxUrl = categoryRoute ? categoryRoute : "{{ route('shop.index') }}";
+        let ajaxUrl = categoryRoute || "{{ route('shop.index') }}";
 
         $.ajax({
             url: ajaxUrl,
             method: "GET",
             data: data,
-            headers: {
-                'X-CSRF-TOKEN': csrfToken
-            },
+            headers: { 'X-CSRF-TOKEN': csrfToken },
             beforeSend: function () {
                 console.log('Sending AJAX request...');
+                showSkeleton();
                 $('#loading-overlay').show();
-                $('#product-list').css('opacity', '0.5');
             },
             success: function (response) {
-                console.log('AJAX success:', response.substring(0, 100) + '...');
-                $('#product-list').html(response);
-                $('#loading-overlay').hide();
-                $('#product-list').css('opacity', '1');
-                initializePagination();
-                applyGridMode(); // Reapply grid mode after filter
+                console.log('AJAX success:', response.html ? response.html.substring(0, 100) + '...' : response);
+                setTimeout(function() {
+                    $('#product-list').html(response.html || '<p class="text-center">No products found.</p>');
+                    $('#tags-list').html(response.tags || '');
+                    $('#tags-list-mobile').html(response.tags || '');
+                    updateActiveStates();
+                    bindFilterEvents();
+                    $('#loading-overlay').hide();
+                    initializePagination();
+                    applyGridMode();
+                }, 500);
             },
             error: function (xhr, status, error) {
                 console.error('AJAX error:', status, error, xhr.responseText);
                 $('#loading-overlay').hide();
-                $('#product-list').css('opacity', '1');
                 $('#product-list').html('<p class="text-center">Error loading products. Please try again.</p>');
+            }
+        });
+    }
+
+    // Update Active States for Radio Buttons
+    function updateActiveStates() {
+        $('.filter-category-label').removeClass('active');
+        $('.filter-sort-label').removeClass('active');
+        $('.filter-category:checked').closest('.filter-category-label').addClass('active');
+        $('.filter-sort:checked').closest('.filter-sort-label').addClass('active');
+    }
+
+    // Bind Filter Events
+    function bindFilterEvents() {
+        $('.filter-category').off('change').on('change', function () {
+            console.log('Category selected:', $(this).val());
+            updateActiveStates();
+            fetchTags($(this).val());
+            filterProducts();
+        });
+
+        $('.filter-sort').off('change').on('change', function () {
+            console.log('Sort selected:', $(this).val());
+            updateActiveStates();
+            filterProducts();
+        });
+
+        $('.filter-tag').off('change').on('change', function () {
+            console.log('Tag changed:', $(this).val());
+            filterProducts();
+        });
+
+        $('#per_page').off('change').on('change', function () {
+            console.log('Per page changed:', $(this).val());
+            filterProducts();
+        });
+    }
+
+    // Fetch Tags for Category
+    function fetchTags(categoryId) {
+        $.ajax({
+            url: "{{ route('shop.tags.byCategory') }}",
+            method: "GET",
+            data: { category_id: categoryId },
+            headers: { 'X-CSRF-TOKEN': csrfToken },
+            success: function (response) {
+                $('#tags-list').html(response.html || '');
+                $('#tags-list-mobile').html(response.html || '');
+                $('.filter-tag').off('change').on('change', function () {
+                    console.log('Tag changed:', $(this).val());
+                    filterProducts();
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error('Tags fetch error:', status, error, xhr.responseText);
             }
         });
     }
@@ -416,36 +447,46 @@ let categoryRoute = "{{ Route::is('category.products') ? url()->current() : '' }
         $('.pagination a').off('click').on('click', function (e) {
             e.preventDefault();
             let url = $(this).attr('href');
-            // If on category page, force base URL to categoryRoute
             if (categoryRoute) {
-                // Remove /shop?category=... and replace with /category/{name}?...
                 let params = url.split('?')[1] || '';
                 url = categoryRoute + (params ? '?' + params : '');
             }
             $.ajax({
                 url: url,
                 method: "GET",
-                data: { grid_mode: selectedGridMode },
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
+                data: {
+                    grid_mode: selectedGridMode,
+                    category: $('.filter-category:checked').val() || '',
+                    tags: $('.filter-tag:checked').map(function() { return $(this).val(); }).get(),
+                    min_price: window.innerWidth <= 991 ? $('.filter-price-min').val() : $('#price-range').slider('values', 0),
+                    max_price: window.innerWidth <= 991 ? $('.filter-price-max').val() : $('#price-range').slider('values', 1),
+                    sort_by: $('.filter-sort:checked').val() || '',
+                    per_page: $('#per_page').val(),
+                    filter: true
                 },
+                headers: { 'X-CSRF-TOKEN': csrfToken },
                 beforeSend: function () {
                     console.log('Sending pagination AJAX request...');
+                    showSkeleton();
                     $('#loading-overlay').show();
-                    $('#product-list').css('opacity', '0.5');
                 },
                 success: function (response) {
-                    console.log('Pagination success:', response.substring(0, 100) + '...');
-                    $('#product-list').html(response);
-                    $('#loading-overlay').hide();
-                    $('#product-list').css('opacity', '1');
-                    initializePagination(); // Rebind pagination links
-                    applyGridMode(); // Reapply grid mode after pagination
+                    console.log('Pagination success:', response.html ? response.html.substring(0, 100) + '...' : response);
+                    setTimeout(function() {
+                        $('#product-list').html(response.html || '<p class="text-center">No products found.</p>');
+                        $('#tags-list').html(response.tags || '');
+                        $('#tags-list-mobile').html(response.tags || '');
+                        updateActiveStates();
+                        bindFilterEvents();
+                        $('#loading-overlay').hide();
+                        initializePagination();
+                        applyGridMode();
+                    }, 500);
                 },
                 error: function (xhr, status, error) {
                     console.error('Pagination error:', status, error, xhr.responseText);
                     $('#loading-overlay').hide();
-                    $('#product-list').css('opacity', '1');
+                    $('#product-list').html('<p class="text-center">Error loading products. Please try again.</p>');
                 }
             });
         });
@@ -478,178 +519,144 @@ let categoryRoute = "{{ Route::is('category.products') ? url()->current() : '' }
         localStorage.setItem('selectedGridMode', selectedGridMode);
         console.log('View mode changed:', selectedGridMode);
         applyGridMode();
-        filterProducts(); // Trigger filter update to refresh product list
-    });
-
-    // Category Filter
-    $('.filter-category').on('change', function () {
-        console.log('Category selected:', $(this).val());
-        $('.filter-category-label').removeClass('active');
-        $(this).closest('.filter-category-label').addClass('active');
-        filterProducts();
-    });
-
-    // Sort Filter
-    $('.filter-sort').on('change', function () {
-        console.log('Sort selected:', $(this).val());
-        $('.filter-sort-label').removeClass('active');
-        $(this).closest('.filter-sort-label').addClass('active');
-        filterProducts();
-    });
-
-    // Tag Filter
-    $('.filter-tag').on('change', function () {
-        console.log('Tag changed:', $(this).val());
-        filterProducts();
-    });
-
-    // Per Page
-    $('#per_page').on('change', function () {
-        console.log('Per page changed:', $(this).val());
         filterProducts();
     });
 
     // Add to Cart
-$('#product-list').on('click', '.wishlist-btn', function (e) {
-    e.preventDefault();
+    $('#product-list').on('click', '.cart-btn', function (e) {
+        e.preventDefault();
+        if (!isAuthenticated) {
+            Swal.fire({
+                title: 'Please Log In',
+                text: 'You need to log in to add products to your cart.',
+                icon: 'warning',
+                confirmButtonText: 'Go to Login',
+                confirmButtonColor: '#71cd14'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = loginUrl + '?redirect=' + encodeURIComponent(window.location.href);
+                }
+            });
+            return;
+        }
 
-    const url = $(this).data('url');
-    const productId = $(this).data('id');
+        const url = $(this).attr('href');
+        const productId = $(this).data('id');
 
-    $.ajax({
-        url: url,
-        method: 'POST',
-        data: { product_id: productId },
-        headers: {
-            'X-CSRF-TOKEN': csrfToken
-        },
-        beforeSend: function () {
-            $('#loading-overlay').show();
-            $('#product-list').css('opacity', '0.5');
-        },
-        success: function (response) {
-            if (response.status) {
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: { product_id: productId, quantity: 1 },
+            headers: { 'X-CSRF-TOKEN': csrfToken },
+            beforeSend: function () {
+                $('#loading-overlay').show();
+            },
+            success: function (response) {
+                if (response.status) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#71cd14'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            filterProducts();
+                        }
+                    });
+                }
+            },
+            error: function (xhr) {
+                console.error('Cart error:', xhr.responseJSON);
                 Swal.fire({
-                    title: 'Success!',
-                    text: response.message,
-                    icon: 'success',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#71cd14',
-                    customClass: {
-                        popup: 'animated fadeInDown'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        filterProducts(); // Refresh product list
-                    }
-                });
-            } else {
-                Swal.fire({
-                    title: 'Note!',
-                    text: response.message,
-                    icon: 'info',
+                    title: 'Error!',
+                    text: xhr.responseJSON?.message || 'Failed to add product to cart.',
+                    icon: 'error',
                     confirmButtonText: 'OK',
                     confirmButtonColor: '#71cd14'
                 });
+            },
+            complete: function () {
+                $('#loading-overlay').hide();
             }
-        },
-        error: function (xhr, status, error) {
-            console.error('Add to wishlist error:', status, error, xhr.responseText);
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to add product to wishlist.',
-                icon: 'error',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#71cd14'
-            });
-        },
-        complete: function () {
-            $('#loading-overlay').hide();
-            $('#product-list').css('opacity', '1');
-        }
+        });
     });
-});
 
     // Add to Wishlist
-$('#product-list').on('click', '.cart-btn', function (e) {
-    e.preventDefault();
-
-    const url = $(this).attr('href');
-    const productId = $(this).data('id');
-
-    $.ajax({
-        url: url,
-        method: 'POST',
-        data: {
-            product_id: productId,
-            quantity: 1 // 👈 required by backend validation
-        },
-        headers: {
-            'X-CSRF-TOKEN': csrfToken
-        },
-        beforeSend: function () {
-            $('#loading-overlay').show();
-            $('#product-list').css('opacity', '0.5');
-        },
-        success: function (response) {
-            if (response.status) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: response.message,
-                    icon: 'success',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#71cd14',
-                    customClass: {
-                        popup: 'animated fadeInDown'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        filterProducts(); // refresh product list if needed
-                    }
-                });
-            }
-        },
-        error: function (xhr) {
-            console.error('Cart error:', xhr.responseJSON);
+    $('#product-list').on('click', '.wishlist-btn', function (e) {
+        e.preventDefault();
+        if (!isAuthenticated) {
             Swal.fire({
-                title: 'Error!',
-                text: xhr.responseJSON?.message || 'Failed to add product to cart.',
-                icon: 'error',
-                confirmButtonText: 'OK',
+                title: 'Please Log In',
+                text: 'You need to log in to add products to your wishlist.',
+                icon: 'warning',
+                confirmButtonText: 'Go to Login',
                 confirmButtonColor: '#71cd14'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = loginUrl + '?redirect=' + encodeURIComponent(window.location.href);
+                }
             });
-        },
-        complete: function () {
-            $('#loading-overlay').hide();
-            $('#product-list').css('opacity', '1');
+            return;
         }
+
+        const url = $(this).data('url');
+        const productId = $(this).data('id');
+
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: { product_id: productId },
+            headers: { 'X-CSRF-TOKEN': csrfToken },
+            beforeSend: function () {
+                $('#loading-overlay').show();
+            },
+            success: function (response) {
+                if (response.status) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#71cd14'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            filterProducts();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Note!',
+                        text: response.message,
+                        icon: 'info',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#71cd14'
+                    });
+                }
+            },
+            error: function (xhr) {
+                console.error('Wishlist error:', xhr.responseJSON);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to add product to wishlist.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#71cd14'
+                });
+            },
+            complete: function () {
+                $('#loading-overlay').hide();
+            }
+        });
     });
-});
 
-
-    // Initialize Pagination and Grid Mode on Page Load
-    initializePagination();
-    applyGridMode();
-
-    // Debug: Check if jQuery and jQuery UI are loaded
-    if (typeof $ === 'undefined') {
-        console.error('jQuery is not loaded.');
-    } else {
-        console.log('jQuery loaded successfully.');
-    }
-    if (typeof $.ui === 'undefined') {
-        console.error('jQuery UI is not loaded.');
-    } else {
-        console.log('jQuery UI loaded successfully.');
-    }
-
+    // Mobile Filter Sidebar
     $('#open-filter-sidebar').on('click', function() {
         $('#mobile-filter-sidebar').addClass('open');
     });
     $('#close-filter-sidebar').on('click', function() {
         $('#mobile-filter-sidebar').removeClass('open');
     });
-    // Optionally close on outside click
     $(document).on('click', function(e) {
         if ($(e.target).closest('#mobile-filter-sidebar, #open-filter-sidebar').length === 0) {
             $('#mobile-filter-sidebar').removeClass('open');
@@ -657,11 +664,62 @@ $('#product-list').on('click', '.cart-btn', function (e) {
     });
 
     $('#mobile-price-filter-form').on('submit', function(e) {
-    e.preventDefault();
-    filterProducts();
-    $('#mobile-filter-sidebar').removeClass('open');
-});
+        e.preventDefault();
+        filterProducts();
+        $('#mobile-filter-sidebar').removeClass('open');
+    });
+
+    // Show Skeleton
+    function showSkeleton() {
+        const skeletonHtml = `
+            <div class="row">
+                ${Array(6).fill().map(() => `
+                    <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="skeleton skeleton-img mb-3"></div>
+                        <div class="skeleton skeleton-title mb-2"></div>
+                        <div class="skeleton skeleton-desc mb-2"></div>
+                        <div class="skeleton skeleton-price mb-2"></div>
+                        <div class="skeleton skeleton-btn"></div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        $('#product-list').html(skeletonHtml);
+    }
+
+    // Initialize
+    bindFilterEvents();
+    initializePagination();
+    applyGridMode();
+
+    // Initial tags load for category route
+    @if(isset($selectedCategoryId))
+        fetchTags("{{ $selectedCategoryId }}");
+    @endif
 });
 </script>
 
-@endsection
+<style>
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: skeleton-loading 1s infinite linear;
+        border-radius: 4px;
+    }
+    @keyframes skeleton-loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    .skeleton-img { width: 100%; height: 200px; }
+    .skeleton-title { width: 60%; height: 20px; }
+    .skeleton-desc { width: 90%; height: 15px; }
+    .skeleton-btn { width: 40%; height: 30px; }
+    .skeleton-price { width: 30%; height: 20px; }
+    .loading-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 10; }
+    .loading-bar { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border: 5px solid #71cd14; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+</style>
+
+@if (!request()->ajax())
+    @endsection
+@endif

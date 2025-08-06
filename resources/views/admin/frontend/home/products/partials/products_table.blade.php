@@ -12,6 +12,15 @@
 
 
   </td>
+    <td class="text-center">
+        <!-- ... other action buttons ... -->
+        <button class="btn btn-info btn-sm view-reviews" 
+                data-product-id="{{ $product->id }}" 
+                data-bs-toggle="modal" 
+                data-bs-target="#reviewsModal">
+            <i class="bi bi-chat-left-text"></i> Reviews
+        </button>
+    </td>
   <td class="text-center">
     <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-warning">Edit</a>
     <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="d-inline delete-form">

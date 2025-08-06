@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Traits\UploadsImages;
  use Illuminate\Support\Str;
  use App\Models\Blog;
+ use App\Models\Comment;
  use App\Models\Tag;
 class BlogController extends Controller
 {
@@ -104,7 +105,19 @@ class BlogController extends Controller
     return redirect()->route('admin.blogs.index')->with('success', 'Blog updated!');
 }
 
-
+public function showComments(Blog $blog)
+{
+    $comments = $blog->comments()
+        ->with('replies')
+        ->whereNull('parent_id') // Only top-level comments
+        ->latest()
+        ->get();
+        
+    return view('admin.frontend.blog.partials.comments_content', [
+        'blog' => $blog,
+        'comments' => $comments
+    ]);
+}
     public function destroy($id)
     {
         $blog = Blog::findOrFail($id);
@@ -145,5 +158,9 @@ public function storeComment(Request $request, Blog $blog)
 
     return back()->with('success', 'Comment added!');
 }
-
+public function destroyblog(Comment $comment)
+{
+    $comment->delete();
+    return response()->json(['success' => true]);
+}
 }

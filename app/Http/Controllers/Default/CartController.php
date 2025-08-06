@@ -24,36 +24,87 @@ public function index()
     
     return view('front.default.cart.cart', compact('cart', 'items'));
 }
-    public function add(Request $request)
-    {
-        // dd($request->all());
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1'
-        ]);
+   public function add(Request $request)
+{
+    $request->validate([
+        'product_id' => 'required|exists:products,id',
+        'quantity' => 'required|integer|min:1',
+        'total_price' => 'nullable|numeric|min:0',
+        'options' => 'nullable|array'
+    ]);
 
-        $cart = Cart::firstOrCreate([
-            'user_id' => Auth::id(),
-            'status' => 'active'
-        ]);
+    $cart = Cart::firstOrCreate([
+        'user_id' => Auth::id(),
+        'status' => 'active'
+    ]);
 
-        $product = Product::findOrFail($request->product_id);
+    $product = Product::findOrFail($request->product_id);
 
-        $item = CartItem::updateOrCreate(
-            ['cart_id' => $cart->id, 'product_id' => $product->id],
-            [
-                'quantity' => $request->quantity,
-                'price' => $product->price
-            ]
-        );
+    $price = $request->filled('total_price') ? $request->total_price : $product->price;
 
-        return response()->json(['status' => true, 'message' => 'Added to cart!']);
+    // Get selected options details
+    $selectedOptions = [];
+    if ($request->has('options') && is_array($request->options)) {
+        foreach ($request->options as $optionId) {
+            $option = $product->options()->find($optionId);
+            if ($option) {
+                $selectedOptions[] = [
+                    'id' => $option->id,
+                    'key' => $option->key,
+                    'value' => $option->value
+                ];
+            }
+        }
     }
+
+    $item = CartItem::updateOrCreate(
+        ['cart_id' => $cart->id, 'product_id' => $product->id],
+        [
+            'quantity' => $request->quantity,
+            'price' => $price,
+            'selected_options' => $selectedOptions
+        ]
+    );
+
+    return response()->json(['status' => true, 'message' => 'Added to cart!']);
+}
+
 
     public function update(Request $request, $itemId)
     {
+      
         $item = CartItem::findOrFail($itemId);
-        $item->update(['quantity' => $request->quantity]);
+        $product = $item->product;
+        
+        // Get selected options details if provided
+        $selectedOptions = [];
+        $calculatedPrice = $product->price; // Start with product base price
+        
+        if ($request->has('options') && is_array($request->options)) {
+            foreach ($request->options as $optionId) {
+                $option = $product->options()->find($optionId);
+                if ($option) {
+                    $selectedOptions[] = [
+                        'id' => $option->id,
+                        'key' => $option->key,
+                        'value' => $option->value
+                    ];
+                    $calculatedPrice += $option->value; // Add option price to base price
+                }
+            }
+        }
+        
+        $updateData = ['quantity' => $request->quantity ?? $item->quantity];
+        
+        // Update price with calculated price (product base + option prices)
+        $updateData['price'] = $product->price;
+        
+        // Only update selected_options if options are provided in the request
+        if ($request->has('options')) {
+            $updateData['selected_options'] = $selectedOptions;
+        }
+        // dd($updateData);
+        $item->update($updateData);
         return response()->json(['status' => true]);
     }
 

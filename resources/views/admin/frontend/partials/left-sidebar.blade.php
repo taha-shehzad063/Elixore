@@ -20,12 +20,18 @@
             <span class="hide-menu ms-2">Dashboard</span>
           </a>
         </li>
-        <li class="sidebar-item mb-1">
-          <a class="sidebar-link {{ Request::routeIs('admin.banner-images.*') ? 'active' : '' }}" href="{{ route('admin.banner-images.index') }}">
-            <span><iconify-icon icon="solar:image-bold-duotone" class="fs-6"></iconify-icon></span>
-            <span class="hide-menu ms-2">Banner Images</span>
-          </a>
-        </li>
+       <li class="sidebar-item mb-1">
+  <a class="sidebar-link {{ Request::routeIs('admin.banner-images.*') ? 'active' : '' }}" 
+     href="{{ route('admin.banner-images.index') }}">
+     
+    <span>
+      <iconify-icon icon="mdi:image-multiple-outline" class="fs-6"></iconify-icon>
+    </span>
+    
+    <span class="hide-menu ms-2">Banner Images</span>
+  </a>
+</li>
+
         <!-- Products Dropdown -->
         <li class="sidebar-item mb-1">
           <a class="sidebar-link has-arrow {{ Request::routeIs('admin.products.*') ? 'active' : '' }}" href="#productsSubmenu" data-bs-toggle="collapse" aria-expanded="{{ Request::routeIs('admin.products.*') ? 'true' : 'false' }}">
@@ -52,6 +58,14 @@
           </a>
         </li>
         <li class="sidebar-item mb-1">
+          <a class="sidebar-link {{ Request::routeIs('tags.*') ? 'active' : '' }}" href="{{ route('admin.tags.index') }}">
+<span>
+  <iconify-icon icon="mdi:tag" class="fs-6"></iconify-icon>
+</span>
+            <span class="hide-menu ms-2">Tag</span>
+          </a>
+        </li>
+        <li class="sidebar-item mb-1">
           <a class="sidebar-link {{ Request::routeIs('categories.*') ? 'active' : '' }}" href="{{ route('admin.categories.index') }}">
             <span><iconify-icon icon="solar:box-bold-duotone" class="fs-6"></iconify-icon></span>
             <span class="hide-menu ms-2">Categories</span>
@@ -63,6 +77,19 @@
             <span class="hide-menu ms-2">Checkout Options</span>
           </a>
         </li>
+       <li class="sidebar-item mb-1">
+  <a class="sidebar-link {{ Request::routeIs('policy.*') ? 'active' : '' }}" href="{{ route('admin.policy.index') }}">
+    <span><iconify-icon icon="mdi:file-document-edit-outline" class="fs-6"></iconify-icon></span>
+    <span class="hide-menu ms-2">Policy</span>
+  </a>
+</li>
+ <li class="sidebar-item mb-1">
+    <a class="sidebar-link {{ Request::routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders') }}">
+      <span><iconify-icon icon="mdi:clipboard-list-outline" class="fs-6"></iconify-icon></span>
+      <span class="hide-menu ms-2">Orders</span>
+    </a>
+  </li>
+
         <!-- Add more main routes as needed -->
       </ul>
     </nav>

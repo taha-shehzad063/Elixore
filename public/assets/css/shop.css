@@ -143,10 +143,7 @@
         border-bottom: 1px solid #eaeaea;
         box-shadow: none;
     }
-    .product-cols-list .product-img {
-        flex: 0 0 180px;
-        max-width: 180px;
-    }
+    
     .product-cols-list .product-btm {
         flex: 1;
     }
@@ -210,4 +207,134 @@
 @media (min-width: 992px) {
     .mobile-filter-sidebar, #open-filter-sidebar { display: none !important; }
 }
+.pagination-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        justify-content: center;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    .pagination-info {
+        font-size: 14px;
+        color: #555;
+        font-weight: 500;
+    }
+
+    .aliexpress-pagination {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+    }
+
+    .aliexpress-pagination .page-item {
+        display: inline-flex;
+    }
+
+    .aliexpress-pagination .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 2px solid #71cd14;
+        background-color: #fff;
+        color: #71cd14;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        line-height: 1;
+    }
+
+    .aliexpress-pagination .page-item.active .page-link {
+        background-color: #71cd14;
+        color: #fff;
+        border-color: #71cd14;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .aliexpress-pagination .page-link:hover:not(.disabled .page-link) {
+        background-color: #71cd14;
+        color: #fff;
+        border-color: #71cd14;
+        transform: scale(1.1);
+    }
+
+    .aliexpress-pagination .page-item.disabled .page-link {
+        background-color: #f8f8f8;
+        border-color: #ddd;
+        color: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .aliexpress-pagination .page-link i {
+        font-size: 14px;
+    }
+
+    .aliexpress-pagination .page-item.disabled .page-link.ellipsis {
+        border: none;
+        background: none;
+        color: #555;
+        font-size: 16px;
+        font-weight: 400;
+        cursor: default;
+    }
+
+    /* Focus styles for accessibility */
+    .aliexpress-pagination .page-link:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(113, 205, 20, 0.3);
+        border-color: #5abb10;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .pagination-wrapper {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pagination-info {
+            font-size: 13px;
+        }
+
+        .aliexpress-pagination {
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .aliexpress-pagination .page-link {
+            width: 34px;
+            height: 34px;
+            font-size: 13px;
+        }
+
+        .aliexpress-pagination .page-link i {
+            font-size: 12px;
+        }
+
+        .aliexpress-pagination .page-item.disabled .page-link.ellipsis {
+            font-size: 14px;
+        }
+    }
+    .skeleton {
+    background: linear-gradient(90deg, #eee 25%, #E5E4E2 50%, #eee 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 0.8s infinite linear;
+    border-radius: 6px;
+}
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+.skeleton-img { width: 100%; height: 150px; margin-bottom: 12px; }
+.skeleton-title { width: 60%; height: 18px; }
+.skeleton-desc { width: 90%; height: 14px; }
+.skeleton-btn { width: 40%; height: 32px; }
+.skeleton-price { width: 30%; height: 18px; }
     

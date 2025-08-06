@@ -36,7 +36,7 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             // If login is successful, redirect to the homepage with success message
-            return redirect()->route('main')->with('success', 'Login successful!');
+        return redirect()->intended(route('main'))->with('success', 'Login successful!');
         } else {
             // If login fails, redirect back with an error message
             return back()->withErrors([

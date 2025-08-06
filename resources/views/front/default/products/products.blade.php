@@ -12,7 +12,7 @@
                     <img
                         class="card-img"
                         src="{{ $imageUrl }}"
-                        style="height: auto; width: 100%; object-fit: cover;"
+                        style="height: 250px; width: 100%; object-fit: cover;"
                         alt="{{ $product->name }}"
                         onerror="this.onerror=null;this.src='https://placehold.co/600x400/EFEFEF/AAAAAA?text=Image+Error';"
                     />
@@ -49,7 +49,7 @@
             </div>
 
             <div class="row d-sm-none d-md-none">
-<div class="product-img col-6" style"max-width: 100%; !important,flex:none!important">
+                <div class="product-img col-6" style"max-width: 100%; !important,flex:none!important">
                     @php
                         $imageUrl = 'https://placehold.co/600x400/EFEFEF/AAAAAA?text=No+Image';
                         if ($product->galleries->isNotEmpty()) {
@@ -182,121 +182,3 @@
         </nav>
     </div>
 </div>
-
-<style>
-    .pagination-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        justify-content: center;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    }
-
-    .pagination-info {
-        font-size: 14px;
-        color: #555;
-        font-weight: 500;
-    }
-
-    .aliexpress-pagination {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin: 0;
-    }
-
-    .aliexpress-pagination .page-item {
-        display: inline-flex;
-    }
-
-    .aliexpress-pagination .page-link {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        border: 2px solid #71cd14;
-        background-color: #fff;
-        color: #71cd14;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        line-height: 1;
-    }
-
-    .aliexpress-pagination .page-item.active .page-link {
-        background-color: #71cd14;
-        color: #fff;
-        border-color: #71cd14;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-    }
-
-    .aliexpress-pagination .page-link:hover:not(.disabled .page-link) {
-        background-color: #71cd14;
-        color: #fff;
-        border-color: #71cd14;
-        transform: scale(1.1);
-    }
-
-    .aliexpress-pagination .page-item.disabled .page-link {
-        background-color: #f8f8f8;
-        border-color: #ddd;
-        color: #ccc;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .aliexpress-pagination .page-link i {
-        font-size: 14px;
-    }
-
-    .aliexpress-pagination .page-item.disabled .page-link.ellipsis {
-        border: none;
-        background: none;
-        color: #555;
-        font-size: 16px;
-        font-weight: 400;
-        cursor: default;
-    }
-
-    /* Focus styles for accessibility */
-    .aliexpress-pagination .page-link:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(113, 205, 20, 0.3);
-        border-color: #5abb10;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 576px) {
-        .pagination-wrapper {
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .pagination-info {
-            font-size: 13px;
-        }
-
-        .aliexpress-pagination {
-            gap: 4px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .aliexpress-pagination .page-link {
-            width: 34px;
-            height: 34px;
-            font-size: 13px;
-        }
-
-        .aliexpress-pagination .page-link i {
-            font-size: 12px;
-        }
-
-        .aliexpress-pagination .page-item.disabled .page-link.ellipsis {
-            font-size: 14px;
-        }
-    }
-</style>
