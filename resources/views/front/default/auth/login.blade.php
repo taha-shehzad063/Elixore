@@ -26,27 +26,41 @@
         @endif
 
         <!-- Login Form -->
-                    <!-- Register Form --><form id="loginForm" action="{{ route('user.login.store') }}" method="POST" autocomplete="off">
-
+        <form id="loginForm" action="{{ route('user.login.store') }}" method="POST" autocomplete="off">
             @csrf
 
             <div id="loginResponseMsg" class="mb-3"></div>
 
             <div class="mb-3 position-relative">
-                <label for="email" class="form-label fw-semibold"><i class="bi bi-envelope me-2"></i>Email Address</label>
-                <input type="email" name="email" id="email" class="form-control rounded-pill px-4 py-2 @error('email') is-invalid @enderror" placeholder="Enter Email" autocomplete="email" required value="{{ old('email') }}">
+                <label for="email" class="form-label fw-semibold">
+                    <i class="bi bi-envelope me-2"></i>Email Address
+                </label>
+                <input type="email" name="email" id="email" 
+                       class="form-control rounded-pill px-4 py-2 @error('email') is-invalid @enderror" 
+                       placeholder="Enter Email" autocomplete="email" required value="{{ old('email') }}">
                 @error('email')
                     <div class="invalid-feedback d-block ms-2">{{ $message }}</div>
                 @enderror
             </div>
 
             <div class="mb-3 position-relative">
-                <label for="password" class="form-label fw-semibold"><i class="bi bi-lock me-2"></i>Password</label>
-                <input type="password" name="password" id="password" class="form-control rounded-pill px-4 py-2 @error('password') is-invalid @enderror" placeholder="Enter Password" required>
-                <i class="bi bi-eye-slash toggle-password" data-target="#password" style="position: absolute; top: 50%; right: 18px; transform: translateY(-50%); cursor: pointer; color:#71cd14;"></i>
+                <label for="password" class="form-label fw-semibold">
+                    <i class="bi bi-lock me-2"></i>Password
+                </label>
+                <input type="password" name="password" id="password"
+                       class="form-control rounded-pill px-4 py-2 @error('password') is-invalid @enderror"
+                       placeholder="Enter Password" required>
+                <i class="bi bi-eye toggle-password" data-target="#password"
+                   style="position: absolute; top: 50%; right: 18px; transform: translateY(-50%); cursor: pointer; color:#71cd14;"></i>
                 @error('password')
                     <div class="invalid-feedback d-block ms-2">{{ $message }}</div>
                 @enderror
+                <div class="mt-2 text-end">
+                    <a href="{{ route('password.forgot') }}" 
+                       class="small text-decoration-none" style="color:#71cd14;">
+                        Forgot Password?
+                    </a>
+                </div>
             </div>
 
             <button type="submit" class="btn login-btn w-100 py-2 rounded-pill fw-bold animated-btn mt-2" style="font-size:1.1rem;">
@@ -57,8 +71,8 @@
 
             <div class="d-flex justify-content-between gap-2 mb-2">
                <a href="{{ route('google.login') }}" class="btn btn-outline-danger w-100 py-2 rounded-pill fw-bold animated-btn mb-3">
-                <i class="bi bi-google me-2"></i> Continue with Google
-            </a>
+                    <i class="bi bi-google me-2"></i> Continue with Google
+               </a>
             </div>
 
             <div class="text-center mt-3">
@@ -101,6 +115,9 @@
 .toggle-password:hover {
     color: #66b812;
 }
+.toggle-password.active {
+    color: #5aa30f;
+}
 .animated-btn {
     transition: all 0.3s ease-in-out;
 }
@@ -114,8 +131,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 @endsection
 
-@section('scripts')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function () {
     // Toggle password visibility
@@ -123,7 +138,16 @@ $(document).ready(function () {
         const input = $($(this).data('target'));
         const type = input.attr('type') === 'password' ? 'text' : 'password';
         input.attr('type', type);
-        $(this).toggleClass('bi-eye bi-eye-slash');
+
+        // Toggle active color
+        $(this).toggleClass('active');
+
+        // Change icon
+        if (type === 'text') {
+            $(this).removeClass('bi-eye').addClass('bi-eye-slash');
+        } else {
+            $(this).removeClass('bi-eye-slash').addClass('bi-eye');
+        }
     });
 
     // Handle login via AJAX
@@ -157,4 +181,3 @@ $(document).ready(function () {
     });
 });
 </script>
-@endsection

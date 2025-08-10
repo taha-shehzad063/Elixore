@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Order extends Model
 {
@@ -21,5 +22,19 @@ class Order extends Model
 
     public function billingAddress() {
         return $this->belongsTo(Address::class, 'billing_address_id');
+    }
+    public function tracking()
+{
+    return $this->hasMany(OrderTracking::class);
+}
+public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+   
+    public function getHashedIdAttribute()
+    {
+        $secret = env('APP_KEY', 'yourfallbacksecret');
+        return base64_encode($this->id . ':' . hash_hmac('sha256', $this->id, $secret));
     }
 }

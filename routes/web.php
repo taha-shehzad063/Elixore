@@ -5,19 +5,25 @@ use App\Http\Controllers\Default\FrontendController;
 use App\Http\Controllers\Default\ProductController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+
 use App\Http\Controllers\Social\GoogleController;
 use App\Http\Controllers\Social\FacebookController;
 use App\Http\Controllers\Default\ReviewController;
+use App\Http\Controllers\Default\ProfileController;
 use App\Http\Controllers\Default\ReviewReplyController;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Default\Payment\PaymentController;
 use App\Http\Controllers\Default\CartController;
 use App\Http\Controllers\Default\OrderController;
+use App\Http\Controllers\Default\ForgotPasswordController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Default\AuthController;
 use App\Http\Controllers\Default\PolicyController;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use App\Http\Controllers\Default\BlogController;
 use App\Http\Controllers\Default\Shop\ShopController;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Default\ContactController;
 use App\Http\Controllers\Default\NewsletterController;
 Route::get('/clear-cache', function () {
@@ -29,7 +35,39 @@ Route::get('/clear-cache', function () {
         'message' => '✅ Cache cleared and optimized successfully!'
     ]);
 });
+Route::get('/latest-orders', function () {
+    $orders = DB::table('orders')
+        ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+        ->join('products', 'order_items.product_id', '=', 'products.id')
+        ->leftJoin('product_galleries', function($join) {
+            $join->on('products.id', '=', 'product_galleries.product_id')
+                 ->whereRaw('product_galleries.id = (SELECT pg.id FROM product_galleries pg WHERE pg.product_id = products.id LIMIT 1)');
+        })
+        ->join('addresses', 'orders.shipping_address_id', '=', 'addresses.id')
+        ->select(
+            'orders.id as order_id',
+            'orders.created_at as order_created_at',
+            'products.name as product_name',
+            'products.slug as slug',
+            'product_galleries.image as product_image',
+            'addresses.city as city'
+        )
+        ->where('orders.created_at', '>=', Carbon::now()->subDay()) // last 24 hours
+        ->orderByDesc('orders.created_at')
+        ->get()
+        ->map(function($order) {
+            return [
+                'id' => $order->order_id,
+                'image' => asset('storage/' . $order->product_image),
+                'product' => $order->product_name,
+                'slug' => $order->slug,
+                'time' => \Carbon\Carbon::parse($order->order_created_at)->diffForHumans(),
+                'city' => $order->city
+            ];
+        });
 
+    return response()->json($orders);
+});
 Route::get('/copy-storage', function () {
     Artisan::call('storage:link');
     return 'Storage link created successfully!';
@@ -46,8 +84,9 @@ Route::get('/testemail', function () {
     return 'Email sent!';
 });
 Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-
-// Login Register
+Route::get('/orders/detail/{hash}', [OrderController::class, 'show'])->name('orders.show');// Login Register
+Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+Route::post('/orders/{id}/refund', [OrderController::class, 'refund'])->name('orders.refund');
 Route::get('/login', [LoginController::class, 'index'])->name('user.login');
 Route::post('/login/post', [LoginController::class, 'login'])->name('user.login.store');
 Route::get('/register', [RegisterController::class, 'index'])->name('user.register.get');;
@@ -76,13 +115,34 @@ Route::get('/blog/tag/{tag}', [BlogController::class, ' '])->name('blogs.byTag')
 Route::post('/review/store', [ReviewController::class, 'store'])->name('review.store');
 Route::post('/review/reply', [ReviewReplyController::class, 'store'])->name('review.reply');
 // Products
+Route::post('/blogs/{blogId}/like', [BlogController::class, 'like'])->name('blog.like');
+Route::get('/search-products', [ProductController::class, 'search'])->name('products.search');
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])->name('password.forgot');
+Route::post('/send-otp', [ForgotPasswordController::class, 'sendOtp'])->name('password.send.otp');
+
+// This is the OTP verification + password reset
+Route::get('/verify-otp', function () {
+    return view('front.default.verify-otp');
+})->name('password.otp.form');
+
+Route::post('/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('password.verify.otp');
+
 Route::get('/product-details/{slug}', [ProductController::class, 'index'])->name('product.details');
     Route::get('/category/{name}', [ShopController::class, 'categoryProducts'])->name('category.products');
 Route::get('/product/{id}/reviews/summary', [ReviewController::class, 'summary'])->name('product.reviews.summary');
+Route::get('/products/{product}/reviews', [ProductController::class, 'reviews'])->name('product.reviews');
+Route::post('/store-user-email', [ReviewController::class, 'storeUserEmail'])->name('store.user.email');
+Route::get('/get-user-email', [ReviewController::class, 'getUserEmail'])->name('get.user.email');
+Route::get('/product/{product_id}/user-review', [ReviewController::class, 'getUserReview'])->name('product.user.review');
+Route::post('/review/update', [ReviewController::class, 'update'])->name('review.update');
+Route::get('/change-password', [ProfileController::class, 'changePasswordForm'])
+    ->name('change.password.form')
+    ->middleware('auth');
 
-// API Routes
-
-
+Route::post('/change-password/user', [ProfileController::class, 'updatePasswordAjax'])
+    ->name('change.password.ajax')
+    ->middleware('auth');
+Route::get('/check-auth', [ProfileController::class, 'checkAuth'])->name('check.auth');
 // //Payments
 // Route::get('/pay', [PaymentController::class, 'showForm']);
 // Route::post('/pay/store', [PaymentController::class, 'initiatePayment']);
@@ -139,4 +199,6 @@ Route::get('{slug}', [PolicyController::class, 'show'])->name('policy.show');
 
 Route::get('get-cart-wishlist-counts', [PolicyController::class, 'wishlist'])->name('get.cart.wishlist.counts');
 
+
+// web.php
 

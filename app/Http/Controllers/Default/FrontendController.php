@@ -20,31 +20,50 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 class FrontendController extends Controller
 {
-  public function home() {
+ public function home() {
+
+    // Best Selling Products (based on orders)
     $bestSellingProductIds = DB::table('order_items')
         ->select('product_id', DB::raw('SUM(quantity) as total_sold'))
         ->groupBy('product_id')
         ->orderByDesc('total_sold')
+        ->pluck('product_id');
+
+    $bestSellers = Product::whereIn('id', $bestSellingProductIds)->get();
+
+    // Most Popular Products (based on reviews)
+    $mostPopularProductIds = Review::select('product_id', DB::raw('AVG(rating) as avg_rating'), DB::raw('COUNT(*) as total_reviews'))
+        ->groupBy('product_id')
+        ->having('avg_rating', '>=', 4) // only products with good ratings
+        ->orderByDesc('total_reviews')
+        ->orderByDesc('avg_rating')
         ->limit(6)
         ->pluck('product_id');
-            $bestSellers = Product::whereIn('id', $bestSellingProductIds)->get();
- $reviews = Review::where('rating', '>=', 4)
-                ->orderBy('created_at', 'desc')
-                ->take(10)
-                ->get();
+
+    $mostPopular = Product::whereIn('id', $mostPopularProductIds)->get();
+
+    // Latest good reviews
+    $reviews = Review::where('rating', '>=', 4)
+        ->orderBy('created_at', 'desc')
+        ->take(10)
+        ->get();
+
     $data = [
         'banners' => BannerImage::all(),
         'products' => Product::latest()->take(6)->get(),
-      'bestSellers' => $bestSellers,
-      'reviews' => $reviews,
+        'bestSellers' => $bestSellers, // best selling list
+        'mostpopular' => $mostPopular, // most popular list
+        'reviews' => $reviews,
         'testimonials' => Product::latest()->take(6)->get(),
         'collections' => CollectionBanner::first(),
         'setting' => GeneralSetting::first(),
-'latestThreeBlogs' => Blog::latest()->take(3)->get(),
-'mostPopularBlog' => Blog::withCount('comments')->orderByDesc('comments_count')->take(3)->get(),
+        'latestThreeBlogs' => Blog::latest()->take(3)->get(),
+        'mostPopularBlog' => Blog::withCount('comments')->orderByDesc('comments_count')->take(3)->get(),
     ];
+
     return view('front.default.homepage')->with($data);
 }
+
 
 
 public function cart(){

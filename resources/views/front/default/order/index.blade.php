@@ -36,18 +36,60 @@
     .nav-tabs {
         border-bottom: 1px solid #ddd;
     }
+
+    .no-orders-container {
+        background-color: #f8f9fa;
+        padding: 50px 20px;
+        border-radius: 8px;
+        text-align: center;
+        margin: 30px 0;
+    }
+
+    .no-orders-container img {
+        max-width: 200px;
+        margin-bottom: 20px;
+    }
+
+    .order-detail-link {
+        color: #71cd14;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .order-detail-link:hover {
+        text-decoration: underline;
+    }
+
+    .add-to-cart-btn {
+        background-color: #71cd14;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: background-color 0.3s;
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .add-to-cart-btn:hover {
+        background-color: #5fb10d;
+    }
+
+    .add-to-cart-btn:disabled {
+        background-color: #cccccc;
+    }
 </style>
-<section class="banner_area ">
+
+<section class="banner_area">
     <div class="banner_inner d-flex align-items-center" style="background:linear-gradient(90deg,#71cd14 0%,#eafbe2 100%);min-height:120px;">
         <div class="container">
             <h2 class="text-center fw-bold" style="color:#fff;">My Orders</h2>
         </div>
     </div>
 </section>
-<div class="container py-4">
-    <div class="mb-4">
-    </div>
 
+<div class="container py-4">
     @php
         $tabs = [
             'all' => 'View All',
@@ -75,58 +117,64 @@
         @include('front.default.order.partials.orders_list', ['orders' => $orders])
     </div>
 
-    @if($suggestedProducts->count())
-    <div class="mt-5">
-        <h4 class="fw-bold mb-3">You may also like</h4>
-        <div class="row">
-            @foreach($suggestedProducts as $product)
-            <div class="col-md-2 col-6 mb-4">
-                <div class="card h-100">
-                    @php
-                        $suggestedImage = optional($product->galleries->first())->image;
-                    @endphp
-                    <img src="{{ asset('storage/' . ($suggestedImage ?? 'default.png')) }}" class="card-img-top" alt="{{ $product->name }}">
-                    <div class="card-body p-2">
-                        <h6 class="card-title">{{ $product->name }}</h6>
-                        <p class="mb-0">
-                            <span class="text-danger">{{ number_format($product->discount_price ?? $product->price, 2) }}</span>
-                            @if($product->discount_price)
-                            <small class="text-muted text-decoration-line-through">{{ number_format($product->price, 2) }}</small>
-                            @endif
-                        </p>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-    @endif
+  
 </div>
-@endsection
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const tabs = document.querySelectorAll('#order-tabs .nav-link');
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function () {
-                tabs.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-
-                const status = this.getAttribute('data-status');
-
-                fetch(`{{ route('orders.index') }}?status=${status}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('orders-container').innerHTML = html;
-                });
-            });
+$(document).ready(function() {
+    // Tab switching functionality
+    $('#order-tabs .nav-link').click(function() {
+        $('#order-tabs .nav-link').removeClass('active');
+        $(this).addClass('active');
+        
+        const status = $(this).data('status');
+        
+        $.ajax({
+            url: '{{ route("orders.index") }}',
+            data: { status: status },
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function(response) {
+                $('#orders-container').html(response);
+            },
+            error: function(xhr) {
+                console.error('Error loading orders:', xhr.responseText);
+            }
         });
     });
-</script>
 
+    // Add to cart functionality
+    $(document).on('click', '.add-to-cart-btn', function() {
+        const button = $(this);
+        const productId = button.data('product-id');
+        
+        button.html('<i class="fas fa-spinner fa-spin"></i> Adding...');
+        button.prop('disabled', true);
+        
+        $.ajax({
+            url: '{{ route("cart.add") }}',
+            method: 'POST',
+            data: {
+                product_id: productId,
+                quantity: 1,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                button.html('<i class="fas fa-check"></i> Added');
+                setTimeout(() => {
+                    button.html('Add to Cart');
+                    button.prop('disabled', false);
+                }, 2000);
+                
+                // Update cart count in header
+                $('.cart-count').text(response.cart_count);
+            },
+            error: function(xhr) {
+                button.html('Add to Cart');
+                button.prop('disabled', false);
+                alert('Error: Could not add product to cart');
+            }
+        });
+    });
+});
+</script>
+@endsection

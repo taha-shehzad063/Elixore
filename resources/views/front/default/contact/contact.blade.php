@@ -38,16 +38,16 @@
       </div>
 
       <!-- Contact Info -->
-      <div class="col-md-5">
+      <div class="col-md-5 ">
         <div class="bg-light p-4 rounded shadow-sm">
-          <h5 class="mb-3" style="color: #71cd14;">Live Help</h5>
-          <p>If you have an issue or question that requires immediate assistance, you can click the button below to chat with a Customer Service representative.</p>
+          <h5 class="mb-3 no-dark" style="color: #71cd14;">Live Help</h5>
+          <p class="no-dark">If you have an issue or question that requires immediate assistance, you can click the button below to chat with a Customer Service representative.</p>
 <a href="https://wa.me/923273546753?text=I%20need%20info%20about%20your%20product" class="btn mb-3 text-white" style="background-color: #71cd14;">WhatsApp Chat</a>
           <ul class="list-unstyled">
-            <li><strong>Phone:</strong> <a href="tel:+923273546753">032 73546753</a></li>
-            <li><strong>Email:</strong> <a href="mailto:elixore@gmail.com">elixore@gmail.com</a></li>
-            <li><strong>Address:</strong> Mall Road Lahore, 64200</li>
-            <li><strong>Availability:</strong> Always Open 24/7</li>
+            <li class="no-dark"><strong>Phone:</strong> <a href="tel:+923273546753">032 73546753</a></li>
+            <li class="no-dark"><strong>Email:</strong> <a href="mailto:elixore@gmail.com">elixore@gmail.com</a></li>
+            <li class="no-dark"><strong>Address:</strong> Mall Road Lahore, 64200</li>
+            <li class="no-dark"><strong>Availability:</strong> Always Open 24/7</li>
           </ul>
         </div>
       </div>

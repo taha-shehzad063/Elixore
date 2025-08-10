@@ -17,11 +17,11 @@
                         onerror="this.onerror=null;this.src='https://placehold.co/600x400/EFEFEF/AAAAAA?text=Image+Error';"
                     />
                     <div class="p_icon product-icons">
-                        <a href="{{ route('product.details', $product->slug) }}">
+                        <a class="no-dark4" href="{{ route('product.details', $product->slug) }}">
                             <i class="ti-eye"></i>
                         </a>
-                        <a class="wishlist-btn" href="#" data-url="{{ route('wishlist.add') }}" data-id="{{ $product->id }}" ><i class="ti-heart"></i></a>
-                        <a class="cart-btn" data-id="{{ $product->id }}" href="{{ route('cart.add') }}"><i class="ti-shopping-cart "></i></a>
+                        <a class="wishlist-btn no-dark4" href="#" data-url="{{ route('wishlist.add') }}" data-id="{{ $product->id }}" ><i class="ti-heart"></i></a>
+                        <a class="cart-btn no-dark4" data-id="{{ $product->id }}" href="{{ route('cart.add') }}"><i class="ti-shopping-cart "></i></a>
                     </div>
                 </div>
                 <div class="product-btm">
@@ -43,7 +43,7 @@
              
                    
                     <div class="mt-3">
-                        <span class="mr-4">${{ number_format($product->price, 2) }}</span>
+                        <h5 class="mr-4">${{ number_format($product->price, 2) }}</h5>
                     </div>
                 </div>
             </div>
@@ -90,7 +90,7 @@
              
                    
                     <div class="mt-3">
-                        <span class="mr-4">${{ number_format($product->price, 2) }}</span>
+                        <h5 class="mr-4">${{ number_format($product->price, 2) }}</h5>
                     </div>
                 </div>
             </div>
@@ -106,15 +106,15 @@
     <div class="col-auto">
         <nav aria-label="Page navigation">
             <div class="pagination-wrapper">
-                <span class="pagination-info" aria-live="polite">
+                <h5 class="pagination-info" aria-live="polite">
                     Page {{ $products->currentPage() }} of {{ $products->lastPage() }}
-                </span>
+                </h5>
                 <ul class="pagination aliexpress-pagination">
                     @if ($products->onFirstPage())
                         <li class="page-item disabled" aria-disabled="true">
-                            <span class="page-link" aria-hidden="true">
+                            <h5 class="page-link" aria-hidden="true">
                                 <i class="ti-angle-left"></i>
-                            </span>
+                            </h5>
                         </li>
                     @else
                         <li class="page-item">
@@ -142,7 +142,7 @@
                         </li>
                         @if ($startPage > 2)
                             <li class="page-item disabled" aria-disabled="true">
-                                <span class="page-link ellipsis">...</span>
+                                <h5 class="page-link ellipsis">...</h5>
                             </li>
                         @endif
                     @endif
@@ -156,7 +156,7 @@
                     @if ($endPage < $lastPage)
                         @if ($endPage < $lastPage - 1)
                             <li class="page-item disabled" aria-disabled="true">
-                                <span class="page-link ellipsis">...</span>
+                                <h5 class="page-link ellipsis">...</h5>
                             </li>
                         @endif
                         <li class="page-item">
@@ -172,9 +172,9 @@
                         </li>
                     @else
                         <li class="page-item disabled" aria-disabled="true">
-                            <span class="page-link" aria-hidden="true">
+                            <h5 class="page-link" aria-hidden="true">
                                 <i class="ti-angle-right"></i>
-                            </span>
+                            </h5>
                         </li>
                     @endif
                 </ul>

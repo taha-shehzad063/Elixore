@@ -1,7 +1,7 @@
 <aside class="single_sidebar_widget suggested_post_widget">
-    <h3 class="widget_title">Suggested Posts</h3>
+    <h3 class="widget_title no-dark">Suggested Posts</h3>
     @forelse($suggestedBlogs as $blog)
-        <div class="media post_item">
+        <div class="media post_item no-dark">
             <img src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->name }}"
                 style="width: 80px; height: 60px; object-fit: cover;"
                 onerror="this.onerror=null;this.src='https://placehold.co/80x60/EFEFEF/AAAAAA?text=Image+Error';">
@@ -26,11 +26,11 @@
             <ul class="pagination">
                 @if ($suggestedBlogs->onFirstPage())
                     <li class="page-item disabled">
-                        <span class="page-link" style="background-color: #ccc; color: #fff;">Previous</span>
+                        <span class="page-link" style="background-color: #ccc; color: #fff;">  &laquo;</span>
                     </li>
                 @else
                     <li class="page-item">
-                        <a class="page-link suggested-page-link" href="{{ $suggestedBlogs->previousPageUrl() }}&section=suggested_blogs" style="background-color: #71cd14; color: #fff;">Previous</a>
+                        <a class="page-link suggested-page-link" href="{{ $suggestedBlogs->previousPageUrl() }}&section=suggested_blogs" style="background-color: #71cd14; color: #fff;">&laquo;</a>
                     </li>
                 @endif
                 @foreach ($suggestedBlogs->getUrlRange(1, $suggestedBlogs->lastPage()) as $page => $url)
@@ -40,11 +40,11 @@
                 @endforeach
                 @if ($suggestedBlogs->hasMorePages())
                     <li class="page-item">
-                        <a class="page-link suggested-page-link" href="{{ $suggestedBlogs->nextPageUrl() }}&section=suggested_blogs" style="background-color: #71cd14; color: #fff;">Next</a>
+                        <a class="page-link suggested-page-link" href="{{ $suggestedBlogs->nextPageUrl() }}&section=suggested_blogs" style="background-color: #71cd14; color: #fff;"> &raquo;</a>
                     </li>
                 @else
                     <li class="page-item disabled">
-                        <span class="page-link" style="background-color: #ccc; color: #fff;">Next</span>
+                        <span class="page-link" style="background-color: #ccc; color: #fff;"> &raquo;</span>
                     </li>
                 @endif
             </ul>

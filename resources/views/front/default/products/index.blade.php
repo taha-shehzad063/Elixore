@@ -1,4 +1,3 @@
-
 @if (!request()->ajax())
     @extends('front.default.partials.app')
 
@@ -10,7 +9,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
 <section class="banner_area">
-    <div class="banner_inner d-flex align-items-center">
+    <div class="banner_inner d-flex align-items-center" style="color: black;">
         <div class="container">
             <div class="banner_content d-md-flex justify-content-between align-items-center">
                 <div class="mb-3 mb-md-0">
@@ -31,7 +30,7 @@
         <div class="row flex-row-reverse">
             <div class="col-lg-9">
                 <div class="product_top_bar">
-                    <div class="left_dorp">
+                    <div class="left_dorp no-dark1">
                         <select class="sorting" id="per_page">
                             <option value="12" {{ request('per_page') == 12 ? 'selected' : '' }}>Show 12</option>
                             <option value="24" {{ request('per_page') == 24 ? 'selected' : '' }}>Show 24</option>
@@ -44,15 +43,15 @@
                 </button>
 
                 <div class="d-none d-md-flex align-items-center mb-3">
-                    <span class="me-2">VIEW AS</span>
+                    <h5 class="me-2">VIEW AS</h5>
                     <button type="button" class="btn btn-outline-secondary btn-sm view-mode-btn {{ request('grid_mode') == 'list' ? 'active' : '' }}" data-cols="list">
-                        <img src="https://thumbs.dreamstime.com/b/hamburger-menu-icon-selection-three-lines-option-website-navigation-navigate-open-list-black-white-symbol-sign-graphic-361715125.jpg" alt="List" style="height:24px;">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQrS6kuEy9PhZJydK2hX91U7Px1S_TL0o4dkvAcx2Mnx7sjfjOamWP84BQakS600FVUUM&usqp=CAU" alt="List" style="height:24px;">
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-sm view-mode-btn {{ request('grid_mode') == '6' ? 'active' : '' }}" data-cols="6">
                         <img src="https://www.pngkey.com/png/detail/116-1160644_two-vertical-parallel-lines-vector-lineas-paralelas-verticales.png" alt="2" style="height:24px;">
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-sm view-mode-btn {{ request('grid_mode') == '4' ? 'active' : '' }}" data-cols="4">
-                        <img src="https://static.thenounproject.com/png/3120978-200.png" alt="3" style="height:24px;">
+                        <img src="https://img.freepik.com/premium-vector/hamburger-menu-icon-buttons-website-ui-navigation-mobile-app-vector-elements-user-interface-icons_1211661-943.jpg?semt=ais_hybrid&w=740&q=80" alt="3" style="height:24px;">
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-sm view-mode-btn {{ request('grid_mode') == '3' ? 'active' : '' }}" data-cols="3">
                         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaay22MbmODe7RG8AduTTMHvNf6nd4R93LDQ&s" alt="6" style="height:24px;">
@@ -72,10 +71,10 @@
                     @if (!Route::is('category.products'))
                     <aside class="left_widgets p_filter_widgets">
                         <div class="l_w_title">
-                            <h3>Browse Categories</h3>
+                            <h3 class="filter-toggle" data-target="category-list">Categories <span class="toggle-icon">▼</span></h3>
                         </div>
-                        <div class="widgets_inner">
-                            <ul class="list" id="category-list">
+                        <div class="widgets_inner collapse" id="category-list">
+                            <ul class="list">
                                 <li>
                                     <label class="filter-category-label {{ !request('category') && !isset($selectedCategoryId) ? 'active' : '' }}">
                                         <input type="radio" name="category" class="filter-category" value="" {{ !request('category') && !isset($selectedCategoryId) ? 'checked' : '' }}>
@@ -97,10 +96,10 @@
 
                     <aside class="left_widgets p_filter_widgets">
                         <div class="l_w_title">
-                            <h3>Sort By</h3>
+                            <h3 class="filter-toggle" data-target="sort-list">Sort By <span class="toggle-icon">▼</span></h3>
                         </div>
-                        <div class="widgets_inner">
-                            <ul class="list" id="sort-list">
+                        <div class="widgets_inner collapse" id="sort-list">
+                            <ul class="list">
                                 <li>
                                     <label class="filter-sort-label {{ !request('sort_by') ? 'active' : '' }}">
                                         <input type="radio" name="sort_by" class="filter-sort" value="" {{ !request('sort_by') ? 'checked' : '' }}>
@@ -155,10 +154,10 @@
 
                     <aside class="left_widgets p_filter_widgets">
                         <div class="l_w_title">
-                            <h3>Product Tags</h3>
+                            <h3 class="filter-toggle" data-target="tags-list">Product Tags <span class="toggle-icon">▼</span></h3>
                         </div>
-                        <div class="widgets_inner">
-                            <ul class="list" id="tags-list">
+                        <div class="widgets_inner collapse" id="tags-list">
+                            <ul class="list">
                                 @include('front.default.products.partials.tags_list')
                             </ul>
                         </div>
@@ -166,9 +165,37 @@
 
                     <aside class="left_widgets p_filter_widgets">
                         <div class="l_w_title">
-                            <h3>Filter by Price</h3>
+                            <h3 class="filter-toggle" data-target="availability-list">Availability <span class="toggle-icon">▼</span></h3>
                         </div>
-                        <div class="widgets_inner">
+                        <div class="widgets_inner collapse" id="availability-list">
+                            <ul class="list">
+                                <li>
+                                    <label class="filter-availability-label {{ !request('availability') ? 'active' : '' }}">
+                                        <input type="radio" name="availability" class="filter-availability" value="" {{ !request('availability') ? 'checked' : '' }}>
+                                        All
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="filter-availability-label {{ request('availability') == 'in stock' ? 'active' : '' }}">
+                                        <input type="radio" name="availability" class="filter-availability" value="in stock" {{ request('availability') == 'in stock' ? 'checked' : '' }}>
+                                        In Stock
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="filter-availability-label {{ request('availability') == 'out of stock' ? 'active' : '' }}">
+                                        <input type="radio" name="availability" class="filter-availability" value="out of stock" {{ request('availability') == 'out of stock' ? 'checked' : '' }}>
+                                        Out of Stock
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                    </aside>
+
+                    <aside class="left_widgets p_filter_widgets">
+                        <div class="l_w_title">
+                            <h3 class="filter-toggle" data-target="price-range-section">Filter by Price <span class="toggle-icon">▼</span></h3>
+                        </div>
+                        <div class="widgets_inner collapse" id="price-range-section">
                             <div id="price-range"></div>
                             <div id="price-range-label"></div>
                         </div>
@@ -181,15 +208,17 @@
 
 <div id="mobile-filter-sidebar" class="mobile-filter-sidebar">
     <div class="sidebar-header d-flex justify-content-between align-items-center px-3 py-2" style="background:#71cd14;">
-        <span class="text-white fw-bold">Filters</span>
+        <h5 class="text-white fw-bold">Filters</h5>
         <button id="close-filter-sidebar" class="btn btn-sm btn-light">&times;</button>
     </div>
     <div class="sidebar-body p-3">
         @if (!Route::is('category.products'))
         <aside class="left_widgets p_filter_widgets mb-4">
-            <div class="l_w_title"><h3>Browse Categories</h3></div>
-            <div class="widgets_inner">
-                <ul class="list" id="category-list-mobile">
+            <div class="l_w_title">
+                <h3 class="filter-toggle" data-target="category-list-mobile">Browse Categories <span class="toggle-icon">▼</span></h3>
+            </div>
+            <div class="widgets_inner collapse" id="category-list-mobile">
+                <ul class="list">
                     <li>
                         <label class="filter-category-label {{ !request('category') && !isset($selectedCategoryId) ? 'active' : '' }}">
                             <input type="radio" name="category_mobile" class="filter-category" value="" {{ !request('category') && !isset($selectedCategoryId) ? 'checked' : '' }}>
@@ -209,9 +238,11 @@
         </aside>
         @endif
         <aside class="left_widgets p_filter_widgets mb-4">
-            <div class="l_w_title"><h3>Sort By</h3></div>
-            <div class="widgets_inner">
-                <ul class="list" id="sort-list-mobile">
+            <div class="l_w_title">
+                <h3 class="filter-toggle" data-target="sort-list-mobile">Sort By <span class="toggle-icon">▼</span></h3>
+            </div>
+            <div class="widgets_inner collapse" id="sort-list-mobile">
+                <ul class="list">
                     <li>
                         <label class="filter-sort-label {{ !request('sort_by') ? 'active' : '' }}">
                             <input type="radio" name="sort_by_mobile" class="filter-sort" value="" {{ !request('sort_by') ? 'checked' : '' }}>
@@ -265,17 +296,49 @@
         </aside>
 
         <aside class="left_widgets p_filter_widgets mb-4">
-            <div class="l_w_title"><h3>Product Tags</h3></div>
-            <div class="widgets_inner">
-                <ul class="list" id="tags-list-mobile">
+            <div class="l_w_title">
+                <h3 class="filter-toggle" data-target="tags-list-mobile">Product Tags <span class="toggle-icon">▼</span></h3>
+            </div>
+            <div class="widgets_inner collapse" id="tags-list-mobile">
+                <ul class="list">
                     @include('front.default.products.partials.tags_list')
                 </ul>
             </div>
         </aside>
 
         <aside class="left_widgets p_filter_widgets mb-4">
-            <div class="l_w_title"><h3>Filter by Price</h3></div>
-            <div class="widgets_inner">
+            <div class="l_w_title">
+                <h3 class="filter-toggle" data-target="availability-list-mobile">Filter by Availability <span class="toggle-icon">▼</span></h3>
+            </div>
+            <div class="widgets_inner collapse" id="availability-list-mobile">
+                <ul class="list">
+                    <li>
+                        <label class="filter-availability-label {{ !request('availability') ? 'active' : '' }}">
+                            <input type="radio" name="availability_mobile" class="filter-availability" value="" {{ !request('availability') ? 'checked' : '' }}>
+                            All
+                        </label>
+                    </li>
+                    <li>
+                        <label class="filter-availability-label {{ request('availability') == 'in stock' ? 'active' : '' }}">
+                            <input type="radio" name="availability_mobile" class="filter-availability" value="in stock" {{ request('availability') == 'in stock' ? 'checked' : '' }}>
+                            In Stock
+                        </label>
+                    </li>
+                    <li>
+                        <label class="filter-availability-label {{ request('availability') == 'out of stock' ? 'active' : '' }}">
+                            <input type="radio" name="availability_mobile" class="filter-availability" value="out of stock" {{ request('availability') == 'out of stock' ? 'checked' : '' }}>
+                            Out of Stock
+                        </label>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <aside class="left_widgets p_filter_widgets mb-4">
+            <div class="l_w_title">
+                <h3 class="filter-toggle" data-target="mobile-price-filter-form">Filter by Price <span class="toggle-icon">▼</span></h3>
+            </div>
+            <div class="widgets_inner collapse" id="mobile-price-filter-form">
                 <form id="mobile-price-filter-form">
                     <div class="row g-2">
                         <div class="col-6">
@@ -327,6 +390,21 @@ $(document).ready(function () {
     });
     $('#price-range-label').text('$' + $('#price-range').slider('values', 0) + ' - $' + $('#price-range').slider('values', 1));
 
+    // Collapsible Filter Toggle
+    $('.filter-toggle').on('click', function() {
+        const target = $(this).data('target');
+        const $target = $('#' + target);
+        const $icon = $(this).find('.toggle-icon');
+        
+        // Close all other dropdowns
+        $('.widgets_inner.collapse').not($target).slideUp();
+        $('.filter-toggle').not(this).find('.toggle-icon').text('▼');
+        
+        // Toggle the clicked dropdown
+        $target.slideToggle();
+        $icon.text($target.is(':visible') ? '▲' : '▼');
+    });
+
     // Set initial active state
     updateActiveStates();
 
@@ -334,6 +412,7 @@ $(document).ready(function () {
     function filterProducts() {
         const categoryId = $('.filter-category:checked').val() || '';
         const tags = $('.filter-tag:checked').map(function() { return $(this).val(); }).get();
+        const availability = $('.filter-availability:checked').val() || '';
         let minPrice = window.innerWidth <= 991 ? ($('.filter-price-min').val() || {{ $minPrice ?? 0 }}) : $('#price-range').slider('values', 0);
         let maxPrice = window.innerWidth <= 991 ? ($('.filter-price-max').val() || {{ $maxPrice ?? 1000 }}) : $('#price-range').slider('values', 1);
         const sortBy = $('.filter-sort:checked').val() || '';
@@ -341,6 +420,7 @@ $(document).ready(function () {
 
         const data = {
             tags: tags,
+            availability: availability,
             min_price: minPrice,
             max_price: maxPrice,
             sort_by: sortBy,
@@ -391,8 +471,10 @@ $(document).ready(function () {
     function updateActiveStates() {
         $('.filter-category-label').removeClass('active');
         $('.filter-sort-label').removeClass('active');
+        $('.filter-availability-label').removeClass('active');
         $('.filter-category:checked').closest('.filter-category-label').addClass('active');
         $('.filter-sort:checked').closest('.filter-sort-label').addClass('active');
+        $('.filter-availability:checked').closest('.filter-availability-label').addClass('active');
     }
 
     // Bind Filter Events
@@ -406,6 +488,12 @@ $(document).ready(function () {
 
         $('.filter-sort').off('change').on('change', function () {
             console.log('Sort selected:', $(this).val());
+            updateActiveStates();
+            filterProducts();
+        });
+
+        $('.filter-availability').off('change').on('change', function () {
+            console.log('Availability selected:', $(this).val());
             updateActiveStates();
             filterProducts();
         });
@@ -458,6 +546,7 @@ $(document).ready(function () {
                     grid_mode: selectedGridMode,
                     category: $('.filter-category:checked').val() || '',
                     tags: $('.filter-tag:checked').map(function() { return $(this).val(); }).get(),
+                    availability: $('.filter-availability:checked').val() || '',
                     min_price: window.innerWidth <= 991 ? $('.filter-price-min').val() : $('#price-range').slider('values', 0),
                     max_price: window.innerWidth <= 991 ? $('.filter-price-max').val() : $('#price-range').slider('values', 1),
                     sort_by: $('.filter-sort:checked').val() || '',
@@ -718,6 +807,10 @@ $(document).ready(function () {
     .loading-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 10; }
     .loading-bar { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border: 5px solid #71cd14; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+    .filter-toggle { cursor: pointer; position: relative; }
+    .toggle-icon { position: absolute; right: -19px; }
+    .collapse { display: none; }
+    .collapse.show { display: block; }
 </style>
 
 @if (!request()->ajax())

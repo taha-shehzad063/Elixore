@@ -32,9 +32,37 @@
 
     <!-- Page Content -->
 </body>
+@if (!request()->routeIs('shop.index') && !request()->routeIs('category.products'))
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@endif
 
 @include('front.default.partials.footer')
 @include('front.default.partials.js')
+    @include('front.default.whatsapp')
+    @include('front.default.flow')
+
+<script>
+    $(document).ready(function () {
+        let darkModeToggle = $('#toggleDarkMode,#toggleDarkMode1');
+
+        // 1. Check and apply saved mode on page load
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            $('body').addClass('dark-mode');
+            darkModeToggle.prop('checked', true);
+        }
+
+        // 2. Toggle dark mode on change
+        darkModeToggle.on('change', function () {
+            $('body').toggleClass('dark-mode');
+
+            if ($('body').hasClass('dark-mode')) {
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        });
+    });
+</script>
 
 
 </html>

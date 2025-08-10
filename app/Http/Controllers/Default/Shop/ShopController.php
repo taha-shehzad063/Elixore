@@ -43,7 +43,9 @@ class ShopController extends Controller
                 });
             }
         }
-
+if ($request->has('availability') && $request->availability !== '') {
+    $productsQuery->where('availability', $request->availability);
+}
         // Price Range filters
         if ($request->has('min_price') && is_numeric($request->input('min_price'))) {
             $productsQuery->where('price', '>=', $request->input('min_price'));

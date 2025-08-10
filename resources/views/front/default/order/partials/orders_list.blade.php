@@ -2,8 +2,7 @@
 <div class="border rounded p-3 mb-4 shadow-sm">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <div>
-            <small class="text-muted">Order ID: {{ $order->id }}</small><br>
-            <small class="text-muted">Order Date: {{ $order->created_at->format('M d, Y') }}</small>
+            <small class="text-muted">Placed on {{ $order->created_at->format('M d, Y') }}</small>
         </div>
         <div>
             <span class="badge 
@@ -25,16 +24,22 @@
                 $galleryImage = optional($item->product->galleries->first())->image;
             @endphp
             <img src="{{ asset('storage/' . ($galleryImage ?? 'default.png')) }}"
-                 alt="{{ $item->product->name }}" class="me-3 rounded" width="70">
+                 alt="{{ $item->product->name }}" 
+                 class="me-3 rounded" 
+                 width="70"
+                 style="object-fit: cover;">
             <div>
                 <h6 class="mb-1">{{ $item->product->name }}</h6>
-                <small class="text-muted">SKU: {{ $item->product->id }}</small>
+<small class="text-muted">
+    Description: 
+    {{ \Illuminate\Support\Str::limit(strip_tags($item->product->description), 83, '..') }}
+</small>
             </div>
         </div>
         <div class="text-end">
-            <div class="text-muted">Price: {{ number_format($item->price, 2) }}</div>
+            <div class="text-muted">{{ number_format($item->price, 2) }}</div>
             <div class="text-muted">Qty: {{ $item->quantity }}</div>
-            <strong>Total: {{ number_format($item->price * $item->quantity, 2) }}</strong>
+            <strong>{{ number_format($item->price * $item->quantity, 2) }}</strong>
         </div>
     </div>
     @endforeach
@@ -45,12 +50,32 @@
                 <p class="mb-0"><strong>Note:</strong> {{ $order->order_note }}</p>
             @endif
         </div>
-        <div>
-            <strong>Shipping:</strong> {{ number_format($order->shipping_cost, 2) }}<br>
-            <strong>Total:</strong> {{ number_format($order->total, 2) }}
-        </div>
+       <div class="text-end">
+    <strong>Shipping: {{ number_format($order->shipping_cost, 2) }}</strong><br>
+    <strong>Total: {{ number_format($order->total, 2) }}</strong><br>
+
+    @if ($order->is_cancel)
+        <small class="text-danger">Requested for Cancel</small>
+    @elseif ($order->is_refund)
+        <small class="text-warning">Requested for Refund</small>
+    @else
+        <a href="{{ route('orders.show', $order->hashed_id) }}"
+   class="order-detail-link mt-2 d-inline-block btn btn-sm"
+   style="background-color: #71cd14 !important; color: #fff !important;">
+    View Order Details
+</a>
+
+
+    @endif
+</div>
+
     </div>
 </div>
 @empty
-    <p class="text-muted">No orders found for this tab.</p>
+<div class="no-orders-container text-center">
+    <img src="https://img.freepik.com/free-vector/no-data-concept-illustration_114360-2506.jpg?size=626&ext=jpg&ga=GA1.2.569389782.1660639394" alt="No Orders Found" class="mb-4" style="max-width: 200px;">
+    <h4 class="fw-bold text-muted mb-3">No Orders Found</h4>
+    <p class="text-muted mb-4">You haven't placed any orders in this category yet. Start shopping now!</p>
+    <a href="{{ route('shop.index') }}" class="btn btn-primary px-4" style="background-color: #71cd14; border-color: #71cd14;">Continue Shopping</a>
+</div>
 @endforelse

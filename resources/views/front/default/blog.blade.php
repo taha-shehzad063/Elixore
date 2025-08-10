@@ -145,10 +145,10 @@
                     </aside>
 
                     <!-- Recent Posts -->
-                    <aside class="single_sidebar_widget popular_post_widget">
-                        <h3 class="widget_title">Recent Posts</h3>
+                    <aside class="single_sidebar_widget popular_post_widget ">
+                        <h3 class="widget_title no-dark">Recent Posts</h3>
                         @foreach($latestBlogs as $blog)
-                            <div class="media post_item">
+                            <div class="media post_item no-dark">
                                 <img src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->name }}"
                                     style="width: 80px; height: 60px; object-fit: cover;"
                                     onerror="this.onerror=null;this.src='https://placehold.co/80x60/EFEFEF/AAAAAA?text=Image+Error';">
@@ -170,11 +170,11 @@
 
                     <!-- Tags -->
                     <aside class="single_sidebar_widget tag_cloud_widget">
-                        <h4 class="widget_title">Tag Clouds</h4>
+                        <h4 class="widget_title no-dark">Tag Clouds</h4>
                         <ul class="list">
                             @foreach($tags as $tag)
                                 <li>
-                                    <a href="{{ route('blog', ['tag' => $tag->name]) }}" class="tag-link" data-name="{{ $tag->name }}">{{ $tag->name }}</a>
+                                    <a href="{{ route('blog', ['tag' => $tag->name]) }}" class="tag-link no-dark" data-name="{{ $tag->name }}">{{ $tag->name }}</a>
                                 </li>
                             @endforeach
                         </ul>

@@ -10,8 +10,9 @@ use App\Models\Address;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\CartItem;
-use App\Models\CheckoutOption;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use App\Models\CheckoutOption;
 use Illuminate\Support\Facades\Log;
 
 use DB;
@@ -318,31 +319,139 @@ public function saveCartTotal(Request $request)
             DB::rollBack();
             return response()->json(['status' => false, 'message' => 'Order failed!']);
         }
+    }private function decodeOrderId($hash)
+    {
+        $secret = env('APP_KEY', 'yourfallbacksecret');
+        $decoded = base64_decode($hash, true);
+        if ($decoded === false) {
+            return null;
+        }
+        [$orderId, $hashCheck] = explode(':', $decoded, 2);
+        if ($hashCheck !== hash_hmac('sha256', $orderId, $secret)) {
+            return null;
+        }
+        return (int)$orderId;
     }
 
     public function index(Request $request)
-{
-    $status = $request->input('status', 'all');
+    {
+         if (!auth()->check()) {
+        return redirect()->route('user.login')->with('error', 'You need to login to access this page');
+    }
+        $status = $request->input('status', 'all');
 
-    $orders = Order::with(['items.product.galleries'])
-        ->where('user_id', Auth::id())
-        ->when($status !== 'all', function ($query) use ($status) {
-            if ($status === 'pending') {
-                $query->whereIn('status', ['pending', 'awaiting_verification']);
-            } else {
-                $query->where('status', $status);
-            }
-        })
-        ->orderByDesc('created_at')
-        ->get();
+        $orders = Order::with(['items.product.galleries'])
+            ->where('user_id', Auth::id())
+            ->when($status !== 'all', function ($query) use ($status) {
+                if ($status === 'pending') {
+                    $query->whereIn('status', ['pending', 'awaiting_verification']);
+                } else {
+                    $query->where('status', $status);
+                }
+            })
+            ->orderByDesc('created_at')
+            ->get();
 
-    $suggestedProducts = Product::with('galleries')->inRandomOrder()->take(6)->get();
+        $suggestedProducts = Product::with('galleries')->inRandomOrder()->take(6)->get();
 
-    if ($request->ajax()) {
-        return view('front.default.order.partials.orders_list', compact('orders'))->render();
+        if ($request->ajax()) {
+            return view('front.default.order.partials.orders_list', compact('orders'))->render();
+        }
+
+        return view('front.default.order.index', compact('orders', 'suggestedProducts'));
     }
 
-    return view('front.default.order.index', compact('orders', 'suggestedProducts'));
+
+
+public function show($hash)
+{
+    $orderId = $this->decodeOrderId($hash);
+    if ($orderId === null) {
+        abort(404, 'Order not found');
+    }
+
+    $order = Order::with([
+        'items.product.galleries',
+        'shippingAddress',
+        'billingAddress',
+        'tracking' => function ($query) {
+            $query->latest();
+        }
+    ])->findOrFail($orderId);
+
+    if ($order->user_id !== Auth::id()) {
+        abort(403);
+    }
+
+    // Generate unique session key per order
+    $orderUuidKey = 'order_uuid_' . $order->id;
+
+    if (!session()->has($orderUuidKey)) {
+        session()->put($orderUuidKey, Str::uuid());
+    }
+
+    $orderUuid = session($orderUuidKey);
+
+    // 🛒 Get product IDs from the current user's cart
+    $cart = Cart::where('user_id', Auth::id())->first();
+    $cartProductIds = [];
+
+    if ($cart) {
+        $cartProductIds = CartItem::where('cart_id', $cart->id)->pluck('product_id')->toArray();
+    }
+
+    // 🧠 Suggest products not already in the cart
+    $suggestedProducts = Product::with('galleries')
+        ->whereNotIn('id', $cartProductIds)
+        ->inRandomOrder()
+        ->take(6)
+        ->get();
+
+    return view('front.default.order.show', compact('order', 'suggestedProducts', 'orderUuid'));
 }
 
+
+
+    public function tracking($orderId)
+    {
+        $order = Order::with(['tracking' => function ($query) {
+            $query->orderBy('created_at', 'desc');
+        }])
+            ->where('user_id', Auth::id())
+            ->findOrFail($orderId);
+
+        $latestTracking = $order->tracking->first();
+
+        return response()->json([
+            'status' => $order->status,
+            'tracking_info' => $latestTracking,
+            'history' => $order->tracking
+        ]);
+    }
+   public function cancel($id)
+{
+    $order = Order::findOrFail($id);
+
+    if (in_array($order->status, ['pending', 'processing']) && \Carbon\Carbon::parse($order->created_at)->diffInHours(\Carbon\Carbon::now()) < 12) {
+        $order->is_cancel = 1; // Set the flag to 1
+        $order->save();
+
+        return response()->json(['message' => 'Cancellation requested']);
+    }
+
+    return response()->json(['error' => 'Cannot cancel order'], 403);
+}
+public function refund($id)
+{
+    $order = Order::findOrFail($id);
+
+    if ($order->status === 'delivered' && !$order->is_refund) {
+        $order->is_refund = 1;
+        $order->save();
+
+        return response()->json(['message' => 'Refund requested']);
+    }
+
+    return response()->json(['error' => 'Cannot request refund'], 403);
+}
 }

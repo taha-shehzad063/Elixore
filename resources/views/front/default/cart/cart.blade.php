@@ -36,7 +36,7 @@
 /* Inline styles remain unchanged */
 </style>
 
-<section class="cart_area py-5" style="background:#f8f9fa;">
+<section class="cart_area py-5" >
     <div class="container-fluid px-lg-5 px-2">
         <div class="row justify-content-center">
             <div class="col-12">
@@ -54,7 +54,7 @@
                             <!-- Desktop Table View -->
                             <div class="table-responsive d-none d-lg-block">
                                 <table class="table align-middle mb-0" id="cartTable">
-                                    <thead class="table-light">
+                                    <thead class="">
                                         <tr>
                                             <th>Product</th>
                                             <th>Image</th>
@@ -218,7 +218,7 @@
 
                             <div class="row mt-4">
                                 <div class="col-lg-6 col-md-8 col-12">
-                                    <div class="cart-note p-4 rounded-3 mb-3" style="background:#fff;">
+                                    <div class="cart-note p-4 rounded-3 mb-3" >
                                         <h5 class="mb-3 fw-bold" style="color:#71cd14;">Order Note <small class="text-muted">(Max 1000 characters)</small></h5>
                                         <form id="orderNoteForm">
                                             <textarea id="orderNote" name="order_note" class="form-control mb-2" maxlength="1000" placeholder="Write your order note...">{{ session('order_note') }}</textarea>
@@ -227,14 +227,14 @@
                                             </small>
                                             <button type="submit" id="saveNoteBtn" class="btn btn-outline-success rounded-pill mt-2" style="color:#71cd14;border-color:#71cd14;">Save Note</button>
                                         </form>
-                                        <div id="savedOrderNote" class="d-flex justify-content-between align-items-center mt-3" style="@if(!session('order_note'))display: none;@endif background: #eafbe2; padding: 10px 15px; border-radius: 10px;">
+                                        <div id="savedOrderNote" class="d-flex justify-content-between align-items-center mt-3" style="@if(!session('order_note'))display: none;@endif  padding: 10px 15px; border-radius: 10px;">
                                             <span class="text-dark fw-semibold" id="noteContent">{{ session('order_note') }}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="col-lg-6 col-md-8 col-12 ms-auto">
-                                    <div class="cart-summary p-4 rounded-3" style="background:#eafbe2;">
+                                    <div class="cart-summary p-4 rounded-3" >
                                         <h5 class="mb-3 fw-bold" style="color:#71cd14;">Cart Summary</h5>
                                         <div class="d-flex justify-content-between mb-2">
                                             <span class="fw-semibold">Subtotal:</span>
@@ -253,7 +253,7 @@
     @csrf
     <input type="hidden" name="total" id="totalInput" value="">
 
-    <button type="submit" class="btn btn-success w-100 mt-3 rounded-pill fw-bold"
+    <button type="submit" class="btn btn-success w-100 mt-3 rounded-pill fw-bold no-dark3"
         style="background:#71cd14;border:none;">
         Proceed to Checkout
     </button>
@@ -269,7 +269,7 @@
                             <div class="text-center py-5">
                                 <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" width="150" class="mb-3" alt="Empty Cart">
                                 <h4 class="fw-bold text-muted">Your cart is empty.</h4>
-                                <a href="{{ route('main') }}" class="btn btn-outline-success rounded-pill mt-3" style="color:#71cd14;border-color:#71cd14;">Continue Shopping</a>
+                                <a href="{{ route('shop.index') }}" class="btn btn-outline-success rounded-pill mt-3" style="color:#71cd14;border-color:#71cd14;">Continue Shopping</a>
                             </div>
                         @endif
 
@@ -283,9 +283,9 @@
                         @endphp
 
                         <div class="explore-more-section mt-5">
-                            <h3 class="text-center mb-4 fw-bold" style="color:#71cd14;">Explore More</h3>
                             <div class="row">
                                 @foreach($latestProducts as $product)
+                                <h3 class="text-center mb-4 fw-bold" style="color:#71cd14;">Explore More</h3>
                                     <div class="col-lg-3 col-md-6 col-6 mb-3">
                                         <div class="product-card h-100">
                                             <div class="position-relative">
@@ -340,7 +340,6 @@
     </div>
 </section>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.43/moment-timezone-with-data.min.js"></script>

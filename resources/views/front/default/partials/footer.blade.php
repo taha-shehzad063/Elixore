@@ -92,9 +92,9 @@
     </div>
 
     <!-- Bottom footer -->
-    <div class="row pt-4 border-top border-secondary mt-4 bg-light">
+    <div class="row pt-4 border-top border-secondary mt-4 ">
       <div class="col-md-8">
-        <p class="mb-0 text-muted">&copy; {{ date('Y') }} Elixore. All Rights Reserved</p>
+        <p class="mb-0 text-light">&copy; {{ date('Y') }} Elixore. All Rights Reserved</p>
       </div>
       <div class="col-md-4 text-right">
         <img class="foote" style="height: 56px; width: 250px;    bottom: 10px;

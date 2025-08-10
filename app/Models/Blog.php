@@ -20,5 +20,8 @@ class Blog extends Model
                 ->withTimestamps();
 }
 
-
+public function likes()
+{
+    return $this->hasMany(Like::class);
+}
 }

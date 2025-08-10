@@ -13,7 +13,7 @@
                 <a class="d-inline-block" href="{{ route('blogs.details', $blog->slug) }}">
                     <h2>{{ $blog->name }}</h2>
                 </a>
-                <p>{{ Str::limit($blog->description, 120) }}</p>
+<p>{{ Str::limit(strip_tags(preg_replace('/<img[^>]*>/i', '', $blog->description)), 120, ' [read more]') }}</p>
                 <ul class="blog-info-link">
                     <li><i class="ti-user"></i> {{ $blog->tags->pluck('name')->implode(', ') ?: 'Uncategorized' }}</li>
                     <li><i class="ti-comments"></i> {{ $blog->comments->count() }} Comments</li>
@@ -30,10 +30,10 @@
 <div class="blog-pagination justify-content-center d-flex mt-4">
     <nav aria-label="Blog pagination">
         <div class="pagination-wrapper">
-            <span class="pagination-info" aria-live="polite">
+            <span class="pagination-info " aria-live="polite">
                 Page {{ $blogs->currentPage() }} of {{ $blogs->lastPage() }}
             </span>
-            <ul class="pagination aliexpress-pagination">
+            <ul class="pagination aliexpress-pagination no-dark2">
                 @if ($blogs->onFirstPage())
                     <li class="page-item disabled" aria-disabled="true">
                         <span class="page-link" aria-hidden="true">
@@ -62,41 +62,41 @@
 
                 @if ($startPage > 1)
                     <li class="page-item">
-                        <a class="page-link" href="{{ $blogs->url(1) }}">1</a>
+                        <a class="page-link " href="{{ $blogs->url(1) }}">1</a>
                     </li>
                     @if ($startPage > 2)
                         <li class="page-item disabled" aria-disabled="true">
-                            <span class="page-link">...</span>
+                            <span class="page-link ">...</span>
                         </li>
                     @endif
                 @endif
 
                 @foreach (range($startPage, $endPage) as $page)
                     <li class="page-item {{ $currentPage == $page ? 'active' : '' }}" aria-current="{{ $currentPage == $page ? 'page' : '' }}">
-                        <a class="page-link" href="{{ $blogs->url($page) }}">{{ $page }}</a>
+                        <a class="page-link " href="{{ $blogs->url($page) }}">{{ $page }}</a>
                     </li>
                 @endforeach
 
                 @if ($endPage < $lastPage)
                     @if ($endPage < $lastPage - 1)
                         <li class="page-item disabled" aria-disabled="true">
-                            <span class="page-link">...</span>
+                            <span class="page-link ">...</span>
                         </li>
                     @endif
                     <li class="page-item">
-                        <a class="page-link" href="{{ $blogs->url($lastPage) }}">{{ $lastPage }}</a>
+                        <a class="page-link " href="{{ $blogs->url($lastPage) }}">{{ $lastPage }}</a>
                     </li>
                 @endif
 
                 @if ($blogs->hasMorePages())
                     <li class="page-item">
-                        <a class="page-link" href="{{ $blogs->nextPageUrl() }}" aria-label="Next">
+                        <a class="page-link " href="{{ $blogs->nextPageUrl() }}" aria-label="Next">
                             <i class="ti-angle-right"></i>
                         </a>
                     </li>
                 @else
                     <li class="page-item disabled" aria-disabled="true">
-                        <span class="page-link" aria-hidden="true">
+                        <span class="page-link " aria-hidden="true">
                             <i class="ti-angle-right"></i>
                         </span>
                     </li>
@@ -141,7 +141,7 @@
         border-radius: 50%;
         border: 2px solid #71cd14;
         background-color: #fff;
-        color: #71cd14;
+        color: black;
         text-decoration: none;
         font-size: 14px;
         font-weight: 600;

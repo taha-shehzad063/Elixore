@@ -25,15 +25,15 @@
                     <input type="text" class="checkout-input" name="shipping_address[city]" placeholder="City" required>
                     <input type="text" class="checkout-input" name="shipping_address[zip]" placeholder="Postal code (optional)">
                 </div>
-<div class="mb-3">
+<div class="mb-3 ">
     <label for="shippingCountry" class="form-label">Country</label>
     <select 
         name="shipping_address[country]" 
-        class="form-select" 
+        class="form-select no-dark" 
         id="shippingCountry"
         required
     >
-        <option class="d-none">Select Country</option>
+        <option class="d-none no-dark">Select Country</option>
         @foreach ($countries as $country)
             <option value="{{ $country['name'] }}">{{ $country['name'] }}</option>
         @endforeach
@@ -64,9 +64,9 @@
                     data-shipping-cost="{{ $option->shipping_cost }}"
                     {{ ($firstShipping && $cartSubtotal >= 3000) ? 'checked' : '' }}>
 
-                <span style="margin-left: 10px;">{{ $option->key }} ({{ $option->message }})</span>
+                <span class="" style="margin-left: 10px;">{{ $option->key }} ({{ $option->message }})</span>
 
-                <span style="margin-left:auto; font-weight:600; color:{{ $option->shipping_cost == 0 ? '#71cd14' : '#222' }}">
+                <span class="style="margin-left:auto; font-weight:600; color:{{ $option->shipping_cost == 0 ? '#71cd14' : '#222' }}">
                     {{ $option->shipping_cost == 0 ? 'FREE' : 'Rs ' . number_format($option->shipping_cost, 2) }}
                 </span>
             </label>

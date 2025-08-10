@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\CheckoutOption;
+use App\Models\OrderTracking;
 use App\Models\Order;
 class OrderController extends Controller
 {
@@ -82,6 +83,7 @@ class OrderController extends Controller
     }
   public function orders()
     {
+        
         // Eager load relationships to avoid N+1 queries
         $orders = Order::with(['items.product', 'shippingAddress', 'billingAddress'])->get();
         return view('admin.frontend.order.index', compact('orders'));
@@ -107,5 +109,52 @@ class OrderController extends Controller
         $order->update(['status' => $request->status]);
         return redirect()->route('admin.orders')->with('success', 'Order status updated successfully.');
     }
+public function tracking($orderId)
+{
+    $order = Order::with(['tracking' => function($query) {
+        $query->orderBy('created_at', 'desc');
+    }])->findOrFail($orderId);
 
+    $latestTracking = $order->tracking->first();
+
+    return response()->json([
+        'status' => $order->status,
+        'tracking_info' => $latestTracking,
+        'history' => $order->tracking
+    ]);
+}
+
+public function updateTracking(Request $request, $orderId)
+{
+    $validated = $request->validate([
+        'status' => 'required|string',
+        'location' => 'nullable|string',
+        'description' => 'nullable|string',
+        'tracking_number' => 'nullable|string',
+        'carrier' => 'nullable|string',
+        'estimated_delivery' => 'nullable|date'
+    ]);
+
+    $order = Order::findOrFail($orderId);
+
+    // Create new tracking record
+    $tracking = new OrderTracking([
+        'order_id' => $orderId,
+        'status' => $validated['status'],
+        'location' => $validated['location'] ?? null,
+        'description' => $validated['description'] ?? null,
+        'tracking_number' => $validated['tracking_number'] ?? null,
+        'carrier' => $validated['carrier'] ?? null,
+        'estimated_delivery' => $validated['estimated_delivery'] ?? null
+    ]);
+    $tracking->save();
+
+    // Update order status if different
+    if ($order->status !== $validated['status']) {
+        $order->status = $validated['status'];
+        $order->save();
+    }
+
+    return response()->json(['message' => 'Tracking updated successfully']);
+}
 }

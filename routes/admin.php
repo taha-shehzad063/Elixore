@@ -56,7 +56,8 @@ Route::post('products-gallery/{id}/delete', [ProductController::class, 'deleteGa
 Route::get('/categories/{category}/subcategories', [ProductController::class, 'getSubcategories'])->name('categories.subcategories');
 Route::get('/products/{product}/reviews', [ProductController::class, 'showReviews'])
     ->name('products.reviews');
-    
+    Route::get('/orders/{order}/tracking', [OrderController::class, 'tracking'])->name('orders.tracking');
+Route::post('/orders/{order}/tracking', [OrderController::class, 'updateTracking'])->name('orders.tracking.update');
 Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])
     ->name('reviews.destroy');
     

@@ -64,11 +64,14 @@ class BlogController extends Controller
 public function detail($slug, Request $request)
 {
     $blogs = Blog::with('tags')->where('slug', $slug)->firstOrFail();
-    $comments = Comment::where('blog_id', $blogs->id)
-        ->whereNull('parent_id')
-        ->with('replies')
-        ->latest()
-        ->get();
+ $comments = Comment::where('blog_id', $blogs->id)
+    ->whereNull('parent_id')
+    ->orderBy('created_at', 'desc')
+    ->with('repliesRecursive')
+    ->paginate(10);
+$totalComments = Comment::where('blog_id', $blogs->id)->count();
+$likeCount = $blogs->likes()->count();
+$isLiked = $blogs->likes()->where('ip_address', request()->ip())->exists();
     $tags = Tag::has('blogs')->get();
     $latestBlogs = Blog::where('id', '!=', $blogs->id)->latest()->take(4)->get();
 
@@ -93,7 +96,22 @@ $suggestedBlogsQuery = $suggestedBlogs;
         return view('front.default.suggested_blogs', compact('suggestedBlogs','suggestedBlogsQuery'))->render();
     }
 
-    return view('front.default.blog_details', compact('blogs', 'tags', 'latestBlogs', 'comments', 'suggestedBlogsQuery','suggestedBlogs'));
+    return view('front.default.blog_details', compact('blogs', 'tags', 'latestBlogs', 'comments', 'suggestedBlogsQuery','suggestedBlogs', 'totalComments', 'likeCount', 'isLiked'));
+}
+public function like(Request $request, $blogId)
+{
+    $blog = Blog::findOrFail($blogId);
+    $ip = $request->ip();
+    $liked = $blog->likes()->where('ip_address', $ip)->exists();
+
+    if ($liked) {
+        return response()->json(['success' => false, 'message' => 'Already liked']);
+    }
+
+    $blog->likes()->create(['ip_address' => $ip]);
+    $likeCount = $blog->likes()->count();
+
+    return response()->json(['success' => true, 'like_count' => $likeCount]);
 }
 public function blogsByTag($name)
 {
@@ -112,40 +130,41 @@ public function blogsByTag($name)
 
     return view('front.default.blog', compact('blogs', 'tags', 'latestBlogs'));
 }
-    public function comment(Request $request)
-    {
-        $request->validate([
-            'blog_id' => 'required|exists:blogs,id',
-            'comment' => 'required|string|max:1000',
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email|max:255',
-            'website' => 'nullable|url|max:255',
-            'parent_id' => 'nullable|exists:comments,id',
+   public function comment(Request $request)
+{
+    $request->validate([
+        'blog_id' => 'required|exists:blogs,id',
+        'comment' => 'required|string|max:1000',
+        'name' => 'required|string|max:255',
+        'email' => 'nullable|email|max:255',
+        'website' => 'nullable|url|max:255',
+        'parent_id' => 'nullable|exists:comments,id',
+    ]);
+
+    $comment = Comment::create([
+        'blog_id' => $request->blog_id,
+        'parent_id' => $request->parent_id,
+        'comment' => $request->comment,
+        'author_name' => $request->name,
+        'author_email' => $request->email,
+        'author_website' => $request->website,
+    ]);
+
+    if ($request->ajax()) {
+        return response()->json([
+            'success' => true,
+            'comment' => [
+                'id' => $comment->id,
+                'author_name' => $comment->author_name,
+                'comment' => $comment->comment,
+                'created_at' => $comment->created_at->diffForHumans(),
+                'replies' => []
+            ]
         ]);
-
-        $comment = Comment::create([
-            'blog_id' => $request->blog_id,
-            'parent_id' => $request->parent_id,
-            'comment' => $request->comment,
-            'author_name' => $request->name,
-            'author_email' => $request->email,
-            'author_website' => $request->website,
-        ]);
-
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'comment' => [
-                    'author_name' => $comment->author_name,
-                    'comment' => $comment->comment,
-                    'created_at' => $comment->created_at->diffForHumans(),
-                    'replies' => []
-                ]
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Comment posted successfully.');
     }
+
+    return redirect()->back()->with('success', 'Comment posted successfully.');
+}
     public function searchBlog(Request $request)
 {
     $keyword = $request->input('keyword');
