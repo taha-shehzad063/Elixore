@@ -248,6 +248,7 @@
                                                                                             @endif
                                                                                         </td>
                                                                                         <td>{{ $item->quantity ?? 'N/A' }}</td>
+                                                                                        <td>{{ $item->link ?? 'N/A' }}</td>
                                                                                         <td>${{ number_format($item->price ?? 0, 2) }}</td>
                                                                                     </tr>
                                                                                 @endforeach

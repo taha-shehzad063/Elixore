@@ -66,6 +66,10 @@
     <label for="info" class="form-label">Short Info</label>
     <textarea name="info" id="info" class="form-control summernote">{{ old('info', $products->info ?? '') }}</textarea>
 </div>
+<div class="mb-3">
+    <label for="link" class="form-label">Link</label>
+    <textarea name="link" id="link" class="form-control summernote">{{ old('link', $products->link ?? '') }}</textarea>
+</div>
 
 <!-- Description -->
 <div class="mb-3">

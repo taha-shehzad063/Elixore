@@ -104,6 +104,10 @@ Route::get('auth/facebook', [FacebookController::class, 'redirectToFacebook'])->
 Route::get('auth/facebook/callback', [FacebookController::class, 'handleFacebookCallback']);
 
 
+
+Route::get('/jazzcah-checkout', [PaymentController::class, 'showCheckoutForm'])->name('checkout.form');
+Route::post('/jazzcah-checkout/post', [PaymentController::class, 'processCheckout'])->name('checkout.process');
+Route::post('/payment/response', [PaymentController::class, 'handleResponse'])->name('payment.response');
 // Blogs
 Route::get('/blog', [BlogController::class, 'blog'])->name('blog');
 Route::get('/blog-details/{slug}', [BlogController::class, 'detail'])->name('blogs.details');

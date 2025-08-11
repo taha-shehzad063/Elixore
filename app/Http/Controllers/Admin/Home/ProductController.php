@@ -63,6 +63,7 @@ public function showReviews(Product $product)
         $request->validate([
             'name' => 'required|string',
             'info' => 'required|string',
+            'link' => 'required',
             'description' => 'required|string',
             'price' => 'required|numeric',
             'discount_price' => 'nullable|numeric',
@@ -86,6 +87,7 @@ public function showReviews(Product $product)
             'discount_price' => $request->discount_price,
             'category_id' => $request->category_id,
             'info' => $request->info,
+            'link' => $request->link,
             'description' => $request->description,
             'availability' => $request->availability,
         ]);
@@ -190,6 +192,7 @@ public function deleteGalleryImage($id)
             'discount_price' => 'nullable|numeric', // Changed to numeric
             'category_id' => 'required|exists:categories,id',
             'info' => 'required|string',
+            'link' => 'required',
             'description' => 'required|string',
             'availability' => 'required|in:in stock,out of stock', // Added availability validation
             'gallery_images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
@@ -219,6 +222,7 @@ public function deleteGalleryImage($id)
             'discount_price' => $request->discount_price,
             'category_id' => $request->category_id,
             'info' => $request->info,
+            'link' => $request->link,
             'description' => $request->description,
             'availability' => $request->availability,
             // 'tag_id' => $request->tag_id, // ONLY include this if you have a single tag_id column (one-to-many)
