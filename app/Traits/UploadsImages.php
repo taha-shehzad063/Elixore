@@ -3,60 +3,60 @@
 namespace App\Traits;
 
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 trait UploadsImages
 {
     /**
-     * Upload image to storage/app/public/admin/{folder}
+     * Upload image directly to /public/admin/{folder}
      */
-public function uploadImage($file, $folder)
-{
-    $extension = $file->getClientOriginalExtension();
-    $filename = Str::uuid() . '.' . $extension; // generates a unique name
-    $filePath = "admin/{$folder}/" . $filename;
+    public function uploadImage($file, $folder)
+    {
+        $extension = $file->getClientOriginalExtension();
+        $filename = Str::uuid() . '.' . $extension; // unique name
+        $filePath = "admin/{$folder}/" . $filename;
 
-    Storage::disk('public')->putFileAs("admin/{$folder}", $file, $filename);
+        // Move file to public/admin/{folder}
+        $file->move(public_path("admin/{$folder}"), $filename);
 
-    return $filePath;
-}
-
-
-    /**
-     * Update image: delete old and upload new to storage/app/public/admin/{folder}
-     */
- public function updateImage(?string $oldPath, UploadedFile $newFile, string $folder): string
-{
-    // Normalize old path: make sure it has 'admin/' prefix or not
-    if ($oldPath) {
-        // If old path does NOT start with 'admin/', prepend it
-        if (!str_starts_with($oldPath, "admin/")) {
-            $oldPath = "admin/" . $oldPath;
-        }
-
-        if (Storage::disk('public')->exists($oldPath)) {
-            Storage::disk('public')->delete($oldPath);
-        }
+        return $filePath; // relative path
     }
 
-    $extension = $newFile->getClientOriginalExtension();
-    $filename = Str::uuid() . '.' . $extension;
-    $filePath = "admin/{$folder}/" . $filename;
+    /**
+     * Update image: delete old and upload new to /public/admin/{folder}
+     */
+    public function updateImage(?string $oldPath, UploadedFile $newFile, string $folder): string
+    {
+        // Delete old file if exists
+        if ($oldPath) {
+            $oldFullPath = public_path($oldPath);
 
-    Storage::disk('public')->putFileAs("admin/{$folder}", $newFile, $filename);
+            if (file_exists($oldFullPath)) {
+                @unlink($oldFullPath);
+            }
+        }
 
-    return $filePath;
-}
+        $extension = $newFile->getClientOriginalExtension();
+        $filename = Str::uuid() . '.' . $extension;
+        $filePath = "admin/{$folder}/" . $filename;
 
+        // Move new file
+        $newFile->move(public_path("admin/{$folder}"), $filename);
+
+        return $filePath;
+    }
 
     /**
-     * Delete image from storage/app/public
+     * Delete image from /public
      */
     public function deleteImage(?string $path): void
     {
-        if ($path && Storage::disk('public')->exists($path)) {
-            Storage::disk('public')->delete($path);
+        if ($path) {
+            $fullPath = public_path($path);
+
+            if (file_exists($fullPath)) {
+                @unlink($fullPath);
+            }
         }
     }
 }

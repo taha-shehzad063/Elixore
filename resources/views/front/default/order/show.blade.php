@@ -151,7 +151,7 @@
                             @php
                                 $galleryImage = optional($item->product->galleries->first())->image;
                             @endphp
-                            <img src="{{ asset('storage/' . ($galleryImage ?? 'default.png')) }}" 
+                            <img src="{{ asset(($galleryImage ?? 'default.png')) }}" 
                                  alt="{{ $item->product->name }}" 
                                  class="rounded" width="80">
                         </div>
@@ -308,7 +308,7 @@
                     @php
                         $suggestedImage = optional($product->galleries->first())->image;
                     @endphp
-                    <img src="{{ asset('storage/' . ($suggestedImage ?? 'default.png')) }}" 
+                    <img src="{{ asset(($suggestedImage ?? 'default.png')) }}" 
                          class="card-img-top" alt="{{ $product->name }}"
                          style="height: 150px; object-fit: cover;">
                     <div class="card-body p-2">
@@ -332,6 +332,7 @@
     @endif
 </div>
 
+@endsection
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -582,4 +583,3 @@ $(document).ready(function() {
     }
 });
 </script>
-@endsection

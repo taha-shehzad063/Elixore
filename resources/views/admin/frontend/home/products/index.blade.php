@@ -16,6 +16,7 @@
     border-left: 3px solid #0d6efd;
 }
 </style>
+
 <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6"
     data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
 
@@ -31,45 +32,30 @@
 
                     <h5 class="card-title fw-semibold mb-4">Products</h5>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <input type="text" id="search-input" class="form-control" placeholder="Search product by name...">
-                        </div>
-                        <div class="col-md-3">
-                            <select id="per-page" class="form-control">
-                                <option value="5">5 per page</option>
-                                <option value="10" selected>10 per page</option>
-                                <option value="25">25 per page</option>
-                                <option value="50">50 per page</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 text-end">
-                            <a href="{{ route('admin.products.create') }}" class="btn btn-success">
-                                <i class="bi bi-plus-lg me-1"></i> Create Product
-                            </a>
-                        </div>
+                    <div class="text-end mb-3">
+                        <a href="{{ route('admin.products.create') }}" class="btn btn-success">
+                            <i class="bi bi-plus-lg me-1"></i> Create Product
+                        </a>
                     </div>
 
                     <div class="table-responsive">
-                        <table class="table text-nowrap align-middle mb-0">
+                        <table id="productsTable" class="table text-nowrap align-middle mb-0">
                             <thead>
                                 <tr class="border-2 border-bottom border-primary border-0">
                                     <th>#</th>
                                     <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Subcategory</th>
                                     <th>Price</th>
                                     <th>Discount Price</th>
                                     <th>Gallery Image</th>
                                     <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="products-body">
+                            <tbody>
                                 @include('admin.frontend.home.products.partials.products_table')
                             </tbody>
                         </table>
-                    </div>
-
-                    <div class="mt-3" id="pagination-links">
-                        {{ $products->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
             </div>
@@ -84,6 +70,7 @@
         </div>
     </div>
 </div>
+
 <!-- Reviews Modal -->
 <div class="modal fade" id="reviewsModal" tabindex="-1" aria-labelledby="reviewsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -93,7 +80,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="reviewsContent">
-                <!-- Content will be loaded via AJAX -->
                 <div class="text-center py-5">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
@@ -106,52 +92,24 @@
         </div>
     </div>
 </div>
-@endsection
 
-{{-- Scripts --}}
+{{-- JS --}}
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-$(document).ready(function () {
-
-    function fetch_data(url = '{{ route('admin.products.index') }}') {
-        let query = $('#search-input').val();
-        let perPage = $('#per-page').val();
-
-        $.ajax({
-            url: url,
-            type: 'GET',
-            data: {
-                search: query,
-                per_page: perPage
-            },
-            success: function (data) {
-                $('#products-body').html($(data).find('#products-body').html());
-                $('#pagination-links').html($(data).find('#pagination-links').html());
-            }
-        });
-    }
-
-    // Live Search
-    $('#search-input').on('keyup', function () {
-        fetch_data();
-    });
-
-    // Per Page Change
-    $('#per-page').on('change', function () {
-        fetch_data();
-    });
-
-    // Pagination Click
-    $(document).on('click', '.pagination a', function (e) {
-        e.preventDefault();
-        let url = $(this).attr('href');
-        fetch_data(url);
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#productsTable').DataTable({
+        responsive: true,
+        columnDefs: [
+            { orderable: false, targets: [6,7] } // Gallery Image & Actions column non-orderable
+        ]
     });
 
     // Delete confirmation
-    $(document).on("submit", ".delete-form", function (e) {
+    $(document).on("submit", ".delete-form", function(e) {
         e.preventDefault();
         const form = this;
         Swal.fire({
@@ -168,91 +126,77 @@ $(document).ready(function () {
             }
         });
     });
-});
-</script>
 
-
-<script>
-    $(document).on('click', '.view-reviews', function() {
-    const productId = $(this).data('product-id');
-    const modal = $('#reviewsModal');
-    
-    // Show loading spinner
-    $('#reviewsContent').html(`
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
-    `);
-    
-    // Load reviews via AJAX
-    $.get(`/admin/products/${productId}/reviews`, function(data) {
-        $('#reviewsContent').html(data);
-    }).fail(function() {
+    // View reviews
+    $('#productsTable').on('click', '.view-reviews', function() {
+        const productId = $(this).data('product-id');
         $('#reviewsContent').html(`
-            <div class="alert alert-danger">
-                Failed to load reviews. Please try again.
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             </div>
         `);
-    });
-});
 
-// Handle delete review/reply
-// Handle delete review/reply
-$(document).on('click', '.delete-review, .delete-reply', function(e) {
-    e.preventDefault();
-    const url = $(this).attr('href');
-    const isReview = $(this).hasClass('delete-review');
-    const $itemToDelete = isReview ? $(this).closest('.list-group-item') : $(this).closest('.mb-2');
-    
-    Swal.fire({
-        title: "Are you sure?",
-        text: `You are about to delete this ${isReview ? 'review' : 'reply'}!`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function() {
-                    // Remove the item from DOM
-                    $itemToDelete.fadeOut(300, function() {
-                        $(this).remove();
-                        
-                        // Show success message
-                        Swal.fire(
-                            'Deleted!',
-                            `The ${isReview ? 'review' : 'reply'} has been deleted.`,
-                            'success'
-                        );
-                        
-                        // If it was the last review, show empty message
-                        if (isReview && $('.list-group-item').length === 0) {
-                            $('#reviewsContent').html(`
-                                <div class="alert alert-info">
-                                    No reviews found for this product.
-                                </div>
-                            `);
-                        }
-                    });
-                },
-                error: function() {
-                    Swal.fire(
-                        'Error!',
-                        'Something went wrong while deleting.',
-                        'error'
-                    );
-                }
-            });
-        }
+        let reviewsUrl = "{{ route('admin.products.reviews', ['product' => ':id']) }}";
+        reviewsUrl = reviewsUrl.replace(':id', productId);
+
+        $.get(reviewsUrl, function(data) {
+            $('#reviewsContent').html(data);
+        }).fail(function() {
+            $('#reviewsContent').html(`
+                <div class="alert alert-danger">
+                    Failed to load reviews. Please try again.
+                </div>
+            `);
+        });
+
+        $('#reviewsModal').modal('show');
+    });
+
+    // Delete review/reply
+    $(document).on('click', '.delete-review, .delete-reply', function(e) {
+        e.preventDefault();
+        const url = $(this).attr('href');
+        const isReview = $(this).hasClass('delete-review');
+        const $itemToDelete = isReview ? $(this).closest('.list-group-item') : $(this).closest('.mb-2');
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: `You are about to delete this ${isReview ? 'review' : 'reply'}!`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function () {
+                        $itemToDelete.fadeOut(300, function () {
+                            $(this).remove();
+                            Swal.fire('Deleted!', `The ${isReview ? 'review' : 'reply'} has been deleted.`, 'success');
+                            if (isReview && $('.list-group-item').length === 0) {
+                                $('#reviewsContent').html(`
+                                    <div class="alert alert-info">
+                                        No reviews found for this product.
+                                    </div>
+                                `);
+                            }
+                        });
+                    },
+                    error: function () {
+                        Swal.fire('Error!', 'Something went wrong while deleting.', 'error');
+                    }
+                });
+            }
+        });
     });
 });
 </script>
+@endsection

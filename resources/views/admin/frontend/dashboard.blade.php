@@ -161,7 +161,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return res.json();
         })
         .then(data => {
-            console.log('Received data:', data); // Debug log
             if (!data.labels || !data.data || data.labels.length === 0 || data.data.length === 0) {
                 showNoDataMessage();
             } else {

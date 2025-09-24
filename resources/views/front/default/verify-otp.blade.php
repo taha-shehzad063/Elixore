@@ -38,6 +38,7 @@
     </form>
 </div>
 
+@endsection
 {{-- Password toggle script --}}
 <script>
 document.querySelectorAll('.toggle-password').forEach(icon => {
@@ -53,4 +54,3 @@ document.querySelectorAll('.toggle-password').forEach(icon => {
     });
 });
 </script>
-@endsection

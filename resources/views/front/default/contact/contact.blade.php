@@ -7,8 +7,10 @@
 
     <!-- Google Map -->
     <div class="mb-5">
-<div class="d-none d-md-flex"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3399.948398036717!2d74.33628071067679!3d31.553030745420976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391904c87c03f811%3A0xde393c60de69f2e6!2sShahrah-e-Quaid-e-Azam%2C%20Lahore%2C%20Pakistan!5e0!3m2!1sen!2s!4v1754226322067!5m2!1sen!2s" width="1250" height="600" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>    </div>
-<div class="d-flex d-md-none"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3399.948398036717!2d74.33628071067679!3d31.553030745420976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391904c87c03f811%3A0xde393c60de69f2e6!2sShahrah-e-Quaid-e-Azam%2C%20Lahore%2C%20Pakistan!5e0!3m2!1sen!2s!4v1754226322067!5m2!1sen!2s" width="1250" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>    </div>
+<div class="d-none d-md-flex">
+  <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d56146.70624517183!2d70.26271701846629!3d28.414152767520257!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39375c713b45db39%3A0x28af23c1672a0170!2sRahim%20Yar%20Khan%2C%20Pakistan!5e0!3m2!1sen!2s!4v1754885081236!5m2!1sen!2s"
+     width="1250" height="600" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>    </div>
+<div class="d-flex d-md-none"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d56146.70624517183!2d70.26271701846629!3d28.414152767520257!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39375c713b45db39%3A0x28af23c1672a0170!2sRahim%20Yar%20Khan%2C%20Pakistan!5e0!3m2!1sen!2s!4v1754885081236!5m2!1sen!2s" width="1250" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>    </div>
 </div>
     <!-- Get in Touch -->
     <div class="row">
@@ -39,22 +41,22 @@
 
       <!-- Contact Info -->
       <div class="col-md-5 ">
-        <div class="bg-light p-4 rounded shadow-sm">
-          <h5 class="mb-3 no-dark" style="color: #71cd14;">Live Help</h5>
-          <p class="no-dark">If you have an issue or question that requires immediate assistance, you can click the button below to chat with a Customer Service representative.</p>
+        <div class=" p-4 rounded shadow-sm">
+          <h5 class="mb-3 " style="color: #71cd14;">Live Help</h5>
+          <p class="">If you have an issue or question that requires immediate assistance, you can click the button below to chat with a Customer Service representative.</p>
 <a href="https://wa.me/923273546753?text=I%20need%20info%20about%20your%20product" class="btn mb-3 text-white" style="background-color: #71cd14;">WhatsApp Chat</a>
           <ul class="list-unstyled">
-            <li class="no-dark"><strong>Phone:</strong> <a href="tel:+923273546753">032 73546753</a></li>
-            <li class="no-dark"><strong>Email:</strong> <a href="mailto:elixore@gmail.com">elixore@gmail.com</a></li>
-            <li class="no-dark"><strong>Address:</strong> Mall Road Lahore, 64200</li>
-            <li class="no-dark"><strong>Availability:</strong> Always Open 24/7</li>
+            <li class=""><strong>Phone:</strong> <a href="tel:+923273546753">032 73546753</a></li>
+            <li class=""><strong>Email:</strong> <a href="mailto:info.roshni.store@gmail.com">info.roshni.store@gmail.com</a></li>
+            <li class=""><strong>Address:</strong> Khanpur Adda Rahim Yar Khan, 64200</li>
+            <li class=""><strong>Availability:</strong> Always Open 24/7</li>
           </ul>
         </div>
       </div>
     </div>
   </div>
 </section>
-
+@endsection
 <!-- jQuery (required for AJAX) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -120,4 +122,4 @@
     });
   });
 </script>
-@endsection
+

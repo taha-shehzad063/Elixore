@@ -31,6 +31,7 @@
                                             <th>#</th>
                                             <th>Name</th>
                                             <th>Category</th>
+                                            <th>Sub Category</th>
                                             <th class="text-center">Actions</th>
                                         </tr>
                                     </thead>
@@ -40,11 +41,11 @@
                                                 <td>{{ $index + 1 }}</td>
                                                 <td>{{ $tag->name }}</td>
                                                 <td>{{ $tag->category->name ?? 'N/A' }}</td>
+                                                <td>{{ $tag->subcategory->name ?? 'N/A' }}</td>
                                                 <td class="text-center">
                                                     <a href="{{ route('admin.tags.edit', $tag->id) }}" class="btn btn-sm btn-warning">Edit</a>
                                                     <form action="{{ route('admin.tags.destroy', $tag->id) }}" method="POST" class="d-inline delete-form">
                                                         @csrf
-                                                        @method('DELETE')
                                                         <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                                                     </form>
                                                 </td>

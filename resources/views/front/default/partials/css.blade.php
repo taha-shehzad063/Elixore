@@ -1,11 +1,15 @@
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="icon" href="{{ asset('assets/img/favicon.png') }}" type="image/png" />
-    <title>Elixore Perfume Brands</title>
-<meta name="csrf-token" content="{{ csrf_token() }}">
 
+   
+    <!-- External CSS (Minified and Combined where possible) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="{{ asset('assets/css/vendor.min.css') }}" /> <!-- Combined vendor CSS (linericon, themify-icons, flaticon, owl-carousel, simpleLightbox, nice-select, animate, jquery-ui) -->
+    <link rel="stylesheet" href="{{ asset('assets/css/app.min.css') }}" /> <!-- Combined main CSS (style.css, custom.css, responsive.css, loader.css) -->
+
+    <!-- Preload Critical Assets -->
+    <link rel="preload" href="{{ asset('assets/img/logo.png') }}" as="image" />
+    <link rel="preload" href="{{ asset('assets/fonts/arial.woff2') }}" as="font" type="font/woff2" crossorigin />
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendors/linericon/style.css') }}" />
@@ -24,4 +28,4 @@
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}" />
-</head>
+

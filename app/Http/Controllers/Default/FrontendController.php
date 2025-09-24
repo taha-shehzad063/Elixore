@@ -11,6 +11,8 @@ use App\Models\Review;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\Blog;
+use Illuminate\Support\Facades\Session;
+
 use App\Models\Tag;
 use App\Models\GeneralSetting;
 use App\Models\Wishlist;
@@ -72,51 +74,65 @@ public function cart(){
 
 
 
-public function wishlist()
-{
-    $wishlistItems = Wishlist::where('user_id', Auth::id())->with('product')->get();
-    return view('front.default.wishlist', compact('wishlistItems'));
-}
-public function removeWishlist($id)
-{
-    $item = Wishlist::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
-    $item->delete();
-    return response()->json(['status' => true]);
-}
+ public function wishlist()
+    {
+        // Fetch wishlist items based on session_id or user_id if authenticated
+        $wishlistItems = Wishlist::where(function ($q) {
+            $q->where('session_id', Session::getId());
+            if (Auth::check()) {
+                $q->orWhere('user_id', Auth::id());
+            }
+        })->with('product')->get();
 
-public function addWishlist(Request $request)
-{
-    // dd($request->all());
-     if (!Auth::check()) {
-        // If request is AJAX (e.g., from frontend), return JSON
-        if ($request->expectsJson()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'You need to login first.',
-                'redirect' => route('user.login')
-            ], 401);
+        return view('front.default.wishlist', compact('wishlistItems'));
+    }
+
+    public function removeWishlist($id)
+    {
+        // Find wishlist item by ID and session_id or user_id
+        $item = Wishlist::where('id', $id)
+            ->where(function ($q) {
+                $q->where('session_id', Session::getId());
+                if (Auth::check()) {
+                    $q->orWhere('user_id', Auth::id());
+                }
+            })->firstOrFail();
+
+        $item->delete();
+
+        return response()->json(['status' => true]);
+    }
+
+    public function addWishlist(Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'product_id' => 'required|exists:products,id'
+        ]);
+
+        $productId = $request->input('product_id');
+
+        // Check if product already exists in wishlist
+        $exists = Wishlist::where('product_id', $productId)
+            ->where(function ($q) {
+                $q->where('session_id', Session::getId());
+                if (Auth::check()) {
+                    $q->orWhere('user_id', Auth::id());
+                }
+            })->exists();
+
+        if ($exists) {
+            return response()->json(['status' => false, 'message' => 'Product is already in your wishlist.']);
         }
 
-        // Otherwise, redirect to login page
-        return redirect()->route('user.login');
-    }
-    $productId = $request->input('product_id');
-    $userId = Auth::id();
-
-    $exists = Wishlist::where('user_id', $userId)
-                      ->where('product_id', $productId)
-                      ->exists();
-
-    if (!$exists) {
+        // Create wishlist item with session_id, include user_id if authenticated
         Wishlist::create([
-            'user_id' => $userId,
+            'user_id' => Auth::check() ? Auth::id() : null,
+            'session_id' => Session::getId(),
             'product_id' => $productId,
         ]);
 
         return response()->json(['status' => true, 'message' => 'Product added to wishlist.']);
     }
-
-    return response()->json(['status' => false, 'message' => 'Product is already in your wishlist.']);
-}
 
 }

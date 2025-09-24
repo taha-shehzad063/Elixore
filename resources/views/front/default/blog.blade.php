@@ -149,7 +149,7 @@
                         <h3 class="widget_title no-dark">Recent Posts</h3>
                         @foreach($latestBlogs as $blog)
                             <div class="media post_item no-dark">
-                                <img src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->name }}"
+                                <img src="{{ asset($blog->image) }}" alt="{{ $blog->name }}"
                                     style="width: 80px; height: 60px; object-fit: cover;"
                                     onerror="this.onerror=null;this.src='https://placehold.co/80x60/EFEFEF/AAAAAA?text=Image+Error';">
                                 <div class="media-body">
@@ -186,6 +186,7 @@
 </section>
 <!--================ End Blog Area =================-->
 
+@endsection
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script>
 $(document).ready(function () {
@@ -205,12 +206,10 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': csrfToken
             },
             beforeSend: function () {
-                console.log('Sending AJAX request:', url, data);
                 $('#loading-overlay').show();
                 $('#blog-content').css('opacity', '0.5');
             },
             success: function (response) {
-                console.log('AJAX success:', response.substring(0, 100) + '...');
                 $('#blog-content').html(response);
                 $('#loading-overlay').hide();
                 $('#blog-content').css('opacity', '1');
@@ -252,8 +251,6 @@ $(document).ready(function () {
     if (typeof $ === 'undefined') {
         console.error('jQuery is not loaded.');
     } else {
-        console.log('jQuery loaded successfully.');
     }
 });
 </script>
-@endsection

@@ -51,7 +51,10 @@ class BlogController extends Controller
         $blogs = $blogsQuery->paginate($perPage);
 
         // Additional data
-        $tags = Tag::has('blogs')->get(); // Only tags with blogs
+$tags = Tag::whereHas('blogs', function ($query) {
+    $query->whereNull('category_id')
+          ->whereNull('sub_category_id');
+})->get();
         $latestBlogs = Blog::latest()->take(4)->get();
 
         // Handle AJAX requests
@@ -72,7 +75,11 @@ public function detail($slug, Request $request)
 $totalComments = Comment::where('blog_id', $blogs->id)->count();
 $likeCount = $blogs->likes()->count();
 $isLiked = $blogs->likes()->where('ip_address', request()->ip())->exists();
-    $tags = Tag::has('blogs')->get();
+$tags = Tag::whereHas('blogs', function ($query) {
+    $query->whereNull('category_id')
+          ->whereNull('sub_category_id');
+})->get();
+
     $latestBlogs = Blog::where('id', '!=', $blogs->id)->latest()->take(4)->get();
 
     // Fetch suggested blogs similar to the current blog

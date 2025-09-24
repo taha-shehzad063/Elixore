@@ -38,6 +38,17 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="sub_category_id" class="form-label">Select Sub Category</label>
+                                    <select name="sub_category_id" class="form-select" required>
+                                        <option value="">-- Choose Sub Category --</option>
+                                        @foreach($subcategories as $subcategories)
+                                            <option value="{{ $subcategories->id }}" {{ $tags->sub_category_id == $subcategories->id ? 'selected' : '' }}>
+                                                {{ $subcategories->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
                                 <!-- Submit Button -->
                                 <button type="submit" class="btn btn-primary">Update Tag</button>

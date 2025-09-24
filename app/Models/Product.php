@@ -18,7 +18,9 @@ class Product extends Model
         'category_id', 
         'sub_category_id',
          'info', 
+         'link', 
          'description', 
+         'color', 
          'availability',
             'material', // New column added
             'tags', // Assuming this is a JSON column or a pivot table
@@ -52,5 +54,9 @@ public function tags()
 {
     return $this->belongsToMany(Tag::class);
 }
+public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'product_id', 'id');
+    }
 
 }

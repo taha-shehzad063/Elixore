@@ -3,19 +3,29 @@
         <div class="product-col mb-4">
             <div class="single-product ">
                 <div class="product-img">
-                    @php
-                        $imageUrl = 'https://placehold.co/600x400/EFEFEF/AAAAAA?text=No+Image';
-                        if ($product->galleries->isNotEmpty()) {
-                            $imageUrl = asset('storage/' . $product->galleries->first()->image);
-                        }
-                    @endphp
-                    <img
-                        class="card-img"
-                        src="{{ $imageUrl }}"
-                        style="height: 250px; width: 100%; object-fit: cover;"
-                        alt="{{ $product->name }}"
-                        onerror="this.onerror=null;this.src='https://placehold.co/600x400/EFEFEF/AAAAAA?text=Image+Error';"
-                    />
+                  @php
+    $imageUrl = 'https://placehold.co/600x400/EFEFEF/AAAAAA?text=No+Image';
+
+    if ($product->galleries->isNotEmpty()) {
+        $imagePath = $product->galleries->first()->image;
+
+        if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+            // ✅ External URL
+            $imageUrl = $imagePath;
+        } else {
+            $imageUrl = asset($imagePath); // fallback for local/public path
+        }
+    }
+@endphp
+
+<img
+    class="card-img"
+    src="{{ $imageUrl }}"
+    style="height: 250px; width: 250px; object-fit: cover;"
+    alt="{{ $product->name }}"
+    onerror="this.onerror=null;this.src='https://placehold.co/600x400/EFEFEF/AAAAAA?text=Image+Error';"
+/>
+
                     <div class="p_icon product-icons">
                         <a class="no-dark4" href="{{ route('product.details', $product->slug) }}">
                             <i class="ti-eye"></i>
@@ -42,56 +52,87 @@
                         
              
                    
-                    <div class="mt-3">
-                        <h5 class="mr-4">${{ number_format($product->price, 2) }}</h5>
-                    </div>
+                   
+                     <div class="mt-3">
+                <span class="mr-4">{{ number_format($product->price, 2) }}</span>
+                @if ($product->discount_price)
+                  <del>{{ number_format($product->discount_price, 2) }}</del>
+                @endif
+              </div>
                 </div>
             </div>
 
             <div class="row d-sm-none d-md-none">
                 <div class="product-img col-6" style"max-width: 100%; !important,flex:none!important">
-                    @php
-                        $imageUrl = 'https://placehold.co/600x400/EFEFEF/AAAAAA?text=No+Image';
-                        if ($product->galleries->isNotEmpty()) {
-                            $imageUrl = asset('storage/' . $product->galleries->first()->image);
-                        }
-                    @endphp
-                    <img
+                  @php
+    $imageUrl = 'https://placehold.co/600x400/EFEFEF/AAAAAA?text=No+Image';
+
+    if ($product->galleries->isNotEmpty()) {
+        $imagePath = $product->galleries->first()->image;
+
+        if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+            // ✅ External URL
+            $imageUrl = $imagePath;
+        } else {
+            $imageUrl = asset($imagePath); // Local/public path
+        }
+    }
+@endphp
+
+                   <a href="{{ route('product.details', $product->slug) }}">
+                 <img
                         class="card-img"
                         src="{{ $imageUrl }}"
                         style="height: 150px; width: 100%; object-fit: cover;"
                         alt="{{ $product->name }}"
                         onerror="this.onerror=null;this.src='https://placehold.co/600x400/EFEFEF/AAAAAA?text=Image+Error';"
-                    />
-                    <div class="p_icon product-icons">
-                        <a href="{{ route('product.details', $product->slug) }}">
-                            <i class="ti-eye"></i>
-                        </a>
-                        <a class="wishlist-btn" href="#" data-url="{{ route('wishlist.add') }}" data-id="{{ $product->id }}" ><i class="ti-heart"></i></a>
-                        <a class="cart-btn" data-id="{{ $product->id }}" href="{{ route('cart.add') }}"><i class="ti-shopping-cart "></i></a>
-                    </div>
+                    /></a>
+                 
                 </div>
                 <div class="product-btm col-5">
                     <a href="{{ route('product.details', $product->slug) }}" class="d-block">
                         <h4>{{ $product->name }}</h4>
                     </a>
                     <p class="product-desc d-none">{{ Str::limit(strip_tags($product->description), 100) }}       </p>
-                        <a href="{{ route('product.details', $product->slug) }}" class="btn btn-sm icon-action d-none" title="View Product">
-                        <i class="ti-eye"></i>
-                    </a>
-                                                <a href="#" data-url="{{ route('wishlist.add') }}" data-id="{{ $product->id }}" class="btn wishlist-btn btn-sm icon-action" title="Add to Wishlist">
-                                    <i class="ti-heart"></i>
-                                </a>
-
-                    <a href="{{ route('cart.add') }}"data-id="{{ $product->id }}" class="btn cart-btn btn-sm icon-action d-none" title="Add to Cart">
-                        <i class="ti-shopping-cart"></i>
-                    </a>
+                   
                         
              
                    
-                    <div class="mt-3">
-                        <h5 class="mr-4">${{ number_format($product->price, 2) }}</h5>
-                    </div>
+                   <div class="mt-3">
+                <span class="mr-4">{{ number_format($product->price, 2) }}</span>
+                @if ($product->discount_price)
+                  <del>{{ number_format($product->discount_price, 2) }}</del>
+                @endif
+              </div>
+                       <div class="p_icon product-icons d-flex justify-content-center gap-2" style="margin-top:10px;">
+    <!-- View -->
+    <a href="{{ route('product.details', $product->slug) }}" 
+       style="background-color:#71cd14; color:#fff; width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:50%; text-decoration:none; transition:all 0.3s ease;">
+        <i class="ti-eye"></i>
+    </a>
+
+    <!-- Wishlist -->
+    <a class="wishlist-btn" href="#" 
+       data-url="{{ route('wishlist.add') }}" data-id="{{ $product->id }}"
+       style="background-color:#71cd14; color:#fff; width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:50%; text-decoration:none; transition:all 0.3s ease;">
+        <i class="ti-heart"></i>
+    </a>
+
+    <!-- Cart -->
+    <a class="cart-btn" data-id="{{ $product->id }}" href="{{ route('cart.add') }}"
+       style="background-color:#71cd14; color:#fff; width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:50%; text-decoration:none; transition:all 0.3s ease;">
+        <i class="ti-shopping-cart"></i>
+    </a>
+</div>
+
+<script>
+    // Simple hover effect for inline styles
+    document.querySelectorAll('.p_icon a').forEach(btn => {
+        btn.addEventListener('mouseenter', () => btn.style.backgroundColor = '#5eaa11');
+        btn.addEventListener('mouseleave', () => btn.style.backgroundColor = '#71cd14');
+    });
+</script>
+
                 </div>
             </div>
         </div>

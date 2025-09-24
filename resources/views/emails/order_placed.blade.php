@@ -107,9 +107,11 @@
     <div class="email-header">
         <h1>Your Order Has Been Received</h1>
     </div>
-
+    @php
+            $address = $order->shippingAddress;
+        @endphp
     <div class="email-body">
-        <h2>Hi {{ $user->name }},</h2>
+        <h2>Hi {{ $address->name ?? 'Sir/Mam' }},</h2>
 
         <p>Thank you for placing your order with us. Below are your order details:</p>
 
@@ -130,7 +132,7 @@
         @if($order->payment_proof)
             <div class="payment-proof" style="margin-top: 20px;">
                 <p><strong>Payment Proof:</strong></p>
-                <img src="{{ asset('storage/' . $order->payment_proof) }}" alt="Payment Proof Image">
+                <img src="{{ asset($order->payment_proof) }}" alt="Payment Proof Image">
             </div>
         @endif
 
@@ -139,8 +141,24 @@
             <div class="product-list">
                 @foreach($order->items as $item)
                     <div class="product-item">
-                        <img src="{{ asset('storage/' . ($item->product->galleries->first()->image ?? 'default.jpg')) }}" alt="{{ $item->product->name }}">
-                        <div>
+@php
+        $imagePath = $item->product->galleries->first()->image ?? 'default.jpg';
+
+        if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+            // ✅ External URL
+            $finalImage = $imagePath;
+        } elseif (\Illuminate\Support\Facades\Storage::exists($imagePath)) {
+            // ✅ Storage path
+            $finalImage = Storage::url($imagePath);
+        } else {
+            // ✅ Public path or default
+            $finalImage = asset($imagePath);
+        }
+    @endphp
+
+    <img src="{{ $finalImage }}" 
+         alt="{{ $item->product->name ?? 'Product Image' }}" 
+         width="80" class="rounded">                        <div>
                             <strong>{{ $item->product->name }}</strong><br>
                             Quantity: {{ $item->quantity }}<br>
                             Price: Rs{{ number_format($item->price, 2) }}
@@ -150,9 +168,7 @@
             </div>
         @endif
 
-        @php
-            $address = $order->shippingAddress;
-        @endphp
+    
 
         @if($address)
             <h3 style="margin-top: 30px; color: #71cd14;">Shipping Address</h3>

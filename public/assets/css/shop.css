@@ -15,6 +15,11 @@
         position: relative;
         overflow: hidden;
     }
+    ul.tag-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
     .custom-pagination .page-link {
         border-radius: 20px;
         padding: 8px 16px;
@@ -338,3 +343,22 @@
 .skeleton-btn { width: 40%; height: 32px; }
 .skeleton-price { width: 30%; height: 18px; }
     
+.types{
+    list-style: none !important;
+}
+/* ✅ Apply globally to all checkboxes & radios */
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: #71cd14 !important; /* Works in modern browsers */
+}
+
+/* ✅ Extra fallback (older browsers that don't support accent-color) */
+input[type="checkbox"]:checked {
+    background-color: #71cd14 !important;
+    border-color: #71cd14 !important;
+}
+
+input[type="radio"]:checked {
+    background-color: #71cd14 !important;
+    border-color: #71cd14 !important;
+}

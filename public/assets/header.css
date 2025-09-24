@@ -1,0 +1,254 @@
+   .no-results img {
+        opacity: 0.8;
+    }
+
+
+    :root {
+        --accent-color: #71cd14;
+    }
+
+    .custom-navbar {
+        position: relative;
+        z-index: 1000;
+    }
+
+  /* Main dropdown on hover */
+.nav-item.dropdown:hover > .dropdown-menu {
+    display: block;
+    margin-top: 0;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+/* Remove Bootstrap caret */
+.nav-link.dropdown-toggle::after {
+    display: none;
+}
+
+/* Submenu container */
+.dropdown-submenu {
+    position: relative;
+}
+
+/* Submenu styling for right flyout */
+.dropdown-submenu > .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 100%; /* push to the right */
+    margin-top: 0;
+    min-width: 200px;
+    border-radius: 8px;
+    z-index: 1050; /* keep above other elements */
+}
+
+/* Show submenu on hover */
+.dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+}
+
+/* General dropdown styling */
+.dropdown-menu {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    background-color: #fff;
+    max-width: 300px;
+    padding: 10px 0;
+}
+
+/* Dark mode support */
+.dark-mode .dropdown-menu {
+    background-color: #343a40;
+    color: #fff;
+}
+
+/* Dropdown item styling */
+.dropdown-item {
+    padding: 8px 20px;
+    font-size: 0.95rem;
+}
+/* Keep your existing styles and add this tweak */
+.dropdown-submenu.dropend > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: 0;
+}
+
+/* Optional: Open on hover */
+.dropdown-submenu.dropend:hover > .dropdown-menu {
+    display: block;
+}
+
+
+
+.dark-mode .dropdown-item:hover {
+    background-color: #495057;
+}
+
+
+    .category-badge {
+        background-color: var(--accent-color);
+        color: #fff;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.25s ease;
+    }
+
+    .category-badge:hover {
+        transform: translateY(-2px);
+        opacity: 0.9;
+    }
+
+    .product-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.25s ease;
+        background: #fff;
+    }
+
+    .product-card img {
+        height: 160px;
+        object-fit: cover;
+    }
+
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+
+    .animate-pop {
+        animation: popIn 0.3s ease-in-out;
+    }
+
+    @keyframes popIn {
+        0% { transform: scale(0.95); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    #searchModal .modal-content {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+.dropdown-submenu-right {
+    top: 0;
+    left: 100%;
+    margin-left: .1rem;
+}
+
+.dropdown-submenu > .dropdown-sub-toggle {
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+    .dark-mode #searchModal .modal-content {
+        background-color: #343a40;
+        color: #fff;
+    }
+
+    .list-group-item {
+        border: none;
+        padding: 10px 15px;
+        background-color: transparent;
+        transition: background-color 0.2s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: #f8f9fa !important;
+    }
+
+    .dark-mode .list-group-item:hover {
+        background-color: #495057 !important;
+    }
+
+    .list-group-item span {
+        font-size: 0.95rem;
+    }
+
+    #trendingProducts h6 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 5px;
+        color: #6c757d;
+    }
+
+    .dark-mode #trendingProducts h6 {
+        border-bottom-color: #495057;
+        color: #adb5bd;
+    }
+
+    #searchInput {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px;
+    }
+
+    .dark-mode #searchInput {
+        border-color: #495057;
+        background-color: #212529;
+        color: #fff;
+    }
+
+    #searchResultsList {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .modal-open {
+        overflow: hidden;
+    }
+
+    .modal-backdrop {
+        display: none;
+    }
+
+    .sidebar-search .form-control {
+        border-radius: 4px;
+        padding: 8px 12px;
+    }
+
+    .sidebar-search .btn {
+        padding: 8px 12px;
+    }
+    /* Hover color for nav links and dropdown items */
+.navbar-nav .nav-link:hover,
+.navbar-nav .dropdown-item:hover {
+    color: #71cd14 !important;
+}
+
+/* If you want hover effect for icon buttons too */
+.nav-icon:hover i {
+    color: #71cd14 !important;
+}
+
+/* If buttons exist in dropdown or navbar */
+.navbar .btn:hover {
+    background-color: #71cd14 !important;
+    border-color: #71cd14 !important;
+    color: hsl(0, 0%, 100%) !important;
+}
+.submenu.show {
+    display: block !important;
+    position: absolute !important;
+    left: -4% !important;
+    top: 80% !important;
+    z-index: 9999 !important;
+    overflow: hidden !important; /* disables scrollbars completely */
+
+    /* Optional: if you want scroll to work but scrollbar hidden */
+    scrollbar-width: none !important; /* Firefox */
+}
+.nav-item {
+    list-style: none !important;
+}
+.dropdown-menu
+{
+    scrollbar-width: none;
+}

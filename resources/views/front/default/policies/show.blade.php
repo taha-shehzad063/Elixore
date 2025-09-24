@@ -72,9 +72,9 @@
     }
 </style>
 
-<div class="policy-wrapper">
+<div class="policy-wrapper sidebar-body">
     <div class="container">
-        <div class="policy-card">
+        <div class="policy-card ">
             <h2 class="policy-title">{{ $policy->title }}</h2>
 
             <div class="policy-content">

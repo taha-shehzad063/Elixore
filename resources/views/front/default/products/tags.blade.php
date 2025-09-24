@@ -1,6 +1,6 @@
 <ul>
 @foreach($tags as $tag)
-    <li>
+    <li class="types">
         <label>
             <input type="checkbox" name="tags[]" value="{{ $tag->id }}" class="filter-tag"
                 {{ in_array($tag->id, request('tags', [])) ? 'checked' : '' }}>

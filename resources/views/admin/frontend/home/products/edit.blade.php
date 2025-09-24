@@ -2,9 +2,10 @@
 
 @section('content')
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
-/* Add the preview-box styles if they are not already in app.blade.php or another global CSS */
 .preview-box {
     position: relative;
     display: inline-block;
@@ -13,7 +14,7 @@
     max-height: 120px;
     border-radius: 6px;
 }
-.preview-box .remove-btn {
+.preview-box .remove-btn, .preview-box .delete-gallery-image {
     position: absolute;
     top: -8px;
     right: -8px;
@@ -25,229 +26,264 @@
     cursor: pointer;
     z-index: 10;
 }
+.image-link-row {
+    margin-bottom: 10px;
+}
+.select2-container--bootstrap-5 .select2-selection--multiple {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+.select2-container--bootstrap-5 .select2-selection__rendered {
+    padding: 6px;
+    width: 100%;
+}
+.select2-container--bootstrap-5 .select2-search__field {
+    width: 100% !important;
+}
 </style>
-<div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6"
-    data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
 
+<div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
     <div class="body-wrapper">
         @include('admin.frontend.partials.header')
-
         <div class="container-fluid">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title fw-semibold mb-4">Edit Product</h5>
-
                     <div class="card">
                         <div class="card-body">
-
                             <form method="POST" action="{{ route('admin.products.update', $products->id) }}" enctype="multipart/form-data">
-    @csrf
-    @method('PUT')
+                                @csrf
+                                @method('PUT')
 
-    <div class="mb-3">
-        <label class="form-label">Product Name</label>
-        <input type="text" name="name" class="form-control" required value="{{ old('name', $products->name) }}">
-    </div>
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Product Name</label>
+                                    <input type="text" name="name" id="name" class="form-control" required value="{{ old('name', $products->name) }}">
+                                    @error('name')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-    <div class="mb-3">
-        <label class="form-label">Category</label>
-        <select name="category_id" id="category-select" class="form-control" required>
-            <option value="">-- Select Category --</option>
-            @foreach($categories as $category)
-                <option value="{{ $category->id }}" {{ $products->category_id == $category->id ? 'selected' : '' }}>
-                    {{ $category->name }}
-                </option>
-            @endforeach
-        </select>
-    </div>
+                                <div class="mb-3">
+                                    <label for="category_id" class="form-label">Category</label>
+                                    <select name="category_id" id="category-select" class="form-control" required>
+                                        <option value="">-- Select Category --</option>
+                                        @foreach($categories as $category)
+                                            <option value="{{ $category->id }}" {{ old('category_id', $products->category_id) == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('category_id')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-  <!-- Short Info -->
-<div class="mb-3">
-    <label for="info" class="form-label">Short Info</label>
-    <textarea name="info" id="info" class="form-control summernote">{{ old('info', $products->info ?? '') }}</textarea>
-</div>
-<div class="mb-3">
-    <label for="link" class="form-label">Link</label>
-    <textarea name="link" id="link" class="form-control summernote">{{ old('link', $products->link ?? '') }}</textarea>
-</div>
+                                <div class="mb-3">
+                                    <label for="sub_category_id" class="form-label">Subcategory</label>
+                                    <select name="sub_category_id" id="subcategory-select" class="form-control" required>
+                                        <option value="">-- Select Subcategory --</option>
+                                        @foreach($subcategories as $subcategory)
+                                            <option value="{{ $subcategory->id }}" {{ old('sub_category_id', $products->sub_category_id) == $subcategory->id ? 'selected' : '' }}>
+                                                {{ $subcategory->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('sub_category_id')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-<!-- Description -->
-<div class="mb-3">
-    <label for="description" class="form-label">Description</label>
-    <textarea name="description" id="description" class="form-control summernote" rows="5">{{ old('description', $products->description ?? '') }}</textarea>
-</div>
+                                <div class="mb-3">
+                                    <label for="info" class="form-label">Short Info</label>
+                                    <textarea name="info" id="info" class="form-control summernote">{{ old('info', $products->info ?? '') }}</textarea>
+                                    @error('info')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
+                                <div class="mb-3">
+                                    <label for="link" class="form-label">Link</label>
+                                    <textarea name="link" id="link" class="form-control summernote">{{ old('link', $products->link ?? '') }}</textarea>
+                                    @error('link')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-    <div class="mb-3">
-        <label class="form-label">Availability</label>
-        <div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="availability" id="in_stock" value="in stock"
-                    {{ old('availability', $products->availability ?? '') == 'in stock' ? 'checked' : '' }}>
-                <label class="form-check-label" for="in_stock">In Stock</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="availability" id="out_of_stock" value="out of stock"
-                    {{ old('availability', $products->availability ?? '') == 'out of stock' ? 'checked' : '' }}>
-                <label class="form-check-label" for="out_of_stock">Out of Stock</label>
-            </div>
-        </div>
-    </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea name="description" id="description" class="form-control summernote" rows="5">{{ old('description', $products->description ?? '') }}</textarea>
+                                    @error('description')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-    <div class="mb-3">
-        <label class="form-label">Tags</label>
-        <div class="row">
-            @foreach($tags as $tag)
-                <div class="col-md-3">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" name="tags[]" value="{{ $tag->id }}" id="tag-{{ $tag->id }}"
-                            {{ in_array($tag->id, old('tags', $products->tags->pluck('id')->toArray())) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="tag-{{ $tag->id }}">{{ $tag->name }}</label>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Availability</label>
+                                    <div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="availability" id="in_stock" value="in stock"
+                                                {{ old('availability', $products->availability ?? '') == 'in stock' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="in_stock">In Stock</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="availability" id="out_of_stock" value="out of stock"
+                                                {{ old('availability', $products->availability ?? '') == 'out of stock' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="out_of_stock">Out of Stock</label>
+                                        </div>
+                                    </div>
+                                    @error('availability')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-    <div class="mb-3">
-        <label class="form-label">Specifications</label>
-        <div id="specification-wrapper">
-            @if(old('specifications'))
-                @foreach(old('specifications') as $index => $spec)
-                    <div class="row mb-2 spec-row">
-                        <div class="col-md-5">
-                            <input type="text" name="specifications[{{ $index }}][key]" class="form-control" placeholder="Key" value="{{ $spec['key'] ?? '' }}">
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" name="specifications[{{ $index }}][value]" class="form-control" placeholder="Value" value="{{ $spec['value'] ?? '' }}">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-danger remove-spec">X</button>
-                        </div>
-                    </div>
-                @endforeach
-            @elseif(isset($products) && $products->specifications->count())
-                @foreach($products->specifications as $index => $spec)
-                    <div class="row mb-2 spec-row">
-                        <div class="col-md-5">
-                            <input type="text" name="specifications[{{ $index }}][key]" class="form-control" placeholder="Key" value="{{ $spec->key }}">
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" name="specifications[{{ $index }}][value]" class="form-control" placeholder="Value" value="{{ $spec->value }}">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-danger remove-spec">X</button>
-                        </div>
-                    </div>
-                @endforeach
-            @else
-                <div class="row mb-2 spec-row">
-                    <div class="col-md-5">
-                        <input type="text" name="specifications[0][key]" class="form-control" placeholder="Key">
-                    </div>
-                    <div class="col-md-5">
-                        <input type="text" name="specifications[0][value]" class="form-control" placeholder="Value">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-danger remove-spec">X</button>
-                    </div>
-                </div>
-            @endif
-        </div>
-        <button type="button" class="btn btn-primary" id="add-spec">Add Specification</button>
-    </div>
+                                <div class="mb-3">
+                                    <label for="tags-select" class="form-label">Tags</label>
+                                    <select name="tags[]" id="tags-select" class="form-control" multiple>
+                                        @foreach($tags as $tag)
+                                            <option value="{{ $tag->id }}" {{ in_array($tag->id, old('tags', $products->tags->pluck('id')->toArray())) ? 'selected' : '' }}>
+                                                {{ $tag->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('tags')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-    <div class="mb-3">
-        <label class="form-label">Additional Options</label>
-        <div id="option-wrapper">
-            @if(old('options'))
-                @foreach(old('options') as $index => $option)
-                    <div class="row mb-2 option-row">
-                        <div class="col-md-5">
-                            <input type="text" name="options[{{ $index }}][key]" class="form-control" placeholder="Option Name" value="{{ $option['key'] ?? '' }}">
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" name="options[{{ $index }}][value]" class="form-control" placeholder="Option Value" value="{{ $option['value'] ?? '' }}">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-danger remove-option">X</button>
-                        </div>
-                    </div>
-                @endforeach
-            @elseif(isset($products) && $products->options->count())
-                @foreach($products->options as $index => $option)
-                    <div class="row mb-2 option-row">
-                        <div class="col-md-5">
-                            <input type="text" name="options[{{ $index }}][key]" class="form-control" placeholder="Option Name" value="{{ $option->key }}">
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" name="options[{{ $index }}][value]" class="form-control" placeholder="Option Value" value="{{ $option->value }}">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-danger remove-option">X</button>
-                        </div>
-                    </div>
-                @endforeach
-            @else
-                <div class="row mb-2 option-row">
-                    <div class="col-md-5">
-                        <input type="text" name="options[0][key]" class="form-control" placeholder="Option Name">
-                    </div>
-                    <div class="col-md-5">
-                        <input type="text" name="options[0][value]" class="form-control" placeholder="Option Value">
+                           <div class="mb-3">
+    <label class="form-label">Colors</label>
+    <div id="color-wrapper">
+        {{-- Load old input if validation fails --}}
+        @if(old('color'))
+            @foreach(old('color') as $index => $color)
+                <div class="row mb-2 color-row">
+                    <div class="col-md-10">
+                        <input type="text" name="color[]" class="form-control" placeholder="Enter color (e.g. Red, Blue)" value="{{ $color }}">
                     </div>
                     <div class="col-md-2">
-                        <button type="button" class="btn btn-danger remove-option">X</button>
+                        <button type="button" class="btn btn-danger remove-color">X</button>
                     </div>
                 </div>
-            @endif
-        </div>
-        <button type="button" class="btn btn-primary" id="add-option">Add Option</button>
-    </div>
-
-
-    <div class="mb-3">
-        <label class="form-label">Price</label>
-        <input type="number" name="price" step="0.01" class="form-control" required value="{{ old('price', $products->price) }}">
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Discount Price (optional)</label>
-        <input type="number" name="discount_price" step="0.01" class="form-control" value="{{ old('discount_price', $products->discount_price) }}">
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Upload Gallery Images (Multiple)</label>
-        <div class="border border-primary border-dashed rounded p-4 text-center" style="cursor: pointer;">
-            <input type="file" name="gallery_images[]" id="gallery_images" class="d-none" accept="image/*" multiple>
-
-            <div id="gallery-preview-container" class="d-flex flex-wrap justify-content-center gap-3">
-                @foreach($products->galleries as $img)
-                    <div class="position-relative preview-box"> {{-- Added preview-box class --}}
-                        <img src="{{ asset('storage/' . $img->image) }}" class="img-fluid rounded border" style="max-height: 120px;">
-                        <a href="{{ route('admin.products.gallery.delete', $img->id) }}"
-                           class="remove-btn delete-gallery-image" {{-- Changed classes for consistent styling --}}
-                           data-url="{{ route('admin.products.gallery.delete', $img->id) }}"
-                           title="Remove">
-                            &times;
-                        </a>
+            @endforeach
+        {{-- Load from DB when editing --}}
+        @elseif(!empty($products->color))
+            @foreach(explode(',', $products->color) as $index => $color)
+                <div class="row mb-2 color-row">
+                    <div class="col-md-10">
+                        <input type="text" name="color[]" class="form-control" placeholder="Enter color (e.g. Red, Blue)" value="{{ $color }}">
                     </div>
-                @endforeach
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-danger remove-color">X</button>
+                    </div>
+                </div>
+            @endforeach
+        @else
+            {{-- Default one field --}}
+            <div class="row mb-2 color-row">
+                <div class="col-md-10">
+                    <input type="text" name="color[]" class="form-control" placeholder="Enter color (e.g. Red)">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger remove-color">X</button>
+                </div>
             </div>
-
-            <div onclick="document.getElementById('gallery_images').click();">
-                <i style="font-size: 4.125rem !important;" class="bi bi-cloud-arrow-up text-primary"></i>
-                <p class="text-muted">Click to Upload or drag & drop</p>
-            </div>
-        </div>
+        @endif
     </div>
+    <button type="button" class="btn btn-primary" id="add-color">Add Color</button>
+</div>
 
-    <button type="submit" class="btn btn-primary">Update Product</button>
-</form>
 
+                                <div class="mb-3">
+                                    <label for="price" class="form-label">Price</label>
+                                    <input type="number" name="price" step="0.01" class="form-control" required value="{{ old('price', $products->price) }}">
+                                    @error('price')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="discount_price" class="form-label">Discount Price (optional)</label>
+                                    <input type="number" name="discount_price" step="0.01" class="form-control" value="{{ old('discount_price', $products->discount_price) }}">
+                                    @error('discount_price')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Gallery Images</label>
+                                    <div class="mb-3">
+                                        <label class="form-label">Add Image Links</label>
+                                        <div id="image-links-wrapper">
+                                            @if(old('image_links'))
+                                                @foreach(old('image_links') as $index => $link)
+                                                    <div class="row mb-2 image-link-row">
+                                                        <div class="col-md-10">
+                                                            <input type="text" name="image_links[{{ $index }}]" class="form-control" placeholder="Enter image URL (e.g., https://example.com/image.jpg)" value="{{ $link }}">
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <button type="button" class="btn btn-danger remove-image-link">X</button>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @elseif($products->galleries->count())
+                                                @foreach($products->galleries as $index => $gallery)
+                                                    @if(filter_var($gallery->image, FILTER_VALIDATE_URL))
+                                                        <div class="row mb-2 image-link-row">
+                                                            <div class="col-md-10">
+                                                                <input type="text" name="image_links[{{ $index }}]" class="form-control" placeholder="Enter image URL (e.g., https://example.com/image.jpg)" value="{{ $gallery->image }}">
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <button type="button" class="btn btn-danger remove-image-link">X</button>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                            @else
+                                                <div class="row mb-2 image-link-row">
+                                                    <div class="col-md-10">
+                                                        <input type="text" name="image_links[0]" class="form-control" placeholder="Enter image URL (e.g., https://example.com/image.jpg)">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <button type="button" class="btn btn-danger remove-image-link">X</button>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <button type="button" class="btn btn-primary" id="add-image-link">Add Image Link</button>
+                                        @error('image_links.*')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div id="gallery-drop-area" class="border border-primary border-dashed rounded p-4 text-center" style="cursor: pointer;">
+                                        <input type="file" name="gallery_images[]" id="gallery_images" class="d-none" multiple accept="image/*">
+                                        <div id="gallery-preview-container" class="d-flex flex-wrap justify-content-start gap-3 mt-3">
+                                            @foreach($products->galleries as $img)
+                                                <div class="position-relative preview-box">
+                                                    <img src="{{ filter_var($img->image, FILTER_VALIDATE_URL) ? $img->image : asset($img->image) }}" class="img-fluid rounded border" style="max-height: 120px;" alt="Gallery Image">
+                                                    <a href="{{ route('admin.products.deleteGalleryImage', $img->id) }}"
+                                                       class="remove-btn delete-gallery-image"
+                                                       data-url="{{ route('admin.products.deleteGalleryImage', $img->id) }}"
+                                                       title="Remove">
+                                                        &times;
+                                                    </a>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div>
+                                            <i style="font-size: 4.125rem !important;" class="bi bi-cloud-arrow-up text-primary"></i>
+                                            <p class="text-muted">Click to Upload or drag & drop multiple images</p>
+                                        </div>
+                                    </div>
+                                    @error('gallery_images.*')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Update Product</button>
+                            </form>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -261,184 +297,240 @@
         </div>
     </div>
 </div>
-@endsection
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-// Keep original gallery images logic separate if it's working for new uploads
 $(document).ready(function () {
-    // This part handles initial category-subcategory loading, if applicable
-    // If you need to pre-select subcategory based on product's category, you'll need more logic here
-    $('#category-select').on('change', function () {
-        let categoryId = $(this).val();
-        let subcategorySelect = $('#subcategory-select'); // Assuming you eventually add a subcategory select
+    // Initialize Select2 for tags
+    $('#tags-select').select2({
+        placeholder: 'Select or search tags',
+        allowClear: true,
+        closeOnSelect: false,
+        width: '100%',
+        theme: 'bootstrap-5',
+        minimumResultsForSearch: 1,
+        dropdownCssClass: 'select2-dropdown-tags',
+        matcher: function(params, data) {
+            if ($.trim(params.term) === '') {
+                return data;
+            }
+            if (typeof data.text === 'undefined') {
+                return null;
+            }
+            if (data.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1) {
+                return data;
+            }
+            return null;
+        }
+    }).on('select2:open', function() {
+        setTimeout(function() {
+            $('.select2-search__field').focus();
+        }, 100);
+    });
 
-        subcategorySelect.html('<option value="">-- Loading... --</option>');
+    // Initialize Summernote
+    $('.summernote').summernote({
+        placeholder: 'Type here...',
+        tabsize: 2,
+        height: 300,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['fontsize', ['fontsize']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['insert', ['link', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ]
+    });
 
-        if (categoryId) {
-            $.ajax({
-                url: '/admin/categories/' + categoryId + '/subcategories',
-                type: 'GET',
-                success: function (data) {
-                    subcategorySelect.html('<option value="">-- Select Subcategory --</option>');
-                    $.each(data, function (key, subcategory) {
-                        subcategorySelect.append('<option value="' + subcategory.id + '">' + subcategory.name + '</option>');
-                    });
-                    // If you have a current subcategory for the product and it's loaded, select it here
-                    // let currentSubcategoryId = {{ isset($products->subcategory_id) ? $products->subcategory_id : 'null' }};
-                    // if (currentSubcategoryId) {
-                    //     subcategorySelect.val(currentSubcategoryId);
-                    // }
-                },
-                error: function () {
-                    subcategorySelect.html('<option value="">-- Failed to load --</option>');
+    // Gallery image handling
+    const selectedImages = [];
+
+    $('#gallery-drop-area').on('click', function (e) {
+        e.stopPropagation();
+        $('#gallery_images').click();
+    });
+
+    $('#gallery_images').on('click', function (e) {
+        e.stopPropagation();
+    });
+
+    $('#gallery_images').on('change', function () {
+        const files = Array.from(this.files);
+        files.forEach(file => addToGallery(file));
+    });
+
+    function addToGallery(file) {
+        selectedImages.push(file);
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const previewBox = $(`
+                <div class="position-relative preview-box new-upload-preview">
+                    <span class="remove-btn">&times;</span>
+                    <img src="${e.target.result}" class="img-fluid rounded border" style="max-height: 120px;" alt="New Image">
+                </div>
+            `);
+            previewBox.find('.remove-btn').on('click', function () {
+                const idx = selectedImages.indexOf(file);
+                if (idx > -1) {
+                    selectedImages.splice(idx, 1);
+                    previewBox.remove();
+                    updateFileList();
                 }
             });
-        } else {
-            subcategorySelect.html('<option value="">-- Select Subcategory --</option>');
-        }
-    }).trigger('change'); // Trigger on page load to populate subcategories if a category is already selected
-
-
-    // Logic for new gallery image previews (client-side only)
-    $('#gallery_images').on('change', function () {
-        // Clear only the *newly selected* previews, existing ones are handled by the server-side loop
-        // If you want to replace all previews, adjust this logic
-        const newPreviewContainer = $('#gallery-preview-container');
-        // Filter out existing images when adding new ones to prevent duplication
-        newPreviewContainer.find('.new-upload-preview').remove(); // Remove temporary previews
-
-        const files = this.files;
-        if (files) {
-            [...files].forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    newPreviewContainer.append(`
-                        <div class="position-relative preview-box new-upload-preview">
-                            <img src="${e.target.result}" class="img-fluid rounded border" style="max-height: 120px;">
-                            {{-- No remove button for newly added images via JS, as they are part of the new file input --}}
-                        </div>
-                    `);
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-    });
-});
-</script>
-
-<script>
-$(document).on('click', '.delete-gallery-image', function (e) {
-    e.preventDefault(); // Prevent the default link behavior
-    let url = $(this).data('url'); // Get the URL from the data attribute
-    let csrfToken = $('meta[name="csrf-token"]').attr('content'); // Get CSRF token
-
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "This image will be permanently deleted.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Create a hidden form and submit it via POST
-            $('<form>', {
-                "id": "deleteGalleryImageForm",
-                "action": url,
-                "method": "POST" // Your route is defined as POST
-            }).append(
-                $('<input>', {
-                    "type": "hidden",
-                    "name": "_token",
-                    "value": csrfToken // Include CSRF token
-                })
-                // REMOVE THE _METHOD HIDDEN INPUT ENTIRELY
-                // Do NOT add this: $('<input>', { "type": "hidden", "name": "_method", "value": "DELETE" })
-            ).appendTo('body').submit();
-        }
-    });
-});
-</script>
-
-<script>
-// Dynamic Specifications and Options Logic
-$(document).ready(function () {
-    // Initialize specIndex based on existing specifications count or 0 if none
-    let specIndex = $('#specification-wrapper .spec-row').length;
-    if (specIndex === 0) { // If there are no existing specs and no old input, start with 0 for the first empty row
-        specIndex = 0;
+            $('#gallery-preview-container').append(previewBox);
+        };
+        reader.readAsDataURL(file);
+        updateFileList();
     }
 
-
-    $('#add-spec').click(function () {
-      $('#specification-wrapper').append(`
-        <div class="row mb-2 spec-row">
-          <div class="col-md-5">
-            <input type="text" name="specifications[${specIndex}][key]" class="form-control" placeholder="Key">
-          </div>
-          <div class="col-md-5">
-            <input type="text" name="specifications[${specIndex}][value]" class="form-control" placeholder="Value">
-          </div>
-          <div class="col-md-2">
-            <button type="button" class="btn btn-danger remove-spec">X</button>
-          </div>
-        </div>
-      `);
-      specIndex++;
-    });
-
-    $(document).on('click', '.remove-spec', function () {
-      $(this).closest('.spec-row').remove();
-    });
-
-    // Initialize optionIndex based on existing options count or 0 if none
-    let optionIndex = $('#option-wrapper .option-row').length;
-    if (optionIndex === 0) { // If no existing options and no old input, start with 0 for the first empty row
-        optionIndex = 0;
+    function updateFileList() {
+        const dataTransfer = new DataTransfer();
+        selectedImages.forEach(file => dataTransfer.items.add(file));
+        document.getElementById('gallery_images').files = dataTransfer.files;
     }
 
+    // Image link preview
+    $(document).on('input', 'input[name^="image_links"]', function () {
+        $('#gallery-preview-container').find('.url-preview').remove();
+        $('input[name^="image_links"]').each(function (index) {
+            const link = $(this).val().trim();
+            if (link && isValidImageUrl(link)) {
+                const previewBox = $(`
+                    <div class="position-relative preview-box url-preview">
+                        <span class="remove-btn" data-index="${index}">&times;</span>
+                        <img src="${link}" class="img-fluid rounded border" style="max-height: 120px;" alt="URL Preview">
+                    </div>
+                `);
+                previewBox.find('.remove-btn').on('click', function () {
+                    $(this).closest('.preview-box').remove();
+                    $('input[name="image_links[' + $(this).data('index') + ']"]').val('');
+                });
+                $('#gallery-preview-container').append(previewBox);
+            }
+        });
+    });
+
+    function isValidImageUrl(string) {
+        try {
+            new URL(string);
+            return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(string);
+        } catch (_) {
+            return false;
+        }
+    }
+
+    // Delete gallery image with SweetAlert confirmation
+    $(document).on('click', '.delete-gallery-image', function (e) {
+        e.preventDefault();
+        let url = $(this).data('url');
+        let $previewBox = $(this).closest('.preview-box');
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This image will be permanently deleted.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function () {
+                        $previewBox.fadeOut(300, function () {
+                            $(this).remove();
+                            Swal.fire('Deleted!', 'The image has been deleted.', 'success');
+                        });
+                    },
+                    error: function () {
+                        Swal.fire('Error!', 'Something went wrong while deleting.', 'error');
+                    }
+                });
+            }
+        });
+    });
+
+    // Image link handling
+    let linkIndex = {{ old('image_links') ? count(old('image_links')) : ($products->galleries->filter(function($gallery) { return filter_var($gallery->image, FILTER_VALIDATE_URL); })->count() ?: 1) }};
+    $('#add-image-link').on('click', function () {
+        const html = `
+            <div class="row mb-2 image-link-row">
+                <div class="col-md-10">
+                    <input type="text" name="image_links[${linkIndex}]" class="form-control" placeholder="Enter image URL (e.g., https://example.com/image.jpg)">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger remove-image-link">X</button>
+                </div>
+            </div>
+        `;
+        $('#image-links-wrapper').append(html);
+        linkIndex++;
+    });
+
+    $(document).on('click', '.remove-image-link', function () {
+        $(this).closest('.image-link-row').remove();
+    });
+
+    // Options handling
+    let optionIndex = {{ old('options') ? count(old('options')) : ($products->options->count() ?: 1) }};
     $('#add-option').click(function () {
-      $('#option-wrapper').append(`
-        <div class="row mb-2 option-row">
-          <div class="col-md-5">
-            <input type="text" name="options[${optionIndex}][key]" class="form-control" placeholder="Option Name">
-          </div>
-          <div class="col-md-5">
-            <input type="text" name="options[${optionIndex}][value]" class="form-control" placeholder="Option Value">
-          </div>
-          <div class="col-md-2">
-            <button type="button" class="btn btn-danger remove-option">X</button>
-          </div>
-        </div>
-      `);
-      optionIndex++;
+        $('#option-wrapper').append(`
+            <div class="row mb-2 option-row">
+                <div class="col-md-5">
+                    <input type="text" name="options[${optionIndex}][key]" class="form-control" placeholder="Option Name">
+                </div>
+                <div class="col-md-5">
+                    <input type="text" name="options[${optionIndex}][value]" class="form-control" placeholder="Option Value">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger remove-option">X</button>
+                </div>
+            </div>
+        `);
+        optionIndex++;
     });
 
     $(document).on('click', '.remove-option', function () {
-      $(this).closest('.option-row').remove();
+        $(this).closest('.option-row').remove();
     });
 });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
 <script>
-    $(document).ready(function () {
-        $('.summernote').summernote({
-            placeholder: 'Type here...',
-            tabsize: 2,
-            height: 300,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'italic', 'underline', 'clear']],
-                ['fontsize', ['fontsize']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ]
-        });
-    });
+document.getElementById('add-color').addEventListener('click', function () {
+    let wrapper = document.getElementById('color-wrapper');
+
+    let row = document.createElement('div');
+    row.classList.add('row', 'mb-2', 'color-row');
+
+    row.innerHTML = `
+        <div class="col-md-10">
+            <input type="text" name="color[]" class="form-control" placeholder="Enter color (e.g. Blue)">
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-danger remove-color">X</button>
+        </div>
+    `;
+
+    wrapper.appendChild(row);
+});
+
+document.addEventListener('click', function (e) {
+    if (e.target.classList.contains('remove-color')) {
+        e.target.closest('.color-row').remove();
+    }
+});
 </script>
+
+@endsection

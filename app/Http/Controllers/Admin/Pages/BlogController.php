@@ -21,7 +21,10 @@ class BlogController extends Controller
 
     public function create()
     {
-         $tags = Tag::all();
+$tags = Tag::whereNull('category_id')
+           ->whereNull('sub_category_id')
+           ->get();
+
         return view('admin.frontend.blog.create', compact('tags'));
     }
 
@@ -62,7 +65,9 @@ class BlogController extends Controller
 
     public function edit($id)
     {
-          $tags = Tag::all();
+$tags = Tag::whereNull('category_id')
+           ->whereNull('sub_category_id')
+           ->get();
       $blogs = Blog::with('tags')->findOrFail($id);
         // dd($blogs, $tags); 
         return view('admin.frontend.blog.edit', compact('blogs','tags'));
@@ -89,13 +94,15 @@ class BlogController extends Controller
     ];
 
     if ($request->hasFile('image')) {
-        // delete old image if exists
-        if ($blog->image && \Storage::disk('public')->exists($blog->image)) {
-            \Storage::disk('public')->delete($blog->image);
-        }
-
-        $data['image'] = $this->uploadImage($request->file('image'), 'blog');
+    // delete old image if exists
+    if ($blog->image && file_exists(public_path($blog->image))) {
+        unlink(public_path($blog->image));
     }
+
+    // upload new image in public/blog
+    $data['image'] = $this->uploadImage($request->file('image'), 'blog');
+}
+
 
     $blog->update($data);
 

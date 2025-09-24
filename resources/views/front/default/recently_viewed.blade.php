@@ -12,10 +12,17 @@
             @foreach($recentlyViewed as $item)
                 @if(!empty($item['image']))
                     <div class="rv-item">
-                        <a href="{{ route('product.details', $item['slug']) }}">
-                            <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}">
-                            <p>{{ Str::limit($item['name'], 20) }}</p>
-                        </a>
+                       @php
+    $imageUrl = filter_var($item['image'], FILTER_VALIDATE_URL) 
+                ? $item['image'] 
+                : asset($item['image']);
+@endphp
+
+<a href="{{ route('product.details', $item['slug']) }}">
+    <img src="{{ $imageUrl }}" alt="{{ $item['name'] }}">
+    <p class="no-dark">{{ Str::limit($item['name'], 20) }}</p>
+</a>
+
                     </div>
                 @endif
             @endforeach

@@ -9,7 +9,7 @@ class Order extends Model
 {
     protected $fillable = [
         'user_id', 'shipping_address_id', 'billing_address_id', 'shipping_method',
-        'payment_method', 'total', 'total_quantity', 'order_note', 'status','payment_proof','shipping_cost'
+        'payment_method', 'total', 'total_quantity', 'order_note', 'status','payment_proof','shipping_cost','shipping_cost','email'
     ];
 
     public function items() {

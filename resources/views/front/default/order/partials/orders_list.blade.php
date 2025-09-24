@@ -23,7 +23,7 @@
             @php
                 $galleryImage = optional($item->product->galleries->first())->image;
             @endphp
-            <img src="{{ asset('storage/' . ($galleryImage ?? 'default.png')) }}"
+            <img src="{{ asset(($galleryImage ?? 'default.png')) }}"
                  alt="{{ $item->product->name }}" 
                  class="me-3 rounded" 
                  width="70"

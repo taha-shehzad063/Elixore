@@ -5,7 +5,8 @@ use App\Http\Controllers\Default\FrontendController;
 use App\Http\Controllers\Default\ProductController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use App\Http\Controllers\Social\GoogleController;
 use App\Http\Controllers\Social\FacebookController;
 use App\Http\Controllers\Default\ReviewController;
@@ -58,7 +59,7 @@ Route::get('/latest-orders', function () {
         ->map(function($order) {
             return [
                 'id' => $order->order_id,
-                'image' => asset('storage/' . $order->product_image),
+                'image' => asset($order->product_image),
                 'product' => $order->product_name,
                 'slug' => $order->slug,
                 'time' => \Carbon\Carbon::parse($order->order_created_at)->diffForHumans(),
@@ -67,7 +68,12 @@ Route::get('/latest-orders', function () {
         });
 
     return response()->json($orders);
-});
+})->name('orders.latest');
+
+
+
+
+
 Route::get('/copy-storage', function () {
     Artisan::call('storage:link');
     return 'Storage link created successfully!';
@@ -76,13 +82,7 @@ Route::get('/copy-storage', function () {
 // Home Page
 Route::get('/', [FrontendController::class, 'home'])->name('main');
 
-Route::get('/testemail', function () {
-    Mail::raw('This is a test email from Gmail SMTP in Laravel.', function ($message) {
-        $message->to('tahashehzad063@gmail.com')
-                ->subject('Test Gmail SMTP');
-    });
-    return 'Email sent!';
-});
+
 Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 Route::get('/orders/detail/{hash}', [OrderController::class, 'show'])->name('orders.show');// Login Register
 Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
@@ -113,6 +113,8 @@ Route::get('/blog', [BlogController::class, 'blog'])->name('blog');
 Route::get('/blog-details/{slug}', [BlogController::class, 'detail'])->name('blogs.details');
 Route::post('/blog/comment', [BlogController::class, 'comment'])->name('blog.comment');
 Route::get('/blog/search', [BlogController::class, 'search'])->name('blog.search');
+//policy
+Route::get('policies/{slug}', [PolicyController::class, 'theslug'])->name('policy.show');
 
 Route::get('/blog/tag/{tag}', [BlogController::class, ' '])->name('blogs.byTag');
 //Review
@@ -128,11 +130,13 @@ Route::post('/send-otp', [ForgotPasswordController::class, 'sendOtp'])->name('pa
 Route::get('/verify-otp', function () {
     return view('front.default.verify-otp');
 })->name('password.otp.form');
-
+Route::get('get-cart-wishlist-counts', [PolicyController::class, 'wishlist'])->name('get.cart.wishlist.counts');
+Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 Route::post('/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('password.verify.otp');
-
+Route::get('/shop/subcategories/byCategory', [ShopController::class, 'getSubCategoriesByCategory'])->name('shop.subcategories.byCategory');
 Route::get('/product-details/{slug}', [ProductController::class, 'index'])->name('product.details');
-    Route::get('/category/{name}', [ShopController::class, 'categoryProducts'])->name('category.products');
+    Route::get('/category/{name}', [ShopController::class, 'category'])->name('category.products');
+Route::get('/{name}/{names}', [ShopController::class, 'subcategoryProducts'])->name('subcategory.products');
 Route::get('/product/{id}/reviews/summary', [ReviewController::class, 'summary'])->name('product.reviews.summary');
 Route::get('/products/{product}/reviews', [ProductController::class, 'reviews'])->name('product.reviews');
 Route::post('/store-user-email', [ReviewController::class, 'storeUserEmail'])->name('store.user.email');
@@ -142,15 +146,11 @@ Route::post('/review/update', [ReviewController::class, 'update'])->name('review
 Route::get('/change-password', [ProfileController::class, 'changePasswordForm'])
     ->name('change.password.form')
     ->middleware('auth');
-
+Route::get('/shop/tags/byCategoryOrSubcategory', [ShopController::class, 'getTagsByCategoryOrSubcategory'])->name('shop.tags.byCategoryOrSubcategory');
 Route::post('/change-password/user', [ProfileController::class, 'updatePasswordAjax'])
     ->name('change.password.ajax')
     ->middleware('auth');
 Route::get('/check-auth', [ProfileController::class, 'checkAuth'])->name('check.auth');
-// //Payments
-// Route::get('/pay', [PaymentController::class, 'showForm']);
-// Route::post('/pay/store', [PaymentController::class, 'initiatePayment']);
-// Route::post('/payment/response', [PaymentController::class, 'paymentResponse']);
 
 // Cart
 Route::get('/cart', [CartController::class, 'index'])->name('cart');
@@ -159,7 +159,7 @@ Route::post('/cart/add/wishlsit', [CartController::class, 'addwishlist'])->name(
 Route::post('/cart/update/{item}', [CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/remove/{item}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/note', [CartController::class, 'note'])->name('cart.note');
-Route::post('/cart/update/{id}', [CartController::class, 'updatecart'])->name('cart.update');
+
 Route::post('/cart/save-note', [CartController::class, 'saveNote'])->name('cart.saveNote');
 Route::post('/cart/delete-note', [CartController::class, 'deleteNote'])->name('cart.deleteNote');
 
@@ -175,18 +175,11 @@ Route::post('/order/upload-proof', [OrderController::class, 'uploadProof'])->nam
 Route::post('/checkout/save-total', [OrderController::class, 'saveCartTotal'])->name('checkout.saveTotal');
 
 
-//payment
-Route::get('/payment/alfah', [PaymentController::class, 'showForm']);
-Route::post('/payment/alfah/process', [PaymentController::class, 'submitAlfaForm']);
-Route::get('/payment/return', [PaymentController::class, 'handleReturn'])->name('alfa.return');
-Route::post('/payment/ipn', [PaymentController::class, 'handleIPN']);
-Route::post('/pay/alfapay', [PaymentController::class, 'payWithAlfa'])->name('pay.alfapay');
-// Route::post('/payment/return', [PaymentController::class, 'handleAlfaReturn'])->name('payment.return');
 
 
 //shop
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
-Route::get('/shop/tags/by-category', [\App\Http\Controllers\Default\Shop\ShopController::class, 'tagsByCategory'])->name('shop.tags.byCategory');
+Route::get('/shop/tags/by-category', [ShopController::class, 'tagsByCategory'])->name('shop.tags.byCategory');
 
 // Contact
 Route::get('/contact', [ContactController::class, 'show'])->name('contact');
@@ -196,13 +189,9 @@ Route::post('/contact', [ContactController::class, 'submit'])->name('contact.sub
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 
-//policy
-Route::get('{slug}', [PolicyController::class, 'show'])->name('policy.show');
 
 
 
-Route::get('get-cart-wishlist-counts', [PolicyController::class, 'wishlist'])->name('get.cart.wishlist.counts');
 
 
-// web.php
 

@@ -11,14 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->append([
-            \App\Http\Middleware\DisableCsrfForJazzCash::class,
+    ->withMiddleware(function (Middleware $middleware) {
+       
+        // Register the Admin middleware alias
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\Admin::class,
         ]);
-        $middleware->append([
-            \App\Http\Middleware\DeleteExpiredCarts::class,
-        ]);
-     
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

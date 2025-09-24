@@ -2,7 +2,7 @@
     <h3 class="widget_title no-dark">Suggested Posts</h3>
     @forelse($suggestedBlogs as $blog)
         <div class="media post_item no-dark">
-            <img src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->name }}"
+            <img src="{{ asset($blog->image) }}" alt="{{ $blog->name }}"
                 style="width: 80px; height: 60px; object-fit: cover;"
                 onerror="this.onerror=null;this.src='https://placehold.co/80x60/EFEFEF/AAAAAA?text=Image+Error';">
             <div class="media-body">

@@ -83,7 +83,6 @@ class OrderController extends Controller
     }
   public function orders()
     {
-        
         // Eager load relationships to avoid N+1 queries
         $orders = Order::with(['items.product', 'shippingAddress', 'billingAddress'])->get();
         return view('admin.frontend.order.index', compact('orders'));

@@ -170,7 +170,7 @@
             <div class="col-lg-8 posts-list">
                 <div class="single-post">
                     <div class="feature-img">
-                        <img class="img-fluid" src="{{ asset('storage/' . $blogs->image) }}" alt="{{ $blogs->name }}"
+                        <img class="img-fluid" src="{{ asset($blogs->image) }}" alt="{{ $blogs->name }}"
                             onerror="this.onerror=null;this.src='https://placehold.co/600x400/EFEFEF/AAAAAA?text=Image+Error';">
                     </div>
                     <div class="blog_details">
@@ -297,7 +297,7 @@
                         <h3 class="widget_title no-dark">Recent Posts</h3>
                         @foreach($latestBlogs as $blog)
                             <div class="media post_item no-dark">
-                                <img src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->name }}"
+                                <img src="{{ asset($blog->image) }}" alt="{{ $blog->name }}"
                                     style="width: 80px; height: 60px; object-fit: cover;"
                                     onerror="this.onerror=null;this.src='https://placehold.co/80x60/EFEFEF/AAAAAA?text=Image+Error';">
                                 <div class="media-body">
@@ -331,6 +331,8 @@
         </div>
     </div>
 </section>
+@endsection
+
 <!--================ End Single Post Area =================-->
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
@@ -355,12 +357,10 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': csrfToken
             },
             beforeSend: function () {
-                console.log('Sending AJAX request:', url, data);
                 $('#loading-overlay').show();
                 $('#sidebar-content').css('opacity', '0.5');
             },
             success: function (response) {
-                console.log('AJAX success:', response.substring(0, 100) + '...');
                 window.location.href = url; // Redirect to blog page
             },
             error: function (xhr, status, error) {
@@ -381,12 +381,10 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': csrfToken
             },
             beforeSend: function () {
-                console.log('Sending suggested blogs AJAX request:', url);
                 $('#loading-overlay').show();
                 $('#sidebar-content').css('opacity', '0.5');
             },
             success: function (response) {
-                console.log('Suggested blogs AJAX success:', response.substring(0, 100) + '...');
                 $('.suggested_post_widget').replaceWith(response);
                 $('#loading-overlay').hide();
                 $('#sidebar-content').css('opacity', '1');
@@ -435,12 +433,10 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': csrfToken
             },
             beforeSend: function () {
-                console.log('Sending comment AJAX request:', data);
                 $('#loading-overlay').show();
                 commentArea.css('opacity', '0.5');
             },
             success: function (response) {
-                console.log('Comment AJAX success:', response);
                 if (response.success) {
                     const comment = response.comment;
                     if (isReply) {
@@ -615,7 +611,6 @@ bindCommentPagination();
     if (typeof $ === 'undefined') {
         console.error('jQuery is not loaded.');
     } else {
-        console.log('jQuery loaded successfully.');
     }
 });
 </script>
@@ -634,4 +629,3 @@ bindCommentPagination();
 <script>
     
 </script>
-@endsection

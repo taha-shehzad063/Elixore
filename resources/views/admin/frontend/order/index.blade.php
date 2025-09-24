@@ -152,9 +152,9 @@
                                                     @endif
                                                 </td>
                                                 <td>{{ $order->user_id }}</td>
-                                                <td>${{ number_format($order->total, 2) }}</td>
+                                                <td>{{ number_format($order->total, 2) }}</td>
                                                 <td>{{ $order->total_quantity }}</td>
-                                                <td>${{ number_format($order->shipping_cost, 2) }}</td>
+                                                <td>{{ number_format($order->shipping_cost, 2) }}</td>
                                                 <td>
                                                     @php
                                                         $statusClasses = [
@@ -217,11 +217,13 @@
                                                                     <hr>
                                                                     <h6>Order Total</h6>
                                                                     <p><strong>Total:</strong> {{ number_format($order->total, 2) }}</p>
+                                                                    <h6>Email Contact</h6>
+                                                                    <p><strong>Email:</strong> {{ $order->email }}</p>
                                                                     <h6>Payment Method</h6>
                                                                     <p><strong>Total:</strong> {{ $order->payment_method }}</p>
                                                                     <h6>Payment Proof</h6>
                                                                     @if($order->payment_proof)
-                                                                        <img src="{{ asset('storage/' . $order->payment_proof) }}" alt="" width="80" class="rounded">
+                                                                        <img src="{{ asset($order->payment_proof) }}" alt="" width="80" class="rounded">
                                                                     @else
                                                                         <span>No Image</span>
                                                                     @endif
@@ -233,23 +235,51 @@
                                                                                     <th>Product</th>
                                                                                     <th>Image</th>
                                                                                     <th>Quantity</th>
+                                                                                    <th>Link</th>
                                                                                     <th>Price</th>
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody>
                                                                                 @foreach($order->items as $item)
+                                                                             
                                                                                     <tr>
                                                                                         <td>{{ $item->product->name ?? 'N/A' }}</td>
-                                                                                        <td>
-                                                                                            @if($item->product && $item->product->galleries->first() && $item->product->galleries->first()->image)
-                                                                                                <img src="{{ asset('storage/' . $item->product->galleries->first()->image) }}" alt="{{ $item->product->name ?? 'Product Image' }}" width="80" class="rounded">
-                                                                                            @else
-                                                                                                <span>No Image</span>
-                                                                                            @endif
-                                                                                        </td>
+                                                                                       <td>
+    @if($item->product && $item->product->galleries->first() && $item->product->galleries->first()->image)
+        @php
+            $imagePath = $item->product->galleries->first()->image;
+
+            if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+                // ✅ External URL (like CDN, S3, etc.)
+                $finalImage = $imagePath;
+            } else {
+                // ✅ Local storage or public/
+                if (\Illuminate\Support\Facades\Storage::exists($imagePath)) {
+                    $finalImage = Storage::url($imagePath); // storage/app/public/
+                } else {
+                    $finalImage = asset($imagePath); // fallback for public/
+                }
+            }
+        @endphp
+
+        <img src="{{ $finalImage }}"
+             alt="{{ $item->product->name ?? 'Product Image' }}"
+             width="80" class="rounded">
+    @else
+        <span>No Image</span>
+    @endif
+</td>
+
                                                                                         <td>{{ $item->quantity ?? 'N/A' }}</td>
-                                                                                        <td>{{ $item->link ?? 'N/A' }}</td>
-                                                                                        <td>${{ number_format($item->price ?? 0, 2) }}</td>
+<td>
+    <a href="{{ strip_tags($item->product->link ?? '#') }}" target="_blank">
+    {{ strip_tags($item->product->link ?? 'N/A') }}
+</a>
+
+
+
+</td>
+                                                                                        <td>{{ number_format($item->price ?? 0, 2) }}</td>
                                                                                     </tr>
                                                                                 @endforeach
                                                                             </tbody>

@@ -72,7 +72,7 @@
                     <input type="file" name="image" id="image" class="d-none" accept="image/*">
                     <div id="preview-container">
                       @if(!empty($setting->image))
-                        <img id="preview" src="{{ asset('storage/' . $setting->image) }}" alt="Image Preview" class="img-fluid rounded" style="max-height: 150px;">
+                        <img id="preview" src="{{ asset($setting->image) }}" alt="Image Preview" class="img-fluid rounded" style="max-height: 150px;">
                       @else
                         <img id="preview" src="#" alt="Image Preview" style="display: none; max-height: 150px;" class="img-fluid rounded">
                       @endif

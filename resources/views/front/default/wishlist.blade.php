@@ -34,10 +34,24 @@
                                             {{ $item->product->name }}
                                         </td>
                                         <td>
-                                            <img src="{{ asset('storage/' . ($item->product->galleries->first()->image ?? 'default.jpg')) }}"
-                                                 alt="{{ $item->product->name }}"
-                                                 class="img-fluid rounded shadow-sm"
-                                                 style="max-width:150px; height:auto;">
+                                         @php
+    $imagePath = $item->product->galleries->first()->image ?? 'default.jpg';
+
+    if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+        $finalImage = $imagePath; // ✅ External URL
+    } elseif (\Illuminate\Support\Facades\Storage::exists($imagePath)) {
+        $finalImage = Storage::url($imagePath); // ✅ Storage
+    } else {
+        $finalImage = asset($imagePath); // ✅ Public or default
+    }
+@endphp
+
+    <img src="{{ $finalImage }}"
+         alt="{{ $item->product->name }}"
+         class="img-fluid rounded shadow-sm"
+         style="max-width:150px; height:auto;">
+
+
                                         </td>
                                         <td class="fw-bold align-middle" style="color:#71cd14;">
                                             Rs{{ number_format($item->product->price, 2) }}

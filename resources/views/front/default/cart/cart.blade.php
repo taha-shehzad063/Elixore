@@ -45,10 +45,12 @@
                         @if($items->count())
                             <div class="alert alert-warning d-flex align-items-center mt-3">
                                 <i class="bi bi-info-circle-fill me-2"></i>
-                                <span>
-                                    ⏳ Hurry! One or more items in your cart are in high demand and will only be reserved for the next <strong>limited time</strong>. 
-                                    Complete your purchase before they’re released to others.
-                                </span>
+                               <span>
+    ⏳ Hurry! Some items in your cart are in high demand and will only be reserved for a <strong>short time</strong>. 
+    Complete your purchase within the next few minutes before they’re released to other shoppers. 
+    Note: Your cart will be automatically cleared after 45 minutes.
+</span>
+
                             </div>
 
                             <!-- Desktop Table View -->
@@ -80,22 +82,27 @@
                                                     <a href="{{ route('product.details', $item->product->slug) }}" class="fw-semibold text-dark">
                                                         {{ $item->product->name }}
                                                     </a>
-                                                    @if($item->selected_options && count($item->selected_options) > 0)
-                                                        <div class="mt-2">
-                                                            <small class="text-muted">Selected Options:</small>
-                                                            <div class="d-flex flex-wrap gap-1 mt-1">
-                                                                @foreach($item->selected_options as $option)
-                                                                    <span class="badge" style="background: linear-gradient(135deg, #71cd14 0%, #5bb300 100%); color: white; font-size: 0.75rem; border-radius: 6px; padding: 4px 8px;">
-                                                                        {{ $option['key'] }}: {{ $option['value'] }}
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
+                                                
                                                 </td>
-                                                <td>
-                                                    <img style="height:100px;width:100px;" src="{{ asset('storage/' . ($item->product->galleries->first()->image ?? 'default.jpg')) }}" width="60" class="rounded shadow-sm" alt="{{ $item->product->name }}">
-                                                </td>
+                                               @php
+    $imagePath = $item->product->galleries->first()->image ?? 'default.jpg';
+
+    if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+        $finalImage = $imagePath; // ✅ External URL
+    } elseif (\Illuminate\Support\Facades\Storage::exists($imagePath)) {
+        $finalImage = Storage::url($imagePath); // ✅ Storage
+    } else {
+        $finalImage = asset($imagePath); // ✅ Public or default
+    }
+@endphp
+
+<td>
+    <img src="{{ $finalImage }}"
+         alt="{{ $item->product->name }}"
+         class="rounded shadow-sm"
+         style="height:auto; width:100px;">
+</td>
+
                                                 <td>
                                                     <span class="fw-bold price" style="color:#71cd14;">Rs{{ number_format($cartBasePrice, 2) }}</span>
                                                 </td>
@@ -107,17 +114,7 @@
                                                         <a href="#" class="btn btn-outline-danger btn-sm ms-2 rounded-pill remove-cart-item" data-id="{{ $item->id }}">
                                                             <i class="bi bi-trash"></i>
                                                         </a>
-                                                        @if($item->product->options && $item->product->options->count() > 0)
-                                                            <a href="#" class="btn btn-outline-primary btn-sm ms-1 rounded-pill edit-options" 
-                                                               data-id="{{ $item->id }}" 
-                                                               data-product="{{ $item->product->id }}"
-                                                               data-selected="{{ json_encode($item->selected_options ?? []) }}"
-                                                               data-base-price="{{ $cartBasePrice }}"
-                                                               data-product-base-price="{{ $productBasePrice }}">
-                                                                <i class="bi bi-gear"></i>
-                                                                <small class="d-block">{{ $item->selected_options && count($item->selected_options) > 0 ? 'Edit' : 'Add' }} Options</small>
-                                                            </a>
-                                                        @endif
+                                                     
                                                     </div>
                                                 </td>
                                                 <td>
@@ -135,24 +132,29 @@
                             <!-- Mobile Card View -->
                             <div class="d-lg-none">
                                 @foreach($items as $item)
-                                    @php
-                                        $cartBasePrice = $item->price; // Base price from cart table
-                                        $productBasePrice = $item->product->price; // Base price from product table
-                                        $total = $cartBasePrice * $item->quantity;
-                                        if ($item->selected_options && count($item->selected_options) > 0) {
-                                            $optionValue = array_sum(array_column($item->selected_options, 'value'));
-                                            $total += $optionValue * $item->quantity;
-                                        }
-                                    @endphp
+                                   
                                     <div class="card mb-3 cart-item-card" data-item="{{ $item->id }}" data-created="{{ $item->created_at ?? now()->setTimezone('Asia/Karachi')->toISOString() }}" data-base-price="{{ $cartBasePrice }}" data-options="{{ json_encode($item->selected_options ?? []) }}" data-total="{{ $total }}">
                                         <div class="card-body">
                                             <div class="row">
-                                                <div class="col-4">
-                                                    <img src="{{ asset('storage/' . ($item->product->galleries->first()->image ?? 'default.jpg')) }}" 
-                                                         class="img-fluid rounded" 
-                                                         style="height: 120px; width: 100%; object-fit: cover;" 
-                                                         alt="{{ $item->product->name }}">
-                                                </div>
+                                               @php
+    $imagePath = $item->product->galleries->first()->image ?? 'default.jpg';
+
+    if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+        $finalImage = $imagePath; // ✅ External URL
+    } elseif (\Illuminate\Support\Facades\Storage::exists($imagePath)) {
+        $finalImage = Storage::url($imagePath); // ✅ Storage
+    } else {
+        $finalImage = asset($imagePath); // ✅ Public or default
+    }
+@endphp
+
+<div class="col-4">
+    <img src="{{ $finalImage }}" 
+         class="img-fluid rounded" 
+         style="height: 120px; width: 100%; object-fit: cover;" 
+         alt="{{ $item->product->name }}">
+</div>
+
                                                 <div class="col-8">
                                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                                         <h6 class="card-title mb-1">
@@ -164,18 +166,7 @@
                                                             <i class="bi bi-x"></i>
                                                         </a>
                                                     </div>
-                                                    @if($item->selected_options && count($item->selected_options) > 0)
-                                                        <div class="mb-2">
-                                                            <small class="text-muted">Selected Options:</small>
-                                                            <div class="d-flex flex-wrap gap-1 mt-1">
-                                                                @foreach($item->selected_options as $option)
-                                                                    <span class="badge" style="background: linear-gradient(135deg, #71cd14 0%, #5bb300 100%); color: white; font-size: 0.7rem; border-radius: 4px; padding: 2px 6px;">
-                                                                        {{ $option['key'] }}: {{ $option['value'] }}
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
+                                                  
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                         <div class="price-section">
                                                             <span class="fw-bold price" style="color:#71cd14; font-size: 1.1rem;">Rs{{ number_format($cartBasePrice, 2) }}</span>
@@ -193,22 +184,9 @@
                                                             <strong>Total: <span class="item-total" style="color:#71cd14;">Rs{{ number_format($total, 2) }}</span></strong>
                                                         </div>
                                                         <div class="timer-section">
-                                                            <span class="badge bg-warning text-dark fw-semibold timer-message" id="timer-{{ $item->id }}">⏳ Loading...</span>
                                                         </div>
                                                     </div>
-                                                    @if($item->product->options && $item->product->options->count() > 0)
-                                                        <div class="mt-2">
-                                                            <a href="#" class="btn btn-outline-primary btn-sm edit-options" 
-                                                               data-id="{{ $item->id }}" 
-                                                               data-product="{{ $item->product->id }}"
-                                                               data-selected="{{ json_encode($item->selected_options ?? []) }}"
-                                                               data-base-price="{{ $cartBasePrice }}"
-                                                               data-product-base-price="{{ $productBasePrice }}">
-                                                                <i class="bi bi-gear me-1"></i>
-                                                                {{ $item->selected_options && count($item->selected_options) > 0 ? 'Edit' : 'Add' }} Options
-                                                            </a>
-                                                        </div>
-                                                    @endif
+                                                
                                                 </div>
                                             </div>
                                         </div>
@@ -284,15 +262,30 @@
 
                         <div class="explore-more-section mt-5">
                             <div class="row">
-                                @foreach($latestProducts as $product)
                                 <h3 class="text-center mb-4 fw-bold" style="color:#71cd14;">Explore More</h3>
-                                    <div class="col-lg-3 col-md-6 col-6 mb-3">
+                                @foreach($latestProducts as $product)
+                                    <div class="col-lg-3 col-md-6 col-12 mb-3">
+                                        <a href="{{ route('product.details', $product->slug) }}" class="text-decoration-none">
+
                                         <div class="product-card h-100">
                                             <div class="position-relative">
-                                                <img src="{{ asset('storage/' . ($product->galleries->first()->image ?? 'default.jpg')) }}" 
-                                                     class="img-fluid rounded" 
-                                                     style="height: 200px; width: 100%; object-fit: cover;" 
-                                                     alt="{{ $product->name }}">
+                                                                                                            @php
+                                                                $imagePath = $product->galleries->first()->image ?? 'default.jpg';
+
+                                                                if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+                                                                    $finalImage = $imagePath; // ✅ External URL
+                                                                } elseif (\Illuminate\Support\Facades\Storage::exists($imagePath)) {
+                                                                    $finalImage = Storage::url($imagePath); // ✅ Storage path
+                                                                } else {
+                                                                    $finalImage = asset($imagePath); // ✅ Public path or default
+                                                                }
+                                                            @endphp
+
+                                                            <img src="{{ $finalImage }}" 
+                                                                class="img-fluid rounded" 
+                                                                style="height: 200px; width: 100%; object-fit: cover;" 
+                                                                alt="{{ $product->name }}">
+
                                                 @if($product->discount > 0)
                                                     <span class="badge bg-danger position-absolute top-0 end-0 m-2">Sale {{ $product->discount }}%</span>
                                                 @endif
@@ -302,7 +295,7 @@
                                                     Quick Add
                                                 </button>
                                             </div>
-                                            <div class="p-3">
+                                            <div class="p-3 no-dark">
                                                 <h6 class="fw-bold text-dark mb-1" style="font-size: 0.9rem; line-height: 1.3;">
                                                     {{ Str::limit($product->name, 50) }}
                                                 </h6>
@@ -316,12 +309,13 @@
                                                 </div>
                                             </div>
                                         </div>
+                                                            </a>
                                     </div>
                                 @endforeach
                             </div>
                         </div>
 
-                        <div class="col-8 ms-auto">
+                        <div class="col-lg-8 col-12 ms-auto">
                             <div class="delivery-msg">
                                 <h3>
                                     <b>We deliver your products fast with our trusted partners:</b>
@@ -343,6 +337,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.43/moment-timezone-with-data.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
 function updateCartTotals() {
@@ -350,7 +345,6 @@ function updateCartTotals() {
     const isDesktopView = window.matchMedia("(min-width: 992px)").matches;
     const selector = isDesktopView ? '#cartTable tbody tr' : '.cart-item-card';
 
-    console.log('Updating cart totals for view:', isDesktopView ? 'Desktop' : 'Mobile');
 
     // Reset all item totals before recalculation
     $(selector).find('.item-total').text('Rs0.00');
@@ -365,7 +359,6 @@ function updateCartTotals() {
         const optionsAttr = $(this).attr('data-options');
         try {
             options = optionsAttr ? JSON.parse(optionsAttr) : [];
-            console.log('Item ID:', itemId, 'Base Price:', basePrice, 'Quantity:', quantity, 'Options:', options);
         } catch (e) {
             console.warn('Invalid JSON in data-options for item:', itemId, 'Value:', optionsAttr, 'Error:', e.message);
             options = [];
@@ -373,14 +366,12 @@ function updateCartTotals() {
 
         const optionValue = options.length > 0 ? arraySum(options.map(opt => parseFloat(opt.value) || 0)) : 0;
         const total = (basePrice * quantity) + (optionValue * quantity);
-        console.log('Item ID:', itemId, 'Calculated Total:', total, 'Base:', basePrice * quantity, 'Options:', optionValue * quantity);
 
         $(this).find('.item-total').text('Rs' + total.toFixed(2));
         $(this).data('total', total);
         subtotal += total;
     });
 
-    console.log('Calculated subtotal:', subtotal);
     $('#cartSubtotal, #cartTotal').text('Rs' + subtotal.toFixed(2));
 }
 
@@ -428,22 +419,23 @@ $(document).ready(function () {
         container.data('total', total);
         updateCartTotals();
 
-        $.ajax({
-            url: '/cart/update/' + itemId,
-            type: 'POST',
-            data: {
-                quantity: quantity,
-                _token: '{{ csrf_token() }}'
-            },
-            success: function (res) {
-                if (res.status) {
-                    console.log('Quantity updated for item:', itemId);
-                }
-            },
-            error: function () {
-                Swal.fire('Error', 'Failed to update quantity', 'error');
-            }
-        });
+      $.ajax({
+    url: "{{ route('cart.update', ['item' => ':id']) }}".replace(':id', itemId),
+    type: 'POST',
+    data: {
+        quantity: quantity,
+        _token: '{{ csrf_token() }}'
+    },
+    success: function (res) {
+        if (res.status) {
+            // do your update logic here
+        }
+    },
+    error: function () {
+        Swal.fire('Error', 'Failed to update quantity', 'error');
+    }
+});
+
     });
 
     // Remove item from cart
@@ -462,27 +454,28 @@ $(document).ready(function () {
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-                $.ajax({
-                    url: '/cart/remove/' + itemId,
-                    type: 'POST',
-                    data: { _token: '{{ csrf_token() }}' },
-                    success: function (res) {
-                        if (res.status) {
-                            Swal.fire({
-                                title: 'Removed!',
-                                text: 'Item has been removed.',
-                                icon: 'success',
-                                timer: 1500,
-                                showConfirmButton: false
-                            }).then(() => {
-                                location.reload();
-                            });
-                        }
-                    },
-                    error: function () {
-                        Swal.fire('Error', 'Failed to remove item', 'error');
-                    }
-                });
+             $.ajax({
+    url: "{{ route('cart.remove', ['item' => ':id']) }}".replace(':id', itemId),
+    type: 'POST',
+    data: { _token: '{{ csrf_token() }}' },
+    success: function (res) {
+        if (res.status) {
+            Swal.fire({
+                title: 'Removed!',
+                text: 'Item has been removed.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                location.reload();
+            });
+        }
+    },
+    error: function () {
+        Swal.fire('Error', 'Failed to remove item', 'error');
+    }
+});
+
             }
         });
     });
@@ -538,48 +531,49 @@ $(document).ready(function () {
         currentEditingItemId = itemId;
 
         $.ajax({
-            url: '/api/product-options/' + productId,
-            type: 'GET',
-            success: function (res) {
-                if (res.status) {
-                    let optionsHtml = '<div class="mb-3"><label><strong>Options:</strong></label><div class="d-block">';
-                    const hasSelectedOptions = selectedOptions.length > 0;
-                    optionsHtml += `
-                        <label class="btn btn-outline-dark option-label mb-1 ${!hasSelectedOptions ? 'active' : ''}">
-                            <input type="radio" name="product_option" class="option-input d-none" 
-                                   data-price="0" 
-                                   data-key="No Options"
-                                   value="none" 
-                                   ${!hasSelectedOptions ? 'checked' : ''}
-                                   data-product-base-price="${productBasePrice}">
-                            <span>No Options (Base Price: Rs${productBasePrice.toFixed(2)})</span>
-                        </label>
-                    `;
-                    res.options.forEach(function (option) {
-                        const isSelected = selectedOptions.some(selected => selected.id == option.id);
-                        const priceText = option.value > 0 ? ` (+Rs${option.value})` : '';
-                        optionsHtml += `
-                            <label class="btn btn-outline-dark option-label mb-1 ${isSelected ? 'active' : ''}">
-                                <input type="radio" name="product_option" class="option-input d-none" 
-                                       data-price="${option.value || 0}" 
-                                       data-key="${option.key}"
-                                       value="${option.id}" 
-                                       ${isSelected ? 'checked' : ''}>
-                                <span>${option.key}${priceText} (Base Price: Rs${currentBasePrice.toFixed(2)})</span>
-                            </label>
-                        `;
-                    });
-                    optionsHtml += '</div></div>';
-                    optionsHtml += '<div class="price-display"><strong>Updated Price: </strong><span id="modalPrice">Rs' + (currentBasePrice).toFixed(2) + '</span></div>';
-                    $('#optionsContainer').html(optionsHtml);
-                    $('#optionsModal').modal('show');
-                    updateModalPrice(itemId);
-                }
-            },
-            error: function () {
-                Swal.fire('Error', 'Failed to load options', 'error');
-            }
-        });
+    url: "{{ route('api.product.options', ['id' => ':id']) }}".replace(':id', productId),
+    type: 'GET',
+    success: function (res) {
+        if (res.status) {
+            let optionsHtml = '<div class="mb-3"><label><strong>Options:</strong></label><div class="d-block">';
+            const hasSelectedOptions = selectedOptions.length > 0;
+            optionsHtml += `
+                <label class="btn btn-outline-dark option-label mb-1 ${!hasSelectedOptions ? 'active' : ''}">
+                    <input type="radio" name="product_option" class="option-input d-none" 
+                           data-price="0" 
+                           data-key="No Options"
+                           value="none" 
+                           ${!hasSelectedOptions ? 'checked' : ''}
+                           data-product-base-price="${productBasePrice}">
+                    <span>No Options (Base Price: Rs${productBasePrice.toFixed(2)})</span>
+                </label>
+            `;
+            res.options.forEach(function (option) {
+                const isSelected = selectedOptions.some(selected => selected.id == option.id);
+                const priceText = option.value > 0 ? ` (+Rs${option.value})` : '';
+                optionsHtml += `
+                    <label class="btn btn-outline-dark option-label mb-1 ${isSelected ? 'active' : ''}">
+                        <input type="radio" name="product_option" class="option-input d-none" 
+                               data-price="${option.value || 0}" 
+                               data-key="${option.key}"
+                               value="${option.id}" 
+                               ${isSelected ? 'checked' : ''}>
+                        <span>${option.key}${priceText} (Base Price: Rs${currentBasePrice.toFixed(2)})</span>
+                    </label>
+                `;
+            });
+            optionsHtml += '</div></div>';
+            optionsHtml += '<div class="price-display"><strong>Updated Price: </strong><span id="modalPrice">Rs' + (currentBasePrice).toFixed(2) + '</span></div>';
+            $('#optionsContainer').html(optionsHtml);
+            $('#optionsModal').modal('show');
+            updateModalPrice(itemId);
+        }
+    },
+    error: function () {
+        Swal.fire('Error', 'Failed to load options', 'error');
+    }
+});
+
     });
 
     function updateModalPrice(itemId) {
@@ -646,33 +640,40 @@ $(document).ready(function () {
 
         $('#saveOptions').prop('disabled', true).html('<i class="spinner-border spinner-border-sm me-2"></i>Saving...');
 
-        $.ajax({
-            url: '/cart/update/' + currentEditingItemId,
-            type: 'POST',
-            data: {
-                options: selectedOptions.map(opt => opt.id === 'none' ? null : opt.id).filter(id => id !== null),
-                _token: '{{ csrf_token() }}'
-            },
-            success: function (res) {
-                if (res.status) {
-                    $('#optionsModal').modal('hide');
-                    container.find('.item-total').text('Rs' + total.toFixed(2));
-                    container.attr('data-options', JSON.stringify(selectedOptions));
-                    container.data('total', total);
-                    updateCartTotals();
-                    const message = selectedOptions.length > 0 && selectedOptions[0].id !== 'none' ? 'Options updated successfully!' : 'Options cleared successfully!';
-                    Swal.fire('Success', message, 'success').then(() => {
-                        location.reload();
-                    });
-                }
-            },
-            error: function () {
-                Swal.fire('Error', 'Failed to update options', 'error');
-            },
-            complete: function () {
-                $('#saveOptions').prop('disabled', false).text('Save Changes');
-            }
-        });
+      $.ajax({
+    url: "{{ route('cart.update', ['item' => ':id']) }}".replace(':id', currentEditingItemId),
+    type: 'POST',
+    data: {
+        options: selectedOptions
+            .map(opt => opt.id === 'none' ? null : opt.id)
+            .filter(id => id !== null),
+        _token: '{{ csrf_token() }}'
+    },
+    success: function (res) {
+        if (res.status) {
+            $('#optionsModal').modal('hide');
+            container.find('.item-total').text('Rs' + total.toFixed(2));
+            container.attr('data-options', JSON.stringify(selectedOptions));
+            container.data('total', total);
+            updateCartTotals();
+
+            const message = selectedOptions.length > 0 && selectedOptions[0].id !== 'none'
+                ? 'Options updated successfully!'
+                : 'Options cleared successfully!';
+
+            Swal.fire('Success', message, 'success').then(() => {
+                location.reload();
+            });
+        }
+    },
+    error: function () {
+        Swal.fire('Error', 'Failed to update options', 'error');
+    },
+    complete: function () {
+        $('#saveOptions').prop('disabled', false).text('Save Changes');
+    }
+});
+
     });
 
     // Quick Add functionality
@@ -711,7 +712,6 @@ $(document).ready(function () {
         function updateAllTimers() {
             const now = moment().tz('Asia/Karachi');
             const isMobileView = !window.matchMedia("(min-width: 992px)").matches;
-            console.log('Updating timers, View:', isMobileView ? 'Mobile' : 'Desktop', 'Time:', now.format());
 
             $('#cartTable tbody tr:visible, .cart-item-card:visible').each(function () {
                 updateTimerForItem($(this), now);
@@ -730,11 +730,9 @@ $(document).ready(function () {
                 const timerElement = $('#timer-' + itemId);
 
                 if (timerElement.hasClass('timer-updated')) {
-                    console.log('Timer for Item ID:', itemId, 'already updated, skipping');
                     return;
                 }
 
-                console.log('Processing timer for Item ID:', itemId, 'Created At:', createdAt, 'Timer Element ID:', timerElement.attr('id'), 'Current HTML:', timerElement.prop('outerHTML'));
 
                 if (!createdAt || !timerElement.length) {
                     console.warn('Skipping timer for item:', itemId, 'Created At:', createdAt, 'Timer Element:', timerElement.length);
@@ -755,34 +753,33 @@ $(document).ready(function () {
                     }
                 }
 
-                console.log('Parsed createdTime:', createdTime.format());
 
                 const expireTime = createdTime.clone().add(45, 'minutes');
                 const remaining = expireTime.diff(now, 'milliseconds');
 
-                console.log('Item ID:', itemId, 'Expire Time:', expireTime.format(), 'Remaining (ms):', remaining);
 
                 if (remaining <= 0) {
-                    timerElement.html('⏳ Time expired! Item will be removed...');
-                    container.fadeOut(1000, function () {
-                        $.ajax({
-                            url: '/cart/remove/' + itemId,
-                            type: 'POST',
-                            data: { _token: '{{ csrf_token() }}' },
-                            success: function (res) {
-                                if (res.status) {
-                                    container.remove();
-                                    updateCartTotals();
-                                    Swal.fire('Removed', 'Item has been removed due to expired timer.', 'info');
-                                }
-                            },
-                            error: function () {
-                                Swal.fire('Error', 'Failed to remove expired item', 'error');
-                            }
-                        });
-                    });
-                    return;
+    timerElement.html('⏳ Time expired! Item will be removed...');
+    container.fadeOut(1000, function () {
+        $.ajax({
+            url: "{{ route('cart.remove', ['item' => ':id']) }}".replace(':id', itemId),
+            type: 'POST',
+            data: { _token: '{{ csrf_token() }}' },
+            success: function (res) {
+                if (res.status) {
+                    container.remove();
+                    updateCartTotals();
+                    Swal.fire('Removed', 'Item has been removed due to expired timer.', 'info');
                 }
+            },
+            error: function () {
+                Swal.fire('Error', 'Failed to remove expired item', 'error');
+            }
+        });
+    });
+    return;
+}
+
 
                 const mins = Math.floor(remaining / 60000);
                 const secs = Math.floor((remaining % 60000) / 1000);
@@ -793,7 +790,6 @@ $(document).ready(function () {
                     const currentText = timerElement.text();
                     timerElement.html(msg);
                     const newText = timerElement.text();
-                    console.log('Updated timer for Item ID:', itemId, 'Old Text:', currentText, 'New Text:', newText, 'Message:', msg, 'Updated HTML:', timerElement.prop('outerHTML'));
                     if (newText !== msg) {
                         console.error('DOM update failed for Item ID:', itemId, 'Expected:', msg, 'Got:', newText);
                         timerElement.html(msg);
@@ -828,10 +824,8 @@ $(document).ready(function () {
             const desktopItems = $('#cartTable tbody tr');
             const mobileItems = $('.cart-item-card');
             const isMobileView = !window.matchMedia("(min-width: 992px)").matches;
-            console.log(`Retry ${retryCount + 1}/${maxRetries} - Desktop items: ${desktopItems.length}, Mobile items: ${mobileItems.length}, View: ${isMobileView ? 'Mobile' : 'Desktop'}`);
 
             if (desktopItems.length > 0 || mobileItems.length > 0) {
-                console.log('Cart items found, starting timers');
                 startCountdownTimers();
             } else if (retryCount < maxRetries) {
                 retryCount++;
@@ -850,7 +844,6 @@ $(document).ready(function () {
 
         const observer = new MutationObserver(function (mutations) {
             if ($('#cartTable tbody tr').length > 0 || $('.cart-item-card').length > 0) {
-                console.log('Cart items detected via MutationObserver, starting timers');
                 startCountdownTimers();
                 observer.disconnect();
             }
@@ -863,7 +856,6 @@ $(document).ready(function () {
 
         setTimeout(function () {
             observer.disconnect();
-            console.log('MutationObserver stopped after 30 seconds');
         }, 30000);
     }
 
@@ -883,10 +875,10 @@ $(document).ready(function () {
             </div>
             <div class="modal-body">
                 <div class="alert alert-info mb-3">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <small>Select the options you want for this product. You can select multiple options or none at all.</small>
+                    <i class="bi bi-info-circle me-2 no-dark"></i>
+                    <small class="no-dark">Select the options you want for this product. You can select multiple options or none at all.</small>
                 </div>
-                <div id="optionsContainer">
+                <div class="no-dark" id="optionsContainer">
                     <!-- Options will be loaded here -->
                 </div>
             </div>

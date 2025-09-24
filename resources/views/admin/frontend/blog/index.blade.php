@@ -48,7 +48,7 @@
                                             <td>{{ $blog->name }}</td>
                                             <td>
                                                 @if($blog->image)
-                                                    <img src="{{ asset('storage/' . $blog->image) }}" alt="blog" width="80" class="rounded">
+                                                    <img src="{{ asset($blog->image) }}" alt="blog" width="80" class="rounded">
                                                 @endif
                                             </td>
                                             <td class="text-center">

@@ -10,6 +10,7 @@ use App\Models\CollectionBanner;
 use App\Models\Cart;
 use App\Models\Review;
 use App\Models\CartItem;
+use Illuminate\Support\Facades\Session;
 use App\Models\Product;
 use App\Models\Blog;
 use App\Models\Tag;
@@ -21,8 +22,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 class PolicyController extends Controller
 {
-public function show($slug)
+public function theslug($slug)
 {
+ 
     $policy = Policy::where('slug', $slug)->firstOrFail();
 
     // Extract all image URLs from HTML content
@@ -34,19 +36,32 @@ public function show($slug)
         'images' => $images,
     ]);
 }
-public function wishlist(){
- $cartCount = 0;
-    $wishlistCount = 0;
-    
-    if (Auth::check()) {
-        $cart = Cart::where('user_id', Auth::id())->where('status', 'active')->first();
+ public function wishlist()
+    {
+        $cartCount = 0;
+        $wishlistCount = 0;
+
+        // Fetch cart based on session_id or user_id if authenticated
+        $cart = Cart::where(function ($q) {
+            $q->where('session_id', Session::getId());
+            if (Auth::check()) {
+                $q->orWhere('user_id', Auth::id());
+            }
+        })->where('status', 'active')->first();
+
         $cartCount = $cart ? $cart->items()->count() : 0;
-        $wishlistCount = Wishlist::where('user_id', Auth::id())->count();
+
+        // Fetch wishlist based on session_id or user_id if authenticated
+        $wishlistCount = Wishlist::where(function ($q) {
+            $q->where('session_id', Session::getId());
+            if (Auth::check()) {
+                $q->orWhere('user_id', Auth::id());
+            }
+        })->count();
+
+        return response()->json([
+            'cartCount' => $cartCount,
+            'wishlistCount' => $wishlistCount
+        ]);
     }
-    
-    return response()->json([
-        'cartCount' => $cartCount,
-        'wishlistCount' => $wishlistCount
-    ]);
-}
 }

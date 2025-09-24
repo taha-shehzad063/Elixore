@@ -10,10 +10,15 @@ use App\Models\Address;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\CartItem;
+use App\Mail\OrderConfirmation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\CheckoutOption;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
+
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 use DB;
 use App\Traits\UploadsImages;
@@ -27,69 +32,78 @@ class OrderController extends Controller
 {
             use UploadsImages;
 public function checkout()
-{
-    $countries = [];
+    {
+       
 
-    try {
-        $response = Http::get('https://www.apicountries.com/countries');
-        if ($response->successful()) {
-            $countries = $response->json();
+        // Fetch cart based on session_id or user_id if authenticated
+        $cart = Cart::where(function ($q) {
+            $q->where('session_id', Session::getId());
+            if (Auth::check()) {
+                $q->orWhere('user_id', Auth::id());
+            }
+        })->where('status', 'active')->first();
+
+        $items = $cart ? $cart->items()->with('product')->get() : collect();
+
+        // Fetch addresses based on session_id or user_id if authenticated
+        $addresses = Address::where(function ($q) {
+            $q->where('session_id', Session::getId());
+            if (Auth::check()) {
+                $q->orWhere('user_id', Auth::id());
+            }
+        })->get();
+
+        $checkoutOptions = CheckoutOption::where('status', 1)->get();
+
+        $cartSubtotal = $cart?->total ?? 0;
+
+        // If subtotal is 0, calculate manually from products
+        if ($cartSubtotal == 0 && $items->isNotEmpty()) {
+            $cartSubtotal = $items->reduce(function ($carry, $item) {
+                $productPrice = $item->product->sale_price ?? $item->product->price ?? 0;
+                return $carry + ($productPrice * $item->quantity);
+            }, 0);
         }
-    } catch (\Exception $e) {
-        // Log error if needed
+
+        return view('front.default.checkout.checkout', compact(
+            'items',
+            'cartSubtotal',
+            'addresses',
+            'cart',
+            'checkoutOptions'
+        ));
     }
 
-    $user = Auth::user();
-    $cart = Cart::where('user_id', $user->id)->where('status', 'active')->first();
-    $items = $cart ? $cart->items()->with('product')->get() : collect();
-    $addresses = Address::where('user_id', $user->id)->get();
-    $checkoutOptions = CheckoutOption::where('status', 1)->get();
+ public function saveCartTotal(Request $request)
+    {
+        $request->validate([
+            'total' => 'required|numeric|min:0',
+        ]);
 
-$cartSubtotal = $cart?->total ?? 0;
+        // Fetch cart based on session_id or user_id if authenticated
+        $cart = Cart::where(function ($q) {
+            $q->where('session_id', Session::getId());
+            if (Auth::check()) {
+                $q->orWhere('user_id', Auth::id());
+            }
+        })->where('status', 'active')->first();
 
-// If subtotal is 0, calculate manually from products
-if ($cartSubtotal == 0 && $items->isNotEmpty()) {
-    $cartSubtotal = $items->reduce(function ($carry, $item) {
-        $productPrice = $item->product->sale_price ?? $item->product->price ?? 0;
-        return $carry + ($productPrice * $item->quantity);
-    }, 0);
-}
-// dd($cartSubtotal);
-    return view('front.default.checkout.checkout', compact(
-        'items',
-        'cartSubtotal',
-        'addresses',
-        'cart',
-        'countries',
-        'checkoutOptions'
-    ));
-}
+        if (!$cart) {
+            return redirect()->back()->with('error', 'Cart not found.');
+        }
 
+        $cart->total = $request->input('total');
+        $cart->save();
 
-public function saveCartTotal(Request $request)
-{
-    $request->validate([
-        'total' => 'required|numeric|min:0',
-    ]);
-
-    $user = Auth::user();
-
-    $cart = Cart::where('user_id', $user->id)->where('status', 'active')->first();
-
-    if (!$cart) {
-        return redirect()->back()->with('error', 'Cart not found.');
+        return redirect()->route('checkout')->with('success', 'Total saved successfully!');
     }
-
-    $cart->total = $request->input('total');
-    $cart->save();
-
-    return redirect()->route('checkout')->with('success', 'Total saved successfully!');
-}
 
     public function placeOrder(Request $request)
     {
-            $total = $request->input('total'); // Use the total sent from the form
-        
+       
+        $total = $request->input('total'); // Use the total sent from the form
+       
+
         $shippingOption = CheckoutOption::where('type', 'shipping')
             ->where('key', $request->shipping_method)
             ->first();
@@ -98,11 +112,9 @@ public function saveCartTotal(Request $request)
             ? $shippingOption->shipping_cost
             : 0;
 
-        // dd($shippingCost);
-                $validShippingMethods = CheckoutOption::where('type', 'shipping')->pluck('key')->toArray();
-                $validPaymentMethods = CheckoutOption::where('type', 'payment')->pluck('key')->toArray();
+        $validShippingMethods = CheckoutOption::where('type', 'shipping')->pluck('key')->toArray();
+        $validPaymentMethods = CheckoutOption::where('type', 'payment')->pluck('key')->toArray();
 
-        // dd($request->all());
         $request->validate([
             'shipping_method' => ['required', Rule::in($validShippingMethods)],
             'payment_method' => ['required', Rule::in($validPaymentMethods)],
@@ -114,9 +126,14 @@ public function saveCartTotal(Request $request)
             'shipping_address.country' => 'required|string',
         ]);
 
-        $user = Auth::user();
-        $cart = Cart::where('user_id', $user->id)->where('status', 'active')->first();
-  
+        // Fetch cart based on session_id or user_id if authenticated
+        $cart = Cart::where(function ($q) {
+            $q->where('session_id', Session::getId());
+            if (Auth::check()) {
+                $q->orWhere('user_id', Auth::id());
+            }
+        })->where('status', 'active')->first();
+
         if (!$cart || $cart->items->count() === 0) {
             return response()->json([
                 'status' => false,
@@ -129,7 +146,8 @@ public function saveCartTotal(Request $request)
 
             // Save shipping address
             $shipping = Address::create([
-                'user_id' => $user->id,
+                'user_id' => Auth::check() ? Auth::id() : null,
+                'session_id' => Session::getId(),
                 'type' => 'shipping',
                 'name' => $request->shipping_address['name'],
                 'phone' => $request->shipping_address['phone'],
@@ -144,7 +162,8 @@ public function saveCartTotal(Request $request)
             $billing = null;
             if ($request->address_option == 'billing') {
                 $billing = Address::create([
-                    'user_id' => $user->id,
+                    'user_id' => Auth::check() ? Auth::id() : null,
+                    'session_id' => Session::getId(),
                     'type' => 'billing',
                     'name' => $request->billing_address['name'],
                     'phone' => $request->billing_address['phone'],
@@ -156,23 +175,24 @@ public function saveCartTotal(Request $request)
                 ]);
             }
 
-
             $totalQty = $items->sum('quantity');
-            
+
             // Create order
             $order = Order::create([
-                'user_id' => $user->id,
+                'user_id' => Auth::check() ? Auth::id() : null,
+                'session_id' => Session::getId(),
                 'shipping_address_id' => $shipping->id,
                 'billing_address_id' => $billing ? $billing->id : $shipping->id,
                 'shipping_method' => $request->shipping_method,
-                    'shipping_cost' => $shippingCost,
-
+                'shipping_cost' => $shippingCost,
                 'payment_method' => $request->payment_method,
                 'total' => $total,
                 'total_quantity' => $totalQty,
+                'email' => $request->email,
                 'order_note' => $request->order_note,
                 'status' => 'pending',
             ]);
+         
 
             // Create order items
             foreach ($items as $item) {
@@ -183,6 +203,26 @@ public function saveCartTotal(Request $request)
                     'price' => $item->price,
                 ]);
             }
+
+            // Send email notifications
+    try {
+    $order->load('items.product.galleries');
+
+    // Send to user
+    Notification::route('mail', $request->email)
+        ->notify(new OrderPlacedNotification($order));
+
+    // Send to fixed email
+    Notification::route('mail', 'tahashehzad063@gmail.com')
+        ->notify(new OrderPlacedNotification($order));
+
+} catch (\Exception $e) {
+    \Log::error('Failed to send order confirmation email: ' . $e->getMessage());
+}
+
+
+            // Notify user if authenticated
+         
 
             // Clear cart
             $cart->items()->delete();
@@ -197,13 +237,11 @@ public function saveCartTotal(Request $request)
                     'message' => 'Order placed! Please upload your payment proof.'
                 ]);
             }
-            $user->notify(new OrderPlacedNotification($order->load('items.product.galleries')));
 
-            // If COD, just thank you
             return response()->json([
                 'status' => true,
                 'show_proof_modal' => false,
-                'message' => 'Order placed successfully! Thank you for your order.You will be get an Email Confirmation.'
+                'message' => 'Order placed successfully! Thank you for your order. You will receive an email confirmation.'
             ]);
         }
 
@@ -215,30 +253,33 @@ public function saveCartTotal(Request $request)
             'message' => 'Please upload your payment proof to complete your order.'
         ]);
     }
+
     public function uploadProof(Request $request)
     {
-        
-        
+         
         $request->validate([
             'proof_image' => 'required|image|max:2048',
             'order_data' => 'required'
         ]);
-        
+
         $orderData = json_decode($request->order_data, true);
         $total = $orderData['total'] ?? 0;
-        // dd($total);
-            $shippingOption = CheckoutOption::where('type', 'shipping')
-                        ->where('key', $orderData['shipping_method'])
-                        ->first();
 
-            $shippingCost = $shippingOption ? ($shippingOption->shipping_cost ?? 0) : 0;
-                    // dd($shippingCost);
-                    // Validate required fields in $orderData as needed
+        $shippingOption = CheckoutOption::where('type', 'shipping')
+            ->where('key', $orderData['shipping_method'])
+            ->first();
+
+        $shippingCost = $shippingOption ? ($shippingOption->shipping_cost ?? 0) : 0;
 
         DB::beginTransaction();
         try {
-            $user = Auth::user();
-            $cart = Cart::where('user_id', $user->id)->where('status', 'active')->first();
+            // Fetch cart based on session_id or user_id if authenticated
+            $cart = Cart::where(function ($q) {
+                $q->where('session_id', Session::getId());
+                if (Auth::check()) {
+                    $q->orWhere('user_id', Auth::id());
+                }
+            })->where('status', 'active')->first();
 
             if (!$cart || $cart->items->count() === 0) {
                 return response()->json([
@@ -246,18 +287,19 @@ public function saveCartTotal(Request $request)
                     'message' => 'Your cart is empty or not found. Please add items to your cart first.'
                 ]);
             }
+
             $items = $cart->items;
 
             // Save shipping address
             $shipping = Address::create([
-                'user_id' => $user->id,
+                'user_id' => Auth::check() ? Auth::id() : null,
+                'session_id' => Session::getId(),
                 'type' => 'shipping',
                 'name' => $orderData['shipping_address']['name'],
                 'phone' => $orderData['shipping_address']['phone'],
                 'address' => $orderData['shipping_address']['address'],
                 'city' => $orderData['shipping_address']['city'],
                 'state' => $orderData['shipping_address']['state'] ?? null,
-                
                 'zip' => $orderData['shipping_address']['zip'] ?? null,
                 'country' => $orderData['shipping_address']['country'],
             ]);
@@ -266,7 +308,8 @@ public function saveCartTotal(Request $request)
             $billing = null;
             if ($orderData['address_option'] == 'billing') {
                 $billing = Address::create([
-                    'user_id' => $user->id,
+                    'user_id' => Auth::check() ? Auth::id() : null,
+                    'session_id' => Session::getId(),
                     'type' => 'billing',
                     'name' => $orderData['billing_address']['name'],
                     'phone' => $orderData['billing_address']['phone'],
@@ -278,27 +321,29 @@ public function saveCartTotal(Request $request)
                 ]);
             }
 
-                     $totalQty = $items->sum('quantity');
+            $totalQty = $items->sum('quantity');
 
             // Save proof image
             $path = $this->uploadImage($request->file('proof_image'), 'proof_image');
 
             // Create order
             $order = Order::create([
-                'user_id' => $user->id,
+                'user_id' => Auth::check() ? Auth::id() : null,
+                'session_id' => Session::getId(),
                 'shipping_address_id' => $shipping->id,
                 'billing_address_id' => $billing ? $billing->id : $shipping->id,
                 'shipping_method' => $orderData['shipping_method'],
                 'payment_method' => $orderData['payment_method'],
                 'total' => $total,
                 'shipping_cost' => $shippingCost,
-
                 'total_quantity' => $totalQty,
                 'order_note' => $orderData['order_note'] ?? null,
+                'email' => $orderData['email'],
                 'status' => 'awaiting_verification',
                 'payment_proof' => $path,
             ]);
-            // dd($order);
+
+            // Create order items
             foreach ($items as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -307,19 +352,42 @@ public function saveCartTotal(Request $request)
                     'price' => $item->price,
                 ]);
             }
-            $user->notify(new OrderPlacedNotification($order->load('items.product.galleries')));
 
+            // Send email notifications
+       try {
+    $order->load('items.product.galleries');
+
+    // Send to user
+    Notification::route('mail', $request->email)
+        ->notify(new OrderPlacedNotification($order));
+
+    // Send to fixed email
+    Notification::route('mail', 'tahashehzad063@gmail.com')
+        ->notify(new OrderPlacedNotification($order));
+
+} catch (\Exception $e) {
+    \Log::error('Failed to send order confirmation email: ' . $e->getMessage());
+}
+
+
+            // Notify user if authenticated
+            if (Auth::check()) {
+                Auth::user()->notify(new OrderPlacedNotification($order->load('items.product.galleries')));
+            }
+
+            // Clear cart
             $cart->items()->delete();
             $cart->delete();
 
             DB::commit();
 
-            return response()->json(['status' => true, 'message' => 'Proof uploaded! Thank you for your order.You will be get an Email Confirmation']);
+            return response()->json(['status' => true, 'message' => 'Proof uploaded! Thank you for your order. You will receive an email confirmation.']);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['status' => false, 'message' => 'Order failed!']);
         }
-    }private function decodeOrderId($hash)
+    }
+    private function decodeOrderId($hash)
     {
         $secret = env('APP_KEY', 'yourfallbacksecret');
         $decoded = base64_decode($hash, true);

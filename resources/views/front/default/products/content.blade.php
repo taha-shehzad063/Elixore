@@ -355,7 +355,6 @@ $(document).ready(function () {
             data.category = categoryId; // Only send category param on /shop
         }
 
-        console.log('Filter data:', data);
 
         let ajaxUrl = categoryRoute ? categoryRoute : "{{ route('shop.index') }}";
 
@@ -367,20 +366,17 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': csrfToken
             },
             beforeSend: function () {
-                console.log('Sending AJAX request...');
                 showSkeleton();
                 $('#loading-overlay').show();
                 $('#product-list').css('opacity', '1');
             },
             success: function (response) {
-                console.log('AJAX success:', response.html ? response.html.substring(0, 100) + '...' : response);
                 setTimeout(function() {
                     $('#product-list').html(response.html);
                     $('#tags-list').html(response.tags);
                     $('#tags-list-mobile').html(response.tags);
                     // Rebind tag change events
                     $('.filter-tag').off('change').on('change', function () {
-                        console.log('Tag changed:', $(this).val());
                         filterProducts();
                     });
                     $('#loading-overlay').hide();
@@ -423,19 +419,16 @@ $(document).ready(function () {
                     'X-CSRF-TOKEN': csrfToken
                 },
                 beforeSend: function () {
-                    console.log('Sending pagination AJAX request...');
                     showSkeleton();
                     $('#loading-overlay').show();
                     $('#product-list').css('opacity', '1');
                 },
                 success: function (response) {
-                    console.log('Pagination success:', response.html ? response.html.substring(0, 100) + '...' : response);
                     setTimeout(function() {
                         $('#product-list').html(response.html);
                         $('#tags-list').html(response.tags);
                         $('#tags-list-mobile').html(response.tags);
                         $('.filter-tag').off('change').on('change', function () {
-                            console.log('Tag changed:', $(this).val());
                             filterProducts();
                         });
                         $('#loading-overlay').hide();
@@ -478,7 +471,6 @@ $(document).ready(function () {
     $('.view-mode-btn').on('click', function () {
         selectedGridMode = $(this).data('cols');
         localStorage.setItem('selectedGridMode', selectedGridMode);
-        console.log('View mode changed:', selectedGridMode);
         applyGridMode();
         filterProducts();
     });
@@ -497,7 +489,6 @@ $(document).ready(function () {
                 $('#tags-list').html(response.html);
                 $('#tags-list-mobile').html(response.html);
                 $('.filter-tag').off('change').on('change', function () {
-                    console.log('Tag changed:', $(this).val());
                     filterProducts();
                 });
             },
@@ -505,7 +496,6 @@ $(document).ready(function () {
                 console.error('Tags fetch error:', status, error, xhr.responseText);
             }
         });
-        console.log('Category selected:', $(this).val());
         $('.filter-category-label').removeClass('active');
         $(this).closest('.filter-category-label').addClass('active');
         filterProducts();
@@ -513,7 +503,6 @@ $(document).ready(function () {
 
     // Sort Filter
     $('.filter-sort').on('change', function () {
-        console.log('Sort selected:', $(this).val());
         $('.filter-sort-label').removeClass('active');
         $(this).closest('.filter-sort-label').addClass('active');
         filterProducts();
@@ -521,13 +510,11 @@ $(document).ready(function () {
 
     // Tag Filter
     $('.filter-tag').on('change', function () {
-        console.log('Tag changed:', $(this).val());
         filterProducts();
     });
 
     // Per Page
     $('#per_page').on('change', function () {
-        console.log('Per page changed:', $(this).val());
         filterProducts();
     });
 
@@ -677,12 +664,10 @@ $(document).ready(function () {
     if (typeof $ === 'undefined') {
         console.error('jQuery is not loaded.');
     } else {
-        console.log('jQuery loaded successfully.');
     }
     if (typeof $.ui === 'undefined') {
         console.error('jQuery UI is not loaded.');
     } else {
-        console.log('jQuery UI loaded successfully.');
     }
 
     // Initial tags load for category route
@@ -698,7 +683,6 @@ $(document).ready(function () {
                 $('#tags-list').html(response.html);
                 $('#tags-list-mobile').html(response.html);
                 $('.filter-tag').off('change').on('change', function () {
-                    console.log('Tag changed:', $(this).val());
                     filterProducts();
                 });
             },

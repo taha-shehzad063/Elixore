@@ -2,7 +2,7 @@
     @forelse ($blogs as $blog)
         <article class="blog_item">
             <div class="blog_item_img">
-                <img class="card-img rounded-0" src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->name }}"
+                <img class="card-img rounded-0" src="{{ asset($blog->image) }}" alt="{{ $blog->name }}"
                     onerror="this.onerror=null;this.src='https://placehold.co/600x400/EFEFEF/AAAAAA?text=Image+Error';">
                 <a href="{{ route('blogs.details', $blog->slug) }}" class="blog_item_date">
                     <h3>{{ $blog->created_at->format('d') }}</h3>

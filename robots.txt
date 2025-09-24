@@ -1,0 +1,33 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://roshnipk.store/sitemap.xml
+
+# Directories to disallow for all crawlers
+Disallow: /admin/
+Disallow: /ajax/
+Disallow: /cgi-bin/
+Disallow: /checkout/
+Disallow: /account/
+
+# Files to disallow
+Disallow: /cart.php
+Disallow: /password.php
+Disallow: /search.php
+
+# Allow media files
+Allow: /assets/
+Allow: /storage/
+
+# Allow specific file types
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.webp$
+
+# Crawl delay (1 request per second)
+Crawl-delay: 1

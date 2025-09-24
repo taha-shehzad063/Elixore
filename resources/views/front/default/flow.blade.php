@@ -17,9 +17,9 @@
 ">
     <img id="popup-img" src="" alt="" style="width:60px;height:60px;object-fit:cover;border-radius:6px;margin-right:10px">
     <div style="font-size:14px;line-height:1.4">
-        <strong>Someone recently bought</strong><br>
-        <span id="popup-product"></span><br>
-        <small id="popup-time"></small>
+        <strong class="no-dark">Someone recently bought</strong><br>
+        <span class="no-dark" id="popup-product"></span><br>
+        <small class="no-dark" id="popup-time"></small>
     </div>
 </a>
 
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let showing = false;
 
     function fetchOrders() {
-        $.getJSON('/latest-orders', function(data) {
+        $.getJSON("{{ route('orders.latest') }}", function(data) {
             let newOrders = data.filter(o => !seenOrders.includes(o.id));
             if (newOrders.length > 0) {
                 queue.push(...newOrders);
@@ -51,7 +51,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
-
     function showNext() {
         if (queue.length === 0) {
             showing = false;

@@ -38,7 +38,6 @@
     }
 
     .no-orders-container {
-        background-color: #f8f9fa;
         padding: 50px 20px;
         border-radius: 8px;
         text-align: center;
@@ -119,7 +118,9 @@
 
   
 </div>
+@endsection
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
     // Tab switching functionality
@@ -177,4 +178,3 @@ $(document).ready(function() {
     });
 });
 </script>
-@endsection

@@ -9,11 +9,12 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::get('/watching-count', function(Request $request){
+
+Route::get('/watching-count', function (Request $request) {
     return response()->json([
         'count' => rand(15, 35)
     ]);
-});
+})->name('api.watching.count');
 // API Routes
 Route::get('/product-price/{id}', [ProductController::class, 'getPrice'])->name('api.product.price');
 

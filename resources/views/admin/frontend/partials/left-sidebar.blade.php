@@ -72,11 +72,23 @@
           </a>
         </li>
         <li class="sidebar-item mb-1">
+          <a class="sidebar-link {{ Request::routeIs('subcategories.*') ? 'active' : '' }}" href="{{ route('admin.subcategories.index') }}">
+            <span><iconify-icon icon="solar:box-bold-duotone" class="fs-6"></iconify-icon></span>
+            <span class="hide-menu ms-2">Sub Categories</span>
+          </a>
+        </li>
+        <li class="sidebar-item mb-1">
           <a class="sidebar-link {{ Request::routeIs('checkout-options.*') ? 'active' : '' }}" href="{{ route('admin.checkout-options.index') }}">
 <span><iconify-icon icon="solar:cart-check-bold-duotone" class="fs-6"></iconify-icon></span>
             <span class="hide-menu ms-2">Checkout Options</span>
           </a>
         </li>
+      <a class="sidebar-link {{ Request::routeIs('admin.contact-messages.*') ? 'active' : '' }}"
+   href="{{ route('admin.contact-messages.index') }}">
+   <span><iconify-icon icon="solar:cart-check-bold-duotone" class="fs-6"></iconify-icon></span>
+   <span class="hide-menu ms-2">Contact</span>
+</a>
+
        <li class="sidebar-item mb-1">
   <a class="sidebar-link {{ Request::routeIs('policy.*') ? 'active' : '' }}" href="{{ route('admin.policy.index') }}">
     <span><iconify-icon icon="mdi:file-document-edit-outline" class="fs-6"></iconify-icon></span>
